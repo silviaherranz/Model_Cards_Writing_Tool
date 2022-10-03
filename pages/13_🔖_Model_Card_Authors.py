@@ -1,0 +1,27 @@
+import streamlit as st
+from persist import persist, load_widget_state
+from middleMan import get_card,writingPrompt,apply_view
+#from specific_extraction import extract_it
+
+
+global variable_output
+
+def main():
+    cs_body()
+   
+
+
+def cs_body():
+    # Model Cards
+    #card = get_card()
+    #card.save('current_editable.md')
+    
+    st.markdown('# Model Card Authors [optional]')
+    st.text_area("This section provides another layer of transparency and accountability. Whose views is this model card representing? How many voices were included in its construction? Etc.",height = 180, key=persist("the_authors"))
+    
+    
+    
+
+if __name__ == '__main__':
+    load_widget_state()
+    main()

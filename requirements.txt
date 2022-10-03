@@ -1,0 +1,4 @@
+streamlit
+modelcards==0.1.2
+pandas
+lxml
