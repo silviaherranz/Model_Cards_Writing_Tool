@@ -112,6 +112,10 @@ def main():
             "Model_details_text": "",
             "Model_developers": "",
 
+            "Machine_Learning_Type":[],
+            "Modality":[],
+            "Supervision_learning_method":[],
+
             "Model_how_to": "",
             
             "Model_uses": "",
@@ -171,6 +175,8 @@ def main():
 
     warning_placeholder = st.empty()
 
+    Supervision_learning_method_list = ["Unsupervised","Semi-supervised","Self-supervised","Supervised"]
+
     st.text_input("Model Name", key=persist("model_name"))
     st.text_area("Model Description", help="The model description provides basic details about the model. This includes the architecture, version, if it was introduced in a paper, if an original implementation is available, the author, and general information about the model. Any copyright should be attributed here. General information about training procedures, parameters, and important disclaimers can also be mentioned in this section.", key=persist('model_description'))
     st.multiselect("Language(s)", list(languages_map), format_func=lambda x: languages_map[x], help="The language(s) associated with this model. If this is not a text-based model, you should specify whatever lanuage is used in the dataset. For instance, if the dataset's labels are in english, you should select English here.", key=persist("languages"))
@@ -185,6 +191,7 @@ def main():
     st.text_input("Related GitHub Repository", help="Link to a GitHub repository used in the development of this model", key=persist("github_url"))
     st.text_area("Bibtex Citation", help="Bibtex citations for related work", key=persist("bibtex_citations"))
     st.text_input("Carbon Emitted:", help="You can estimate carbon emissions using the [Machine Learning Impact calculator](https://mlco2.github.io/impact#compute) presented in [Lacoste et al. (2019)](https://arxiv.org/abs/1910.09700)", key=persist("Model_c02_emitted"))
+    
     # warnings setting
     languages=st.session_state.languages or None
     license=st.session_state.license or None
