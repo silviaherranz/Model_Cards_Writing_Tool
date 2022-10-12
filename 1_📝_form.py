@@ -147,6 +147,7 @@ def main():
             "Model_cite": "",
             "paper_url": "",
             "github_url": "",
+            "blog_url":"",
             "bibtex_citation": "",
             "APA_citation":"",
 
@@ -189,6 +190,7 @@ def main():
     st.text_input("Author(s) (comma separated)", help="The authors who developed this model. If you trained this model, the author is you.", key=persist("the_authors"))
     st.text_input("Related Research Paper", help="Research paper related to this model.", key=persist("paper_url"))
     st.text_input("Related GitHub Repository", help="Link to a GitHub repository used in the development of this model", key=persist("github_url"))
+    st.text_input("Related Blog Post", help="Link to a blog post related to this model.", key=persist("blog_url"))
     st.text_area("Bibtex Citation", help="Bibtex citations for related work", key=persist("bibtex_citations"))
     st.text_input("Carbon Emitted:", help="You can estimate carbon emissions using the [Machine Learning Impact calculator](https://mlco2.github.io/impact#compute) presented in [Lacoste et al. (2019)](https://arxiv.org/abs/1910.09700)", key=persist("Model_c02_emitted"))
     

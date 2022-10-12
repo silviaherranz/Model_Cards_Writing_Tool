@@ -136,10 +136,10 @@
 - **Language(s) (NLP):** {{ language | join(', ') | default("More information needed", true)}}
 - **License:** {{ license | default("More information needed", true)}}
 - **Related Models:** {{ related_models | join(', ') | default("More information needed", true)}}
-    - **Parent Model:** {{ parent_model | default("More information needed", true)}}
+  - **Parent Model:** {{ parent_model | default("More information needed", true)}}
 - **Resources for more information:** {{ more_resources | default("More information needed", true)}}
 {{ "    - [GitHub Repo]({0})".format(repo_link) if repo_link }}
-{{ "    - [Associated Paper]({0})".format(paper_link) if paper_link }} 
+{{ "    - [Associated Paper]({0})".format(paper_link) if paper_link }}
 {{ "    - [Blog Post]({0})".format(blog_link) if blog_link }}
 
 # Uses

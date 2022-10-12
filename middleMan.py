@@ -19,8 +19,12 @@ def is_float(value):
 def parse_into_jinja_markdown():
     env = Environment(loader=FileSystemLoader('.'), autoescape=True)
     temp = env.get_template(st.session_state.markdown_upload)
-    
+    # to add: 
+    # - parent model
+    # to fix:
+        # citation on form: check box for bibtex or apa: then parse 
     return (temp.render(model_id = st.session_state["model_name"],
+        language = st.session_state["languages"],
         the_model_description = st.session_state["model_description"],developers=st.session_state["Model_developers"],shared_by = st.session_state["shared_by"],license = st.session_state['license'],
             direct_use = st.session_state["Direct_Use"], downstream_use = st.session_state["Downstream_Use"],out_of_scope_use = st.session_state["Out-of-Scope_Use"],
             bias_risks_limitations = st.session_state["Model_Limits_n_Risks"], bias_recommendations = st.session_state['Recommendations'],
@@ -33,7 +37,10 @@ def parse_into_jinja_markdown():
             more_information = st.session_state['More_info'], 
             model_card_authors = st.session_state['the_authors'],
             model_card_contact = st.session_state['Model_card_contact'],
-            get_started_code =st.session_state["Model_how_to"]
+            get_started_code =st.session_state["Model_how_to"],
+            repo_link = st.session_state["github_url"],
+            paper_link = st.session_state["paper_url"],
+            blog_link = st.session_state["blog_url"]
             ))
 
 
