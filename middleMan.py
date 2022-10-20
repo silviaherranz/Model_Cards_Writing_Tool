@@ -32,7 +32,7 @@ def parse_into_jinja_markdown():
             speeds_sizes_times = st.session_state['Speeds_Sizes_Times'],
             hardware= st.session_state['Model_hardware'], hours_used = st.session_state['hours_used'], cloud_provider = st.session_state['Model_cloud_provider'], cloud_region = st.session_state['Model_cloud_region'], co2_emitted = st.session_state['Model_c02_emitted'],
             citation_bibtex= st.session_state["APA_citation"], citation_apa = st.session_state['bibtex_citation'],
-            training_data = st.session_state['training_data'], preprocessing =st.session_state['preprocessing'], speeds_sizes_times = st.session_state['Speeds_Sizes_Times'],
+            training_data = st.session_state['training_Data'], preprocessing =st.session_state['model_preprocessing'],
             model_specs = st.session_state['Model_specs'], compute_infrastructure = st.session_state['compute_infrastructure'],software = st.session_state['technical_specs_software'],
             glossary = st.session_state['Glossary'], 
             more_information = st.session_state['More_info'], 
@@ -42,10 +42,10 @@ def parse_into_jinja_markdown():
             repo_link = st.session_state["github_url"],
             paper_link = st.session_state["paper_url"],
             blog_link = st.session_state["blog_url"],
-            testing_data = st.session_state["testing_data"],
-            testing_factors = st.session_state["testing_Factor"],
-            results = st.session_state["model_results"],
-            testing_metrics = st.session_state["testing_Metrics"]
+            testing_data = st.session_state["Testing_Data"],
+            testing_factors = st.session_state["Factors"],
+            results = st.session_state['Model_Results'],
+            testing_metrics = st.session_state["Metrics"]
             ))
 
 

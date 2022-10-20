@@ -63,7 +63,7 @@ def cs_body():
     with right:
         #soutput_jinja = parse_into_jinja_markdown()
         
-        st.text_area("", key=persist("training_data"))
+        st.text_area("", key=persist("training_Data"))
         #st.write("\n")
         st.write("\n")
         st.write("\n")
@@ -77,7 +77,7 @@ def cs_body():
         st.write("\n")
         st.write("\n")
         
-        st.text_area("", key=persist("preprocessing"))
+        st.text_area("", key=persist("model_preprocessing"))
         st.text_area("", help = "This section provides information about throughput, start/end time, checkpoint size if relevant, etc.", key=persist("Speeds_Sizes_Times"))
    
    

@@ -126,8 +126,8 @@ def main():
             "Model_Limits_n_Risks": "",
             "Recommendations":"",
 
-            "training_data": "",
-            "preprocessing":"",
+            "training_Data": "",
+            "model_preprocessing":"",
             "Speeds_Sizes_Times":"",
 
 
