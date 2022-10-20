@@ -29,6 +29,7 @@ def parse_into_jinja_markdown():
             direct_use = st.session_state["Direct_Use"], downstream_use = st.session_state["Downstream_Use"],out_of_scope_use = st.session_state["Out-of-Scope_Use"],
             bias_risks_limitations = st.session_state["Model_Limits_n_Risks"], bias_recommendations = st.session_state['Recommendations'],
             model_examination = st.session_state['Model_examin'],
+            speeds_sizes_times = st.session_state['Speeds_Sizes_Times'],
             hardware= st.session_state['Model_hardware'], hours_used = st.session_state['hours_used'], cloud_provider = st.session_state['Model_cloud_provider'], cloud_region = st.session_state['Model_cloud_region'], co2_emitted = st.session_state['Model_c02_emitted'],
             citation_bibtex= st.session_state["APA_citation"], citation_apa = st.session_state['bibtex_citation'],
             training_data = st.session_state['training_data'], preprocessing =st.session_state['preprocessing'], speeds_sizes_times = st.session_state['Speeds_Sizes_Times'],
@@ -40,7 +41,11 @@ def parse_into_jinja_markdown():
             get_started_code =st.session_state["Model_how_to"],
             repo_link = st.session_state["github_url"],
             paper_link = st.session_state["paper_url"],
-            blog_link = st.session_state["blog_url"]
+            blog_link = st.session_state["blog_url"],
+            testing_data = st.session_state["testing_data"],
+            testing_factor = st.session_state["testing_factor"],
+            results = st.session_state["results"],
+            testing_metrics = st.session_state["testing_metrics"]
             ))
 
 

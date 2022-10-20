@@ -78,7 +78,7 @@ def cs_body():
         st.write("\n")
         
         st.text_area("", key=persist("preprocessing"))
-        st.text_area("", help = "This section provides information about throughput, start/end time, checkpoint size if relevant, etc.", key=persist("Speeds_Sizes_Timese"))
+        st.text_area("", help = "This section provides information about throughput, start/end time, checkpoint size if relevant, etc.", key=persist("Speeds_Sizes_Times"))
    
    
    

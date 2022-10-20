@@ -167,6 +167,12 @@ def main():
             "researcher_view":bool,
             "beginner_technical_view":bool,
             "markdown_state":"",
+
+            "testing_factor": "",
+            "testing_factor":"",
+            "testing_metrics":"",
+            "results":""
+
         })
     ## getting cache for each warnings 
     languages_map, license_map, available_metrics, libraries, tasks = get_cached_data()
