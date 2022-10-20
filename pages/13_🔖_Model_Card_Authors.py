@@ -1,7 +1,6 @@
 import streamlit as st
 from persist import persist, load_widget_state
-from middleMan import get_card,writingPrompt,apply_view
-#from specific_extraction import extract_it
+
 
 
 global variable_output

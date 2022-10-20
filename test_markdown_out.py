@@ -7,7 +7,7 @@ def parse_into_jinja_markdown():
     temp = env.get_template(st.session_state.markdown_upload)
    
     return (temp.render(model_id = st.session_state["model_name"],
-        the_model_description = st.session_state["model_description"],developers=st.session_state["Model_developers"],shared_by = st.session_state["shared_by"],license = st.session_state['license'],
+        the_model_description = st.session_state["model_description"],developers=st.session_state["Model_developers"],shared_by = st.session_state["shared_by"],model_license = st.session_state['license'],
             direct_use = st.session_state["Direct_Use"], downstream_use = st.session_state["Downstream_Use"],out_of_scope_use = st.session_state["Out-of-Scope_Use"],
             bias_risks_limitations = st.session_state["Model_Limits_n_Risks"], bias_recommendations = st.session_state['Recommendations'],
             model_examination = st.session_state['Model_examin'],

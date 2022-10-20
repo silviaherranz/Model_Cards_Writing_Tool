@@ -1,6 +1,6 @@
 import streamlit as st
 from persist import persist, load_widget_state
-from middleMan import writingPrompt,apply_view
+
 
 
 global variable_output

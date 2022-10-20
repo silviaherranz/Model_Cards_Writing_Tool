@@ -1,7 +1,5 @@
 import streamlit as st
 from persist import persist, load_widget_state
-from middleMan import get_card,writingPrompt,apply_view
-
 
 global variable_output
 
@@ -10,8 +8,6 @@ def main():
     cs_body()
 
 def cs_body():
-    # Model Cards
-    card = get_card()
     
     st.markdown('# Uses')
     st.text_area("Address questions around how the model is intended to be used, including the foreseeable users of the model and those affected by the model",help="Model uses large work")

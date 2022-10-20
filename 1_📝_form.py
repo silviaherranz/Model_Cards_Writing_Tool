@@ -10,7 +10,6 @@ import pandas as pd
 from huggingface_hub import create_repo
 import os
 from middleMan import parse_into_jinja_markdown as pj
-#from pages import 1_👀_CardProgress
 
 @st.cache
 def get_cached_data():
@@ -29,6 +28,7 @@ def get_cached_data():
     libraries = [x['id'] for x in tags_data['library']]
     tasks = [x['id'] for x in tags_data['pipeline_tag']]
     return languages_map, license_map, available_metrics, libraries, tasks
+
 
 def card_upload(card_info,repo_id,token):
     #commit_message=None,
@@ -111,10 +111,7 @@ def main():
             "the_authors":"",
             "Model_details_text": "",
             "Model_developers": "",
-
-            "Machine_Learning_Type":[],
-            "Modality":[],
-            "Supervision_learning_method":[],
+            "blog_url":"",
 
             "Model_how_to": "",
             
@@ -147,7 +144,6 @@ def main():
             "Model_cite": "",
             "paper_url": "",
             "github_url": "",
-            "blog_url":"",
             "bibtex_citation": "",
             "APA_citation":"",
 
@@ -167,11 +163,6 @@ def main():
             "researcher_view":bool,
             "beginner_technical_view":bool,
             "markdown_state":"",
-
-            "testing_Factor": "",
-            "testing_Metrics":"",
-            "model_results":""
-
         })
     ## getting cache for each warnings 
     languages_map, license_map, available_metrics, libraries, tasks = get_cached_data()
@@ -180,8 +171,6 @@ def main():
     st.header("Model Card Form")
 
     warning_placeholder = st.empty()
-
-    Supervision_learning_method_list = ["Unsupervised","Semi-supervised","Self-supervised","Supervised"]
 
     st.text_input("Model Name", key=persist("model_name"))
     st.text_area("Model Description", help="The model description provides basic details about the model. This includes the architecture, version, if it was introduced in a paper, if an original implementation is available, the author, and general information about the model. Any copyright should be attributed here. General information about training procedures, parameters, and important disclaimers can also be mentioned in this section.", key=persist('model_description'))
@@ -195,10 +184,8 @@ def main():
     st.text_input("Author(s) (comma separated)", help="The authors who developed this model. If you trained this model, the author is you.", key=persist("the_authors"))
     st.text_input("Related Research Paper", help="Research paper related to this model.", key=persist("paper_url"))
     st.text_input("Related GitHub Repository", help="Link to a GitHub repository used in the development of this model", key=persist("github_url"))
-    st.text_input("Related Blog Post", help="Link to a blog post related to this model.", key=persist("blog_url"))
     st.text_area("Bibtex Citation", help="Bibtex citations for related work", key=persist("bibtex_citations"))
     st.text_input("Carbon Emitted:", help="You can estimate carbon emissions using the [Machine Learning Impact calculator](https://mlco2.github.io/impact#compute) presented in [Lacoste et al. (2019)](https://arxiv.org/abs/1910.09700)", key=persist("Model_c02_emitted"))
-    
     # warnings setting
     languages=st.session_state.languages or None
     license=st.session_state.license or None

@@ -2,7 +2,7 @@ import streamlit as st
 from persist import persist, load_widget_state
 from pathlib import Path
 
-from middleMan import apply_view,writingPrompt
+
 
 global variable_output
 

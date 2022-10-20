@@ -134,7 +134,7 @@
 - **Shared by [Optional]:** {{ shared_by | join(', ') | default("More information needed", true)}}
 - **Model type:** {{ model_type | default("Language model", true)}}
 - **Language(s) (NLP):** {{ language | join(', ') | default("More information needed", true)}}
-- **License:** {{ license | default("More information needed", true)}}
+- **License:** {{ model_license | default("More information needed", true)}}
 - **Related Models:** {{ related_models | join(', ') | default("More information needed", true)}}
   - **Parent Model:** {{ parent_model | default("More information needed", true)}}
 - **Resources for more information:** {{ more_resources | default("More information needed", true)}}
