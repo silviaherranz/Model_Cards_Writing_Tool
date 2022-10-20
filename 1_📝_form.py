@@ -168,10 +168,9 @@ def main():
             "beginner_technical_view":bool,
             "markdown_state":"",
 
-            "testing_factor": "",
-            "testing_factor":"",
-            "testing_metrics":"",
-            "results":""
+            "testing_Factor": "",
+            "testing_Metrics":"",
+            "model_results":""
 
         })
     ## getting cache for each warnings 

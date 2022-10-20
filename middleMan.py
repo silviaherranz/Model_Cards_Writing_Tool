@@ -43,9 +43,9 @@ def parse_into_jinja_markdown():
             paper_link = st.session_state["paper_url"],
             blog_link = st.session_state["blog_url"],
             testing_data = st.session_state["testing_data"],
-            testing_factor = st.session_state["testing_factor"],
-            results = st.session_state["results"],
-            testing_metrics = st.session_state["testing_metrics"]
+            testing_factors = st.session_state["testing_Factor"],
+            results = st.session_state["model_results"],
+            testing_metrics = st.session_state["testing_Metrics"]
             ))
 
 
