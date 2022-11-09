@@ -18,7 +18,7 @@ def cs_body():
     #help_text = 'Give an overview of your model, the relevant research paper, who trained it, etc.'
 
     st.markdown('# Model Examination')
-    st.text_area("Provide an overview of your model, the relevant research paper, who trained it, etc",height = 200, key=persist("Model_examin"), )
+    st.text_area("Experimental: Where explainability/interpretability work can go.",height = 200, key=persist("Model_examin"), )
     #left, right = st.columns([2,4], gap="small")
     
     #st.markdown('### Model Description')

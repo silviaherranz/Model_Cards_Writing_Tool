@@ -51,10 +51,10 @@ def cs_body():
         
     with right:
         #soutput_jinja = parse_into_jinja_markdown()
-        st.text_area("", key=persist("Testing_Data"))
+        st.text_area("", help="Ideally this links to a Dataset Card.",key=persist("Testing_Data"))
         #st.write("\n")
-        st.text_area("",help="These are the things the evaluation is disaggregating by, e.g., subpopulations or domains.",key=persist("Factors"))
-        st.text_area("", help=" These are the evaluation metrics being used, ideally with a description of why.", key=persist("Metrics"))
+        st.text_area("",help="What are the foreseeable characteristics that will influence how the model behaves? This includes domain and context, as well as population subgroups.",key=persist("Factors"))
+        st.text_area("", help="What metrics will be used for evaluation in light of tradeoffs between different errors?", key=persist("Metrics"))
         st.text_area("", key=persist("Model_Results"))
 
    

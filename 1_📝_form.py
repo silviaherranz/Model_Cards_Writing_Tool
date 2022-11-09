@@ -109,6 +109,7 @@ def main():
             "model_description": "Some cool model...",
             "shared_by": "",
             "the_authors":"",
+            "Shared_by":"",
             "Model_details_text": "",
             "Model_developers": "",
             "blog_url":"",
@@ -176,10 +177,10 @@ def main():
 
     st.text_input("Model Name", key=persist("model_name"))
     st.text_area("Model Description", help="The model description provides basic details about the model. This includes the architecture, version, if it was introduced in a paper, if an original implementation is available, the author, and general information about the model. Any copyright should be attributed here. General information about training procedures, parameters, and important disclaimers can also be mentioned in this section.", key=persist('model_description'))
-    st.multiselect("Language(s)", list(languages_map), format_func=lambda x: languages_map[x], help="The language(s) associated with this model. If this is not a text-based model, you should specify whatever lanuage is used in the dataset. For instance, if the dataset's labels are in english, you should select English here.", key=persist("languages"))
+    st.multiselect("Language(s)", list(languages_map), format_func=lambda x: languages_map[x], help="The language(s) associated with this model. If this is not a text-based model, you should specify whatever language that is used in the dataset. For instance, if the dataset's labels are in english, you should select English here.", key=persist("languages"))
     st.selectbox("License", [""] + list(license_map.values()), help="The license associated with this model.", key=persist("license"))
     st.selectbox("Library Name", [""] + libraries, help="The name of the library this model came from (Ex. pytorch, timm, spacy, keras, etc.). This is usually automatically detected in model repos, so it is not required.", key=persist('library_name'))
-    st.text_input(" Parent Model (URL)", help="Please provide the URL link to the parent model", key=persist("Parent_Model_name"))
+    st.text_input("Parent Model (URL)", help="If this model has another model as its base, please provide the URL link to the parent model", key=persist("Parent_Model_name"))
     st.text_input("Datasets (comma separated)", help="The dataset(s) used to train this model. Use dataset id from https://hf.co/datasets.", key=persist("datasets"))
     st.multiselect("Metrics", available_metrics, help="Metrics used in the training/evaluation of this model. Use metric id from https://hf.co/metrics.", key=persist("metrics"))
     st.selectbox("Task", [""] + tasks, help="What task does this model aim to solve?", key=persist('task'))

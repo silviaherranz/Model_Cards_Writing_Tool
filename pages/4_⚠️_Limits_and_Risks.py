@@ -11,7 +11,7 @@ def main():
 def cs_body():
     
     st.markdown('# Bias, Risks, and Limitations')
-    st.text_area("Use this section to convey both technical and sociotechnical limitations",help="Provide an overview of the possible Limitations and Risks that may be associated with this model", key=persist("Model_Limits_n_Risks"), )
+    st.text_area("What are the known or foreseeable issues stemming from this model? Use this section to convey both technical and sociotechnical limitations",help="Provide an overview of the possible Limitations and Risks that may be associated with this model", key=persist("Model_Limits_n_Risks"), )
     left, right = st.columns([2,4])
     
     #st.markdown('### Model Description')
@@ -25,7 +25,7 @@ def cs_body():
         
     with right:
         #soutput_jinja = parse_into_jinja_markdown()
-        st.text_area("",help="This section is meant to convey recommendations with respect to the bias, risk, and technical limitations. ", key=persist("Recommendations"))
+        st.text_area("",help="How can the known or foreseeable issues be addressed?", key=persist("Recommendations"))
         #st.write("\n")
   
     

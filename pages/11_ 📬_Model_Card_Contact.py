@@ -14,7 +14,7 @@ def main():
 def cs_body():
     
     st.markdown('# Model Card Contact')
-    st.text_area("Mediums to use, in order to contact the model creators.", key=persist("Model_card_contact"), )
+    st.text_area("How can people who have updates to the Model Card contact the authors?", key=persist("Model_card_contact"), )
 
         
    

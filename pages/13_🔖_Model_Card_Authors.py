@@ -16,7 +16,7 @@ def cs_body():
     #card.save('current_editable.md')
     
     st.markdown('# Model Card Authors [optional]')
-    st.text_area("This section provides another layer of transparency and accountability. Whose views is this model card representing? How many voices were included in its construction? Etc.",height = 180, key=persist("the_authors"))
+    st.text_area("This section also provides another layer of transparency and accountability. Whose views is this model card representing? How many voices were included in its construction? Etc.",height = 180, help = "The people who actually constructed the Model Card go here.",key=persist("the_authors"))
     
     
     

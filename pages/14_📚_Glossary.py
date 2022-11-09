@@ -12,7 +12,7 @@ def main():
 def cs_body():
 
     st.markdown('# Glossary [optional]')
-    st.text_area("Include relevant terms and calculations in this section that can help readers understand the model or model card.",height = 200, key=persist("Glossary"))
+    st.text_area("Terms used in the model card that need to be clearly defined in order to be accessible across audiences go here.",height = 200, key=persist("Glossary"))
    
         
         

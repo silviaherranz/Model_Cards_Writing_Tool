@@ -10,7 +10,7 @@ def main():
 def cs_body():
     
     st.markdown('# Uses')
-    st.text_area("Address questions around how the model is intended to be used, including the foreseeable users of the model and those affected by the model",help="Model uses large work")
+    st.text_area("This section addresses questions around how the model is intended to be used, discusses the foreseeable users of the model (including those affected by the model), and describes uses that are considered out of scope or misuse of the model.")
     left, right = st.columns([2,4])
     
     #st.markdown('### Model Description')
@@ -35,9 +35,9 @@ def cs_body():
         st.markdown('### Out-of-Scope Use:')
         
     with right:
-        st.text_area("",help="This section is for the model use without fine-tuning or plugging into a larger ecosystem/app.", key=persist("Direct_Use"))
-        st.text_area("",help="This section is for the model use when fine-tuned for a task, or when plugged into a larger ecosystem/ap",key=persist("Downstream_Use"))
-        st.text_area("", help=" This section addresses misuse, malicious use, and uses that the model will not work well for.", key=persist("Out-of-Scope_Use"))
+        st.text_area("",help="How can this model be used, without additional post-processing or further pipeline work?", key=persist("Direct_Use"))
+        st.text_area("",help="How can this model be used, when incorporated into another system?",key=persist("Downstream_Use"))
+        st.text_area("", help="What tasks will the model not work for?", key=persist("Out-of-Scope_Use"))
 
    
     

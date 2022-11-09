@@ -21,7 +21,7 @@ def cs_body():
     
     st.markdown('# How to Get Started with the Model')
     st.session_state['Model_how_to'] = text_pass
-    st.text_area("Include relevant terms and calculations in this section that can help readers understand the model or model card.",height = 300, key=persist("Model_how_to"))
+    st.text_area("Code snippet to show how to use the model.",height = 300, key=persist("Model_how_to"))
    
         
 

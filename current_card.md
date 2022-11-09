@@ -48,7 +48,7 @@
 
 ## Model Description
 
-<!--> Provide a longer summary of what this model is. <!-->
+<!--> This section provides basic information about what the model is, its current status, and where it came from.. <!-->
 {{ the_model_description | default("More information needed", true)}}
 
 - **Developed by:** {{ developers | default("More information needed", true)}}

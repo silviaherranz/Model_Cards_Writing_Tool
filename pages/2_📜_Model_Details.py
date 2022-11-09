@@ -60,11 +60,11 @@ def cs_body():
             st.markdown('### Model Type:')
             
         with right:
-            st.text_input("",help="Developed By work", key=persist("Model_developers"))
+            st.text_input("",help="List the people who built the model.", key=persist("Model_developers"))
             st.write("\n")
-            st.text_input("",help="Shared By work",key=persist("shared_by"))
+            st.text_input("",help="List the people/organization making the model available online.",key=persist("Shared_by"))
             st.write("\n")
-            st.selectbox("",[""] + list(license_map.values()), help="Licenses work", key=persist("license"))
+            st.selectbox("",[""] + list(license_map.values()), help="The license associated with this model.", key=persist("license"))
         
     with st.container():
         

@@ -25,7 +25,7 @@ def parse_into_jinja_markdown():
         # citation on form: check box for bibtex or apa: then parse 
     return (temp.render(model_id = st.session_state["model_name"],
         language = st.session_state["languages"],
-        the_model_description = st.session_state["model_description"],developers=st.session_state["Model_developers"],shared_by = st.session_state["shared_by"],model_license = st.session_state['license'],
+        the_model_description = st.session_state["model_description"],developers=st.session_state["Model_developers"],shared_by = st.session_state["Shared_by"],model_license = st.session_state['license'],
         parent_model_link = st.session_state['Parent_Model_url'],
             direct_use = st.session_state["Direct_Use"], downstream_use = st.session_state["Downstream_Use"],out_of_scope_use = st.session_state["Out-of-Scope_Use"],
             bias_risks_limitations = st.session_state["Model_Limits_n_Risks"], bias_recommendations = st.session_state['Recommendations'],
