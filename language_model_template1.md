@@ -135,10 +135,9 @@
 - **Model type:** {{ model_type | default("Language model", true)}}
 - **Language(s) (NLP):** {{ language | join(', ') | default("More information needed", true)}}
 - **License:** {{ model_license | default("More information needed", true)}}
-- **Related Models:** {{ related_models | join(', ') | default("More information needed", true)}} 
-{{ "    -  [Parent Model]({0})".format(repo_link) if parent_model_link }}
+- **Parent Model:** {{ "  [Parent Model]({0})".format(repo_link) if parent_model_link else "More information needed"}}
 - **Resources for more information:** {{ more_resources | default("More information needed", true)}}
-{{ "    - [GitHub Repo]({0})".format(repo_link) if repo_link }}
+{{ "    - [GitHub Repo]({0})".format(repo_link) if repo_link}}
 {{ "    - [Associated Paper]({0})".format(paper_link) if paper_link }}
 
 # Uses

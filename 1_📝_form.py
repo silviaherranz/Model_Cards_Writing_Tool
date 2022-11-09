@@ -107,7 +107,6 @@ def main():
             "task": "",
             "tags": "",
             "model_description": "Some cool model...",
-            "shared_by": "",
             "the_authors":"",
             "Shared_by":"",
             "Model_details_text": "",
