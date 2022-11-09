@@ -112,6 +112,8 @@ def main():
             "Model_details_text": "",
             "Model_developers": "",
             "blog_url":"",
+            "Parent_Model_url":"",
+            "Parent_Model_name":"",
 
             "Model_how_to": "",
             
@@ -177,6 +179,7 @@ def main():
     st.multiselect("Language(s)", list(languages_map), format_func=lambda x: languages_map[x], help="The language(s) associated with this model. If this is not a text-based model, you should specify whatever lanuage is used in the dataset. For instance, if the dataset's labels are in english, you should select English here.", key=persist("languages"))
     st.selectbox("License", [""] + list(license_map.values()), help="The license associated with this model.", key=persist("license"))
     st.selectbox("Library Name", [""] + libraries, help="The name of the library this model came from (Ex. pytorch, timm, spacy, keras, etc.). This is usually automatically detected in model repos, so it is not required.", key=persist('library_name'))
+    st.text_input(" Parent Model (URL)", help="Please provide the URL link to the parent model", key=persist("Parent_Model_name"))
     st.text_input("Datasets (comma separated)", help="The dataset(s) used to train this model. Use dataset id from https://hf.co/datasets.", key=persist("datasets"))
     st.multiselect("Metrics", available_metrics, help="Metrics used in the training/evaluation of this model. Use metric id from https://hf.co/metrics.", key=persist("metrics"))
     st.selectbox("Task", [""] + tasks, help="What task does this model aim to solve?", key=persist('task'))
@@ -186,6 +189,9 @@ def main():
     st.text_input("Related GitHub Repository", help="Link to a GitHub repository used in the development of this model", key=persist("github_url"))
     st.text_area("Bibtex Citation", help="Bibtex citations for related work", key=persist("bibtex_citations"))
     st.text_input("Carbon Emitted:", help="You can estimate carbon emissions using the [Machine Learning Impact calculator](https://mlco2.github.io/impact#compute) presented in [Lacoste et al. (2019)](https://arxiv.org/abs/1910.09700)", key=persist("Model_c02_emitted"))
+   
+   
+    
     # warnings setting
     languages=st.session_state.languages or None
     license=st.session_state.license or None

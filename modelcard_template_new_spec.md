@@ -56,8 +56,8 @@
 - **Model type:** Language model
 - **Language(s) (NLP):** {{ language | default("More information needed", true)}}
 - **License:** {{ license | default("More information needed", true)}}
-- **Related Models:** {{ related_models | default("More information needed", true)}}
-  - **Parent Model:** {{ parent_model | default("More information needed", true)}}
+- **Related Models:** {{ related_models | join(', ') | default("More information needed", true)}} 
+{{ "    -  [Parent Model]({0})".format(repo_link) if parent_model_link }}
 - **Resources for more information:** {{ more_resources | default("More information needed", true)}}
 {{ "    - [GitHub Repo]({0})".format(repo_link) if repo_link }}
 {{ "    - [Associated Paper]({0})".format(paper_link) if paper_link }}

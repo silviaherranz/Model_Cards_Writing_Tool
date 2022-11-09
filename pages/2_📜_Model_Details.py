@@ -31,8 +31,8 @@ def get_cached_data():
 
 def cs_body():
     license_map= get_cached_data()
-    Supervision_learning_method_list = ["Unsupervised","Semi-supervised","Self-supervised","Supervised"]
-    Machine_Learning_Type_list = ["Neural Network","SVM","Decision Trees","Reinforcement Learning"]
+    Supervision_learning_method_list = ["Unsupervised","Semi-supervised","Self-supervised","Supervised","Reinforcement Learning"]
+    Machine_Learning_Type_list = ["Neural Network","SVM","Decision Trees"]
     Modality_List = ["Computer Vision","Natural Language Processing","Audio","Speech","Multimodal","Tabular"]
 
     #st.set_page_config(layout="wide") ## not yet supported on the hub
