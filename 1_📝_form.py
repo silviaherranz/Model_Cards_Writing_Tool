@@ -11,6 +11,8 @@ from huggingface_hub import create_repo
 import os
 from middleMan import parse_into_jinja_markdown as pj
 
+
+
 @st.cache
 def get_cached_data():
     languages_df = pd.read_html("https://hf.co/languages")[0]
@@ -94,7 +96,10 @@ def save_uploadedfile(uploadedfile):
     st.success("Saved File:{} to temp_uploaded_filed_Dir".format(uploadedfile.name))
     return uploadedfile.name 
 
-def main():
+
+def main_page():
+
+   
     if "model_name" not in st.session_state:
         # Initialize session state.
         st.session_state.update({
@@ -277,10 +282,21 @@ def main():
         download_status = st.download_button(label = 'Download Model Card', data = pj(), file_name = downloaded_file_name, help = "The current model card will be downloaded as a markdown (.md) file")
         if download_status == True:
             st.success("Your current model card, successfully downloaded 🤗")
-    
 
-       
+
+def page_switcher(page):
+    st.session_state.runpage = page    
+
+def main():
+    
+    st.header("About Model Cards")
+    st.markdown(Path('about.md').read_text(), unsafe_allow_html=True)
+    btn = st.button('Create a Model Card 📝',on_click=page_switcher,args=(main_page,))
+    if btn:
+        st.experimental_rerun() # rerun is needed to clear the page
 
 if __name__ == '__main__':
     load_widget_state()
-    main()
+    if 'runpage' not in st.session_state :
+        st.session_state.runpage = main
+    st.session_state.runpage()
