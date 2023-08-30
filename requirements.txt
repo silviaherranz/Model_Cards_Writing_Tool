@@ -2,3 +2,4 @@ streamlit
 modelcards==0.1.2
 pandas
 lxml
+altair==4.0
