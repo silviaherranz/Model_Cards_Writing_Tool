@@ -311,11 +311,11 @@ Carbon emissions can be estimated using the [Machine Learning Impact calculator]
 
 <!-- This section provides another layer of transparency and accountability. Whose views is this model card representing? How many voices were included in its construction? Etc. -->
 
-{{ model_card_authors | join(', ') | default("More information needed", true)}}
+{{ model_card_authors | default("More information needed", true)}}
 
 # Model Card Contact
 
-{{ model_card_contact | join(', ') | default("More information needed", true)}}
+{{ model_card_contact | default("More information needed", true)}}
 
 # How to Get Started with the Model
 
