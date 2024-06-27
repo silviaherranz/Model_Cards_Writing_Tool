@@ -22,7 +22,7 @@ def get_cached_data():
     print("license_df.keys()",license_df.keys())
     print(license_df["License identifier (to use in repo card)"])
     license_map = pd.Series(
-        license_df["License identifier (to use in repo card)"].values, index=license_df.Fullname
+        license_df["License identifier (to use in model card)"].values, index=license_df.Fullname
     ).to_dict()
 
     available_metrics = [x['id'] for x in requests.get('https://huggingface.co/api/metrics').json()]
