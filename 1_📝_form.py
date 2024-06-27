@@ -20,8 +20,9 @@ def get_cached_data():
 
     license_df = pd.read_html("https://huggingface.co/docs/hub/repositories-licenses")[0]
     print("license_df.keys()",license_df.keys())
+    print(license_df["License identifier (to use in repo card)"])
     license_map = pd.Series(
-        license_df["License identifier (to use in model card)"].values, index=license_df.Fullname
+        license_df["License identifier (to use in repo card)"].values, index=license_df.Fullname
     ).to_dict()
 
     available_metrics = [x['id'] for x in requests.get('https://huggingface.co/api/metrics').json()]
@@ -99,7 +100,8 @@ def save_uploadedfile(uploadedfile):
 
 
 def main_page():
-
+    print("HELLO")
+    st.cache_data.clear()
    
     if "model_name" not in st.session_state:
         # Initialize session state.
