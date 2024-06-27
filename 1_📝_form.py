@@ -19,6 +19,7 @@ def get_cached_data():
     languages_map = pd.Series(languages_df["Language"].values, index=languages_df["ISO code"]).to_dict()
 
     license_df = pd.read_html("https://huggingface.co/docs/hub/repositories-licenses")[0]
+    print("license_df.keys()",license_df.keys())
     license_map = pd.Series(
         license_df["License identifier (to use in model card)"].values, index=license_df.Fullname
     ).to_dict()
