@@ -23,11 +23,11 @@ def cs_body():
     left.number_input("Training set size",value=100)
     right.number_input("Validation set size",value=20)
     st.text("Demographical and clinical characteristics")
-    left, right = st.columns(2, vertical_alignment ="center")
+    left, right = st.columns(2)#, vertical_alignment ="center")
     left.download_button("Download Template", data=convert_csv(), file_name='file.csv')
     demo = right.file_uploader("Load template",type=['csv'])
     if demo is not None:
-        left, right = st.columns(2, vertical_alignment ="center")
+        left, right = st.columns(2)#, vertical_alignment ="center")
         
         fig, ax = plt.subplots()
         ax.set_title("Age distribution")
