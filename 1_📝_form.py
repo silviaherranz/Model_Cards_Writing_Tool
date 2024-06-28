@@ -288,70 +288,70 @@ def main_page():
     if do_warn:
         warning_placeholder.error(warning_msg)
 
-    # with st.sidebar:
+    with st.sidebar:
 
-    #     ######################################################
-    #     ### Uploading a model card from local drive
-    #     ######################################################
-    #     st.markdown("## Upload Model Card")
+        ######################################################
+        ### Uploading a model card from local drive
+        ######################################################
+        st.markdown("## Upload Model Card")
        
-    #     st.markdown("#### Model Card must be in markdown (.md) format.") 
+        st.markdown("#### Model Card must be in markdown (.md) format.") 
 
-    #     # Read a single file 
-    #     uploaded_file = st.file_uploader("Choose a file", type = ['md'], help = 'Please choose a markdown (.md) file type to upload')
-    #     if uploaded_file is not None:
+        # Read a single file 
+        uploaded_file = st.file_uploader("Choose a file", type = ['md'], help = 'Please choose a markdown (.md) file type to upload')
+        if uploaded_file is not None:
            
-    #         file_details = {"FileName":uploaded_file.name,"FileType":uploaded_file.type} 
-    #         name_of_uploaded_file = save_uploadedfile(uploaded_file)
+            file_details = {"FileName":uploaded_file.name,"FileType":uploaded_file.type} 
+            name_of_uploaded_file = save_uploadedfile(uploaded_file)
            
-    #         st.session_state.markdown_upload = name_of_uploaded_file ## uploaded model card
+            st.session_state.markdown_upload = name_of_uploaded_file ## uploaded model card
 
-    #     elif st.session_state.task =='fill-mask' or 'translation' or 'token-classification' or ' sentence-similarity' or 'summarization' or 'question-answering' or 'text2text-generation' or 'text-classification' or 'text-generation' or 'conversational':
-    #         #st.session_state.markdown_upload = open(
-    #          #   "language_model_template1.md", "r+"
-    #         #).read() 
-    #         st.session_state.markdown_upload = "language_model_template1.md" ## language model template
+        elif st.session_state.task =='fill-mask' or 'translation' or 'token-classification' or ' sentence-similarity' or 'summarization' or 'question-answering' or 'text2text-generation' or 'text-classification' or 'text-generation' or 'conversational':
+            #st.session_state.markdown_upload = open(
+             #   "language_model_template1.md", "r+"
+            #).read() 
+            st.session_state.markdown_upload = "language_model_template1.md" ## language model template
         
-    #     elif st.session_state.task:
+        elif st.session_state.task:
             
-    #         st.session_state.markdown_upload =  "current_card.md" ## default non language model template
+            st.session_state.markdown_upload =  "current_card.md" ## default non language model template
        
-    #     #########################################
-    #     ### Uploading model card to HUB
-    #     #########################################
-    #     out_markdown =open( st.session_state.markdown_upload, "r+"
-    #         ).read() 
-    #     print_out_final = f"{out_markdown}"
-    #     st.markdown("## Export Loaded Model Card to Hub")
-    #     with st.form("Upload to 🤗 Hub"):
-    #         st.markdown("Use a token with write access from [here](https://hf.co/settings/tokens)")
-    #         token = st.text_input("Token", type='password')
-    #         repo_id = st.text_input("Repo ID")
-    #         submit = st.form_submit_button('Upload to 🤗 Hub', help='The current model card will be uploaded to a branch in the supplied repo ')
+        #########################################
+        ### Uploading model card to HUB
+        #########################################
+        out_markdown =open( st.session_state.markdown_upload, "r+"
+            ).read() 
+        print_out_final = f"{out_markdown}"
+        st.markdown("## Export Loaded Model Card to Hub")
+        with st.form("Upload to 🤗 Hub"):
+            st.markdown("Use a token with write access from [here](https://hf.co/settings/tokens)")
+            token = st.text_input("Token", type='password')
+            repo_id = st.text_input("Repo ID")
+            submit = st.form_submit_button('Upload to 🤗 Hub', help='The current model card will be uploaded to a branch in the supplied repo ')
 
-    #     if submit:
-    #         if len(repo_id.split('/')) == 2:
-    #             repo_url = create_repo(repo_id, exist_ok=True, token=token)
-    #             new_url = card_upload(pj(),repo_id, token=token)
-    #             st.success(f"Pushed the card to the repo [here]({new_url})!") # note: was repo_url
-    #         else:
-    #             st.error("Repo ID invalid. It should be username/repo-name. For example: nateraw/food")
+        if submit:
+            if len(repo_id.split('/')) == 2:
+                repo_url = create_repo(repo_id, exist_ok=True, token=token)
+                new_url = card_upload(pj(),repo_id, token=token)
+                st.success(f"Pushed the card to the repo [here]({new_url})!") # note: was repo_url
+            else:
+                st.error("Repo ID invalid. It should be username/repo-name. For example: nateraw/food")
         
 
-    #     #########################################
-    #     ### Download model card
-    #     #########################################
+        #########################################
+        ### Download model card
+        #########################################
 
 
-    #     st.markdown("## Download current Model Card")
+        st.markdown("## Download current Model Card")
 
-    #     if st.session_state.model_name is None or st.session_state.model_name== ' ':
-    #         downloaded_file_name = 'current_model_card.md'
-    #     else: 
-    #         downloaded_file_name = st.session_state.model_name+'_'+'model_card.md'
-    #     download_status = st.download_button(label = 'Download Model Card', data = pj(), file_name = downloaded_file_name, help = "The current model card will be downloaded as a markdown (.md) file")
-    #     if download_status == True:
-    #         st.success("Your current model card, successfully downloaded 🤗")
+        if st.session_state.model_name is None or st.session_state.model_name== ' ':
+            downloaded_file_name = 'current_model_card.md'
+        else: 
+            downloaded_file_name = st.session_state.model_name+'_'+'model_card.md'
+        download_status = st.download_button(label = 'Download Model Card', data = pj(), file_name = downloaded_file_name, help = "The current model card will be downloaded as a markdown (.md) file")
+        if download_status == True:
+            st.success("Your current model card, successfully downloaded 🤗")
 
 
 def page_switcher(page):
