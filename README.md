@@ -4,7 +4,7 @@ emoji: ⚡
 colorFrom: red
 colorTo: yellow
 sdk: streamlit
-sdk_version: 1.36.0
+sdk_version: 1.10.0
 app_file: 1_📝_form.py
 pinned: false
 license: mit
