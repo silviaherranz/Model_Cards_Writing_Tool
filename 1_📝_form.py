@@ -53,7 +53,7 @@ def get_treatment_mod():
     return treatment_mod
 
 
-@st.cache _data or _resource
+@st.cache
 def get_cached_data():
     languages_df = pd.read_html("https://hf.co/languages")[0]
     languages_map = pd.Series(languages_df["Language"].values, index=languages_df["ISO code"]).to_dict()
