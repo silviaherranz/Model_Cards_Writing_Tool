@@ -13,7 +13,7 @@ from middleMan import parse_into_jinja_markdown as pj
 
 import requests
 
-# @st.cache
+@st.cache
 def get_icd():
     # Get ICD10 list
     token_endpoint = 'https://icdaccessmanagement.who.int/connect/token'
@@ -45,7 +45,7 @@ def get_icd():
         icd_map.append(r_child["code"]+" "+r_child["title"]["@value"])
     return icd_map
 
-# @st.cache    
+@st.cache    
 def get_treatment_mod():
     url = "https://clinicaltables.nlm.nih.gov/loinc_answers?loinc_num=21964-2"
     r = requests.get(url).json()
@@ -53,7 +53,7 @@ def get_treatment_mod():
     return treatment_mod
 
 
-# @st.cache _data or _resource
+@st.cache _data or _resource
 def get_cached_data():
     languages_df = pd.read_html("https://hf.co/languages")[0]
     languages_map = pd.Series(languages_df["Language"].values, index=languages_df["ISO code"]).to_dict()
