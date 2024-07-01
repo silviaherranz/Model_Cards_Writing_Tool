@@ -77,9 +77,9 @@ def get_cached_data():
 
 def card_upload(card_info,repo_id,token):
     #commit_message=None,
-    repo_type = "space"
+    repo_type = "model"
     commit_description=None,
-    revision=None,
+    revision=None
     create_pr=None
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp_path = Path(tmpdir) / "README.md"
@@ -91,7 +91,7 @@ def card_upload(card_info,repo_id,token):
                     token=token,
                     repo_type=repo_type,
                     # identical_ok=True,
-                    revision=revision,
+                    revision=revision
                 )
     return url
 
@@ -299,11 +299,11 @@ def main_page():
            
             st.session_state.markdown_upload = name_of_uploaded_file ## uploaded model card
 
-        elif st.session_state.task =='fill-mask' or 'translation' or 'token-classification' or ' sentence-similarity' or 'summarization' or 'question-answering' or 'text2text-generation' or 'text-classification' or 'text-generation' or 'conversational':
-            print("YO",st.session_state.task)
-            st.session_state.markdown_upload = "language_model_template1.md" ## language model template
+        # elif st.session_state.task =='fill-mask' or 'translation' or 'token-classification' or ' sentence-similarity' or 'summarization' or 'question-answering' or 'text2text-generation' or 'text-classification' or 'text-generation' or 'conversational':
+        #     print("YO",st.session_state.task)
+        #     st.session_state.markdown_upload = "language_model_template1.md" ## language model template
         
-        elif st.session_state.task:
+        else:#if st.session_state.task:
             
             st.session_state.markdown_upload =  "current_card.md" ## default non language model template
         print("st.session_state.markdown_upload",st.session_state.markdown_upload)
@@ -322,7 +322,7 @@ def main_page():
 
         if submit:
             if len(repo_id.split('/')) == 2:
-                repo_url = "repo"#create_repo(repo_id, exist_ok=True, token=token)
+                repo_url = create_repo(repo_id, exist_ok=True, token=token)
                 print("repo_url",repo_url)
                 card_info = pj()
                 print(card_info)

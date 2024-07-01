@@ -1,5 +1,7 @@
 ---
-{{card_data}}
+language: 
+  - en
+license: openrail
 ---
 
 # {{ model_id }}
