@@ -90,7 +90,7 @@ def card_upload(card_info,repo_id,token):
                     repo_id=repo_id,
                     token=token,
                     repo_type=repo_type,
-                    identical_ok=True,
+                    # identical_ok=True,
                     revision=revision,
                 )
     return url
@@ -147,7 +147,6 @@ def main_page():
         # Initialize session state.
         st.session_state.update({
             "input_model_name": "",
-            "languages": [],
             "license": "",
             "library_name": "",
             "datasets": "",
@@ -229,7 +228,7 @@ def main_page():
     left.multiselect("Treatment site ICD10",list(icd_map), help="Reference ICD10 WHO: https://icd.who.int/icdapi")
     right.multiselect("Treatment modality", list(treatment_mod), help="Reference LOINC Modality Radiation treatment: https://loinc.org/21964-2" )
     left, right = st.columns(2)
-    nlines = left.number_input("Number of prescription levels", 0, 20, 1)
+    nlines = int(left.number_input("Number of prescription levels", 0, 20, 1))
     # cols = st.columns(ncol)
     for i in range(nlines):
         right.number_input(f"Prescription [Gy] # {i}", key=i)
@@ -268,7 +267,7 @@ def main_page():
     # st.header("Ethical use considerations")
 
     # warnings setting
-    languages=st.session_state.languages or None
+    # languages=st.session_state.languages or None
     license=st.session_state.license or None
     task = st.session_state.task or None
     markdown_upload = st.session_state.markdown_upload
@@ -276,14 +275,8 @@ def main_page():
     # Handle any warnings...
     do_warn = False
     warning_msg = "Warning: The following fields are required but have not been filled in: "
-    if not languages:
-        warning_msg += "\n- Languages"
-        do_warn = True
     if not license:
         warning_msg += "\n- License"
-        do_warn = True
-    if not task or not markdown_upload:
-        warning_msg += "\n- Please choose a task or upload a model card"
         do_warn = True
     if do_warn:
         warning_placeholder.error(warning_msg)
@@ -307,15 +300,13 @@ def main_page():
             st.session_state.markdown_upload = name_of_uploaded_file ## uploaded model card
 
         elif st.session_state.task =='fill-mask' or 'translation' or 'token-classification' or ' sentence-similarity' or 'summarization' or 'question-answering' or 'text2text-generation' or 'text-classification' or 'text-generation' or 'conversational':
-            #st.session_state.markdown_upload = open(
-             #   "language_model_template1.md", "r+"
-            #).read() 
+            print("YO",st.session_state.task)
             st.session_state.markdown_upload = "language_model_template1.md" ## language model template
         
         elif st.session_state.task:
             
             st.session_state.markdown_upload =  "current_card.md" ## default non language model template
-       
+        print("st.session_state.markdown_upload",st.session_state.markdown_upload)
         #########################################
         ### Uploading model card to HUB
         #########################################
@@ -331,8 +322,11 @@ def main_page():
 
         if submit:
             if len(repo_id.split('/')) == 2:
-                repo_url = create_repo(repo_id, exist_ok=True, token=token)
-                new_url = card_upload(pj(),repo_id, token=token)
+                repo_url = "repo"#create_repo(repo_id, exist_ok=True, token=token)
+                print("repo_url",repo_url)
+                card_info = pj()
+                print(card_info)
+                new_url = card_upload(card_info,repo_id, token=token)
                 st.success(f"Pushed the card to the repo [here]({new_url})!") # note: was repo_url
             else:
                 st.error("Repo ID invalid. It should be username/repo-name. For example: nateraw/food")
