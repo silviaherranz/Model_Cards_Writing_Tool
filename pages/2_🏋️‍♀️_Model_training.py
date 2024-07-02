@@ -31,8 +31,10 @@ def cs_body():
         
         fig, ax = plt.subplots()
         ax.set_title("Age distribution")
-        ax.hist(np.random.normal(size=500))
-        left.pyplot(fig)
+        ax.hist(np.random.normal(loc=40,scale=4.0,size=500))
+        age = left.pyplot(fig)
+
+        
 
         fig, ax = plt.subplots()
         ax.pie([45,55],labels=["Men","Women"])

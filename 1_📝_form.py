@@ -9,6 +9,7 @@ from huggingface_hub import hf_hub_download, upload_file
 import pandas as pd
 from huggingface_hub import create_repo
 import os
+from datetime import date
 from middleMan import parse_into_jinja_markdown as pj
 
 import requests
@@ -95,6 +96,27 @@ def card_upload(card_info,repo_id,token):
                 )
     return url
 
+def images_upload(images_list,repo_id,token):
+    repo_type = "model"
+    commit_description=None,
+    revision=None
+    create_pr=None
+    for img in images_list:
+        if img is not None:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                tmp_path = Path(tmpdir) / "README.md"
+                tmp_path.write_text(str(img))
+                url = upload_file(
+                            path_or_fileobj=str(tmp_path),
+                            path_in_repo="README.md",
+                            repo_id=repo_id,
+                            token=token,
+                            repo_type=repo_type,
+                            # identical_ok=True,
+                            revision=revision
+                        )
+    return url
+
 def validate(self, repo_type="model"):
     """Validates card against Hugging Face Hub's model card validation logic.
     Using this function requires access to the internet, so it is only called
@@ -134,84 +156,55 @@ def validate(self, repo_type="model"):
 
 ## Save uploaded [markdown] file to directory to be used by jinja parser function 
 def save_uploadedfile(uploadedfile):
-    with open(os.path.join("temp_uploaded_filed_Dir",uploadedfile.name),"wb") as f:
+    with open(uploadedfile.name,"wb") as f:
         f.write(uploadedfile.getbuffer())
     st.success("Saved File:{} to temp_uploaded_filed_Dir".format(uploadedfile.name))
     return uploadedfile.name 
 
 
 def main_page():
-
+    today=date.today()
     		
     if "model_name" not in st.session_state:
         # Initialize session state.
         st.session_state.update({
-            "input_model_name": "",
+            # Model Basic Information
+            "model_version": 0,
+            "icd10": [],
+            "treatment_modality": [],
+            "prescription_levels": [],
+            "additional_information": "",
+            "motivation": "",
+            "model_class":"",
+            "creation_date": today,
+            "architecture": "",
+            "model_developers": "",
+            "funded_by":"",
+            "shared_by":"",
             "license": "",
-            "library_name": "",
-            "datasets": "",
-            "metrics": [],
-            "task": "",
-            "tags": "",
-            "model_description": "Some cool model...",
-            "the_authors":"",
-            "Shared_by":"",
-            "Model_details_text": "",
-            "Model_developers": "",
-            "blog_url":"",
-            "Parent_Model_url":"",
-            "Parent_Model_name":"",
-
-            "Model_how_to": "",
-            
-            "Model_uses": "",
-            "Direct_Use": "",
-            "Downstream_Use":"",
-            "Out-of-Scope_Use":"",
-
-            "Model_Limits_n_Risks": "",
-            "Recommendations":"",
-
-            "training_Data": "",
-            "model_preprocessing":"",
-            "Speeds_Sizes_Times":"",
-
-
-
-            "Model_Eval": "",
-            "Testing_Data":"",
-            "Factors":"",
-            "Metrics":"",
-            "Model_Results":"",
-
-            "Model_c02_emitted": "",
-            "Model_hardware":"",
-            "hours_used":"",
-            "Model_cloud_provider":"",
-            "Model_cloud_region":"",
-
-            "Model_cite": "",
-            "paper_url": "",
-            "github_url": "",
-            "bibtex_citation": "",
-            "APA_citation":"",
-
-            "Model_examin":"",
-            "Model_card_contact":"",
-            "Model_card_authors":"",
-            "Glossary":"",
-            "More_info":"",
-
-            "Model_specs":"",
-            "compute_infrastructure":"",
-            "technical_specs_software":"",
-
-            "check_box": bool,
-            "markdown_upload":" ",
-            "legal_view":bool,
-            "researcher_view":bool,
-            "beginner_technical_view":bool,
-            "markdown_state":"",
+            "finetuned_from": "",
+            "research_paper": "",
+            "git_repo": "",
+            # Technical Specifications
+            "nb_parameters": 5,
+            "input_channels": [],
+            "loss_function": "",
+            "batch_size": 1,
+            "patch_dimension": [],
+            "architecture_filename":None,
+            "libraries":[],
+            "hardware": "",
+            "inference_time": 10,
+            "get_started_code": "",
+            # Training Details
+            "training_set_size":10,
+            "validation_set_size":10,
+            "age_fig_filename":"",
+            "sex_fig_filename":"",
+            "dataset_source": "",
+            "acquisition_from": today,
+            "acquisition_to": today,
+            "markdown_upload": ""
         })
     ## getting cache for each warnings 
     languages_map, license_map, available_metrics, libraries, tasks, icd_map, treatment_mod = get_cached_data()
@@ -222,11 +215,11 @@ def main_page():
     warning_placeholder = st.empty()
 
     st.text_input("Model Name", key=persist("model_name"))
-    st.number_input("Version",key=persist("version"),step=0.1)
+    st.number_input("Version",key=persist("model_version"),step=0.1)
     st.text("Intended use:")
     left, right = st.columns([4,2])
-    left.multiselect("Treatment site ICD10",list(icd_map), help="Reference ICD10 WHO: https://icd.who.int/icdapi")
-    right.multiselect("Treatment modality", list(treatment_mod), help="Reference LOINC Modality Radiation treatment: https://loinc.org/21964-2" )
+    left.multiselect("Treatment site ICD10",list(icd_map), help="Reference ICD10 WHO: https://icd.who.int/icdapi",key=persist("icd10"))
+    right.multiselect("Treatment modality", list(treatment_mod), help="Reference LOINC Modality Radiation treatment: https://loinc.org/21964-2", key=persist("treatment_modality"))
     left, right = st.columns(2)
     nlines = int(left.number_input("Number of prescription levels", 0, 20, 1))
     # cols = st.columns(ncol)
@@ -234,7 +227,7 @@ def main_page():
         right.number_input(f"Prescription [Gy] # {i}", key=i)
     st.text_area("Additional information", placeholder = "Bilateral cases only", help="E.g. Bilateral cases only", key=persist('additional_information'))
     st.text_area("Motivation for development", key=persist('motivation'))
-    st.text_area("Class", placeholder="RULE 11, FROM MDCG 2021-24", key=persist('class'))
+    st.text_area("Class", placeholder="RULE 11, FROM MDCG 2021-24", key=persist('model_class'))
     st.date_input("Creation date", key=persist('creation_date'))
     st.text_area("Type of architecture",value="UNet", key=persist('architecture'))
 
@@ -244,13 +237,12 @@ def main_page():
     middle.text_input("Institution", placeholder = "University/clinic/company", key=persist('dev_institution'))
     right.text_input("Email", key=persist('dev_email'))
 
-    st.text_area("Funded by", key=persist('fund'))
-    st.text_area("Shared by", key=persist('shared'))
+    st.text_area("Funded by", key=persist('funded_by'))
+    st.text_area("Shared by", key=persist('shared_by'))
     st.selectbox("License", [""] + list(license_map.values()), help="The license associated with this model.", key=persist("license"))
-    st.text_area("Fine tuned from model", key=persist('fine_tuned_from'))
-    st.text_input("Related Research Paper", help="Research paper related to this model.", key=persist("paper_url"))
-    st.text_input("Related GitHub Repository", help="Link to a GitHub repository used in the development of this model", key=persist("github_url"))
-    st.text_area("Bibtex Citation", help="Bibtex citations for related work", key=persist("bibtex_citations"))
+    st.text_area("Fine tuned from model", key=persist('finetuned_from'))
+    st.text_area("Related Research Paper", help="Research paper related to this model.", key=persist("research_paper"))
+    st.text_input("Related GitHub Repository", help="Link to a GitHub repository used in the development of this model", key=persist("git_repo"))
     # st.selectbox("Library Name", [""] + libraries, help="The name of the library this model came from (Ex. pytorch, timm, spacy, keras, etc.). This is usually automatically detected in model repos, so it is not required.", key=persist('library_name'))
     # st.text_input("Parent Model (URL)", help="If this model has another model as its base, please provide the URL link to the parent model", key=persist("Parent_Model_name"))
     # st.text_input("Datasets (comma separated)", help="The dataset(s) used to train this model. Use dataset id from https://hf.co/datasets.", key=persist("datasets"))
@@ -269,7 +261,7 @@ def main_page():
     # warnings setting
     # languages=st.session_state.languages or None
     license=st.session_state.license or None
-    task = st.session_state.task or None
+    task = None #st.session_state.task or None
     markdown_upload = st.session_state.markdown_upload
     #uploaded_model_card = st.session_state.uploaded_model 
     # Handle any warnings...
@@ -293,8 +285,6 @@ def main_page():
         # Read a single file 
         uploaded_file = st.file_uploader("Choose a file", type = ['md'], help = 'Please choose a markdown (.md) file type to upload')
         if uploaded_file is not None:
-           
-            file_details = {"FileName":uploaded_file.name,"FileType":uploaded_file.type} 
             name_of_uploaded_file = save_uploadedfile(uploaded_file)
            
             st.session_state.markdown_upload = name_of_uploaded_file ## uploaded model card
@@ -323,10 +313,8 @@ def main_page():
         if submit:
             if len(repo_id.split('/')) == 2:
                 repo_url = create_repo(repo_id, exist_ok=True, token=token)
-                print("repo_url",repo_url)
-                card_info = pj()
-                print(card_info)
-                new_url = card_upload(card_info,repo_id, token=token)
+                new_url = card_upload(pj(),repo_id, token=token)
+                # images_upload([st.session_state['architecture_filename'], st.session_state["age_fig_filename"], st.session_state["sex_fig_filename"]],repo_id, token=token)
                 st.success(f"Pushed the card to the repo [here]({new_url})!") # note: was repo_url
             else:
                 st.error("Repo ID invalid. It should be username/repo-name. For example: nateraw/food")
