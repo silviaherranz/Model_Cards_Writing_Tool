@@ -34,7 +34,7 @@ def cs_body():
     nlines = int(left.number_input("Input channels", 0, 20, 1))
     for i in range(nlines):
         type_input = middle.selectbox(f"Input type # {i}", list(struct_dict.keys()))
-        right.selectbox("Input",struct_dict[type_input], help="From https://aapm.onlinelibrary.wiley.com/doi/pdf/10.1002/acm2.12701")
+        right.selectbox("Input",struct_dict[type_input], key=i, help="From https://aapm.onlinelibrary.wiley.com/doi/pdf/10.1002/acm2.12701")
     st.text_input("Loss function",placeholder="MSE", key=persist("loss_function"))
     st.number_input("Batch size",value=1,key=persist("batch_size"))
     left, right = st.columns(2)
