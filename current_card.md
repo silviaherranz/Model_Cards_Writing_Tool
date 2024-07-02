@@ -11,11 +11,11 @@ language:
 
 - [{{ model_name }}](#-model_name)
 - [Table of Contents](#table-of-contents)
-- [1. Model Basic Information](#model-basic-information)
-- [2. Technical Specifications](#technical-specifications)
-- [3. Training Details](#training-details)
-- [4. Model Evaluation](#model-evaluation)
-- [5. Model Examination](#model-examination)
+- [1. Model Basic Information](#1-model-basic-information)
+- [2. Technical Specifications](#2-technical-specifications)
+- [3. Training Details](#3-training-details)
+- [4. Model Evaluation](#4-model-evaluation)
+- [5. Model Examination](#5-model-examination)
 
 
 # 1. Model Basic Information
