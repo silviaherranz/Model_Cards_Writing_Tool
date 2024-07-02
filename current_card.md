@@ -5,8 +5,6 @@ language:
 
 # {{ model_name }}
 
-<!--> Provide a quick summary of what the model is/does. <!-->
-
 #  Table of Contents
 
 - [{{ model_name }}](#-model_name)
@@ -19,7 +17,7 @@ language:
 
 
 # 1. Model Basic Information
-<!--> This section provides basic information about what the model is, its current status, and where it came from.. <!-->
+
 - **Version:** {{ version | default("0")}}
 ## 1.1. Intended use
 - **Treatment site ICD10:** {{ icd10 | default("More information needed", true) }}
@@ -78,6 +76,3 @@ Age distribution | Sex distribution
 # 4. Model Evaluation
 
 # 5. Model Examination
-<!--> This section is for the model use without fine-tuning or plugging into a larger ecosystem/app. <!-->
-
-
