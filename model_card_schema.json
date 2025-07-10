@@ -1,0 +1,202 @@
+{
+    "card_metadata": {
+      "creation_date": {
+        "type": "string",
+        "label": "Creation Date",
+        "description": "Date of creation of the card. Format: YYYYMMDD",
+        "required": true,
+        "example": "20241001"
+      },
+      "version_number": {
+        "type": "string",
+        "label": "Card Version Number",
+        "description": "Version number of this model card",
+        "required": true,
+        "example": "1.0"
+      },
+      "version_changes": {
+        "type": "string",
+        "label": "Card Version Changes",
+        "description": "Description of changes made in this version",
+        "required": true,
+        "example": "New limitations of the model are found"
+      },
+      "doi": {
+        "type": "string",
+        "label": "Card DOI",
+        "description": "Unique Digital Object Identifier of the card",
+        "required": false
+      }
+    },
+    "model_basic_information": {
+      "name": {
+        "type": "string",
+        "label": "Model Name",
+        "description": "Full name of the model",
+        "required": true,
+        "example": "DOSEPRED_VMAT_ORO_70005425Gy"
+      },
+      "creation_date": {
+        "type": "string",
+        "label": "Model Creation Date",
+        "description": "Date when the model was created. Format: YYYYMMDD",
+        "required": true,
+        "example": "20241001"
+      },
+      "version_number": {
+        "type": "string",
+        "label": "Model Version Number",
+        "description": "Version number of the model",
+        "required": true,
+        "example": "01.00.0000"
+      },
+      "version_changes": {
+        "type": "string",
+        "label": "Model Version Changes",
+        "description": "Description of the main changes with respect to the previous version. If this is the first version, please write 'NA' (Not applicable).",
+        "required": true,
+        "example": "The loss function in version 1.0 was changed"
+      },
+      "doi": {
+        "type": "string",
+        "label": "Model DOI",
+        "description": "Unique Digital Object Identifier for the current version of the model. If your model has been uploaded to a repository that provides DOI (e.g. Zenodo, HuggingFace), we encourage you to indicate the corresonding DOI.",
+        "required": false
+      },
+      "model_scope_summary": {
+        "type": "string",
+        "label": "Model Scope Summary",
+        "description": "One sentence summary of what the model does, including relevant information for the model input and output. Detailed specifications for input/output should go in the 'Technical Specifications' section.",
+        "required": true,
+        "example": "Auto-segmentation model for HN OARs on CT"
+      },
+      "model_scope_anatomical_site": {
+        "type": "select",
+        "label": "Model Scope Anatomical Site",
+        "description": "General body site",
+        "required": true,
+        "options": ["Brain", "HN", "Thorax", "Abdomen", "Pelvis", "Other"],
+        "example": "HN"
+      },
+      "clearance_type": {
+        "type": "string",
+        "label": "Clearance Type",
+        "description": "Disclose if the model has been approved for medical use or not, and the model's regulatory clearance, if any.",
+        "required": true,
+        "example": "Approved for medical use (in-house) by hospital team, FDA approved, CE approved, IMDD available, Not-approved for medical use - only research use."
+      },
+      "clearance_approved_by_name": {
+        "type": "string",
+        "label": "Name",
+        "description": "Name of person(s) who approved the model or contact person on behalf of the team. If several, separate them by commas.",
+        "required": true,
+        "example": "Maria Smith"
+      },
+      "clearance_approved_by_institution": {
+        "type": "string",
+        "label": "Institution(s)",
+        "description": "Institution(s) involved in the approval of the model. If several, separate them by commas.",
+        "required": true,
+        "example": "UCLouvain"
+      },
+      "clearance_approved_by_contact_email": {
+        "type": "string",
+        "label": "Contact Email(s)",
+        "description": "Contact email(s) for the team or persons. If several, separate them by commas.",
+        "required": true
+      },
+      "clearance_additional_information": {
+        "type": "string",
+        "label": "Additional Information",
+        "description": "Add any other information regarding the clearance / approval process you consider relevant (e.g. the qualification of the persons / team)",
+        "required": false
+      },
+      "intended_users": {
+        "type": "string",
+        "label": "Intended Users",
+        "description": "Intended users of the model",
+        "required": false,
+        "example": "Radiation oncologists, medical physicists, and dosimetrists"
+      },
+      "observed_limitations": {
+        "type": "string",
+        "label": "Observed Limitations",
+        "description": "Existing biases or limitations of the model, and particular cases for which the model has been tested and shown poor performance. Examples include imbalanced or missing training data, overfitting, generalizability and suitability for certain use cases, or de-identification methods used for the dataset that might influence the model performance (e.g. defacing of H&N scans)",
+        "required": true,
+        "example": "implants, contrast CT, post-operative patients, BMI > X, model not suitable for synthesising the nose since de-identification included defacing"
+      },
+      "potential_limitations": {
+        "type": "string",
+        "label": "Potential Limitations",
+        "description": "Potential biases or limitations of the model. Specific cases, relevant to the model application (i.e. likely to arrive), for which the model may show poor performance.",
+        "required": false,
+        "example": "implants, contrast CT, post-operative patients, BMI > X"
+      },
+      "type_of_learning_architecture": {
+        "type": "string",
+        "label": "Learning Architecture",
+        "description": "Type of architecture for the learning model, if several models are used (e.g. cascade, cycle, tree,...), indicate all different types.",
+        "required": true,
+        "example": "Random Forest, CNN, UNet, Transformers"
+      },
+      "developed_by_name": {
+        "type": "string",
+        "label": "Name",
+        "description": "Name of the person(s) who developed the model or contact person on behalf of the development team. If several, separate them by commas.",
+        "required": true,
+        "example": "Maria Smith"
+      },
+      "developed_by_institution": {
+        "type": "string",
+        "label": "Institution",
+        "description": "Institution(s) involved in the model development. Indicate single or multi-institutions involved in the model creation (indicating the role of each institute or the type of collaboration)",
+        "required": true,
+        "example": "UCLouvain"
+      },
+      "developed_by_email": {
+        "type": "string",
+        "label": "Contact Email(s)",
+        "description": "Contact email for the development team or persons. If several, separate them by commas.",
+        "required": true
+      },
+      "conflict_of_interest": {
+        "type": "string",
+        "label": "Conflict of Interest",
+        "description": "Disclose potential conflicts of interest, including, whenever applicable and possible, funding bodies involved in the development of the model. Otherwise, indicate “NA” (Not Applicable)",
+        "required": true,
+        "example": "NA"
+      },
+      "software_license": {
+        "type": "string",
+        "label": "Software License",
+        "description": "Software licence or copyright governing the use or redistribution of the model, source code and associated software to run it. Types include free and open (e.g. permissive, copyleft) and non-free (i.e. proprietary licence)",
+        "required": true,
+        "example": "Apache 2.0, GPL, MIT"
+      },
+      "code_source": {
+        "type": "string",
+        "label": "Code Repository",
+        "description": "Link(s) to repository (e.g. github/gitlab) or website where the code source of the learning architecture and inference pipeline is located. If the code source is not made available, indicate “NA” (Not applicable), or eventually, you might use this field to indicate the location / path in your internal computers.",
+        "required": false
+      },
+      "model_source": {
+        "type": "string",
+        "label": "Model source",
+        "description": "Link to the trained learning model (i.e. weights) to run inference (e.g. HuggingFace, website, …). If the trained model is not made available, indicate “NA” (Not applicable), or eventually, you might use this field to indicate the path / location in your internal computers.",
+        "required": false
+      },
+      "citation_details": {
+        "type": "string",
+        "label": "Citation Details",
+        "description": "Associated scientific paper(s)",
+        "required": false
+      },
+      "url_info": {
+        "type": "string",
+        "label": "URL info",
+        "description": "Link to a website with more information, or pdf",
+        "required": false
+      }
+    }
+  }
+  
