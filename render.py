@@ -16,76 +16,83 @@ def title_header(text, size="1.1rem", bottom_margin="1em", top_margin="0.5em"):
         unsafe_allow_html=True
     )
 
-
 def render_schema_section(schema_section, section_prefix="", current_task=None):
-    """Render grouped fields using headers and vertical layout with spacing."""
+    """Render fields from a flat schema section with optional task filtering."""
+    for key, props in schema_section.items():
+        model_types = props.get("model_types")
+        if model_types is None or (current_task and current_task.lower() in map(str.lower, model_types)):
+            render_field(key, props, section_prefix)
 
-    def render_fields(field_keys):
+
+def render_evaluation_section(schema_section, section_prefix, current_task):
+
+    def section_divider():
+        st.markdown("<hr style='margin: 1.5em 0; border: none; border-top: 1px solid #ccc;'>", unsafe_allow_html=True)
+
+    def render_fields(field_keys, schema_section, section_prefix, current_task):
         for key in field_keys:
             if key in schema_section:
                 props = schema_section[key]
                 model_types = props.get("model_types")
-                if model_types is None or (current_task and current_task in model_types):
+                if model_types is None or (current_task and current_task.lower() in map(str.lower, model_types)):
                     render_field(key, props, section_prefix)
-                    st.markdown("")
 
-    if section_prefix.startswith("evaluation_"):
 
-        #title_header("Evaluation Date", size="h3")
-        render_fields(["evaluation_date"])
-        st.markdown("<hr style='margin: 1.5em 0; border: none; border-top: 1px solid #ccc;'>", unsafe_allow_html=True)
 
-        title_header("Evaluated by", size="h3")
-        same_key = f"{section_prefix}_evaluated_same_as_approved"
-        same = st.checkbox("Same as 'Approved by'", key=persist(same_key))
-        if not same:
-            render_fields([
-                "evaluated_by_name", "evaluated_by_institution", "evaluated_by_contact_email"
-            ])
-        else:
-            st.info("Evaluation team is the same as the approval team. Fields auto-filled.")
-        st.markdown("<hr style='margin: 1.5em 0; border: none; border-top: 1px solid #ccc;'>", unsafe_allow_html=True)
+    # 1. Evaluation Date
+    title_header("1. Evaluation Date", size="1.1rem")
+    render_fields(["evaluation_date"], schema_section, section_prefix, current_task)
+    section_divider()
 
-        render_fields(["evaluation_frame", "sanity_check"])
-
-        title_header("Evaluation Dataset", size="h3")
-
-        st.markdown("#### 3.1 General Information")
-        render_fields([
-            "evaluation_dataset_total_size", "evaluation_dataset_number_of_patients",
-            "evaluation_dataset_source", "evaluation_dataset_acquisition_period",
-            "evaluation_dataset_inclusion_exclusion_criteria", "evaluation_dataset_url_info"
-        ])
-
-        st.markdown("#### 3.2 Technical Characteristics")
-        render_fields([
-            "evaluation_dataset_image_resolution", "evaluation_dataset_patient_positioning",
-            "evaluation_dataset_scanner_model", "evaluation_dataset_scan_acquisition_parameters",
-            "evaluation_dataset_scan_reconstruction_parameters", "evaluation_dataset_fov",
-            "evaluation_dataset_treatment_modality", "evaluation_dataset_beam_configuration_energy",
-            "evaluation_dataset_dose_engine", "evaluation_dataset_target_volumes_and_prescription",
-            "evaluation_dataset_number_of_fractions", "evaluation_dataset_reference_standard",
-            "evaluation_dataset_reference_standard_qa", "evaluation_dataset_reference_standard_qa_additional_information"
-        ])
-
-        st.markdown("#### 3.3 Patient Demographics and Clinical Characteristics")
-        render_fields([
-            "evaluation_dataset_icd10_11", "evaluation_dataset_tnm_staging", "evaluation_dataset_age",
-            "evaluation_dataset_sex", "evaluation_dataset_target_volume_cm3",
-            "evaluation_dataset_bmi", "evaluation_dataset_additional_patient_info"
-        ])
-
-        st.markdown("---")
-        st.markdown("### 4. Quantitative Evaluation")
-        render_fields(["quantitative_evaluation", "dose_metrics", "dose_metrics_segmentation"])
-
-        st.markdown("### 5. Qualitative Evaluation")
+    # 2. Evaluated by
+    title_header("2. Evaluated by", size="1.1rem")
+    same_key = f"{section_prefix}_evaluated_same_as_approved"
+    same = st.checkbox("Same as 'Approved by'", key=persist(same_key))
+    if not same:
+        render_fields(["evaluated_by_name", "evaluated_by_institution", "evaluated_by_contact_email"],
+    schema_section, section_prefix, current_task
+)
 
     else:
-        for key, props in schema_section.items():
-            model_types = props.get("model_types")
-            if model_types is None or (current_task and current_task in model_types):
-                render_field(key, props, section_prefix)
+        st.info("Evaluation team is the same as the approval team. Fields auto-filled.")
+    section_divider()
+
+    render_fields(["evaluation_frame", "sanity_check"], schema_section, section_prefix, current_task)
+    section_divider()
+
+    title_header("3. Evaluation Dataset", size="1.1rem")
+    dataset = schema_section.get("evaluation_dataset", {})  
+
+    # 3.1 General Information
+    title_header("3.1 General Information", size="1rem")
+    render_fields([
+        "evaluation_dataset_total_size",
+        "evaluation_dataset_number_of_patients",
+        "evaluation_dataset_source",
+        "evaluation_dataset_acquisition_period",
+        "evaluation_dataset_inclusion_exclusion_criteria",
+        "evaluation_dataset_url_info"
+    ], schema_section, section_prefix, current_task)
+
+
+
+    # 3.2 Technical Characteristics
+    title_header("3.2 Technical Characteristics", size="1rem")
+    render_fields([
+        "image_resolution", "patient_positioning", "scanner_model", "scan_acquisition_parameters",
+        "scan_reconstruction_parameters", "fov", "treatment_modality", "beam_configuration_energy",
+        "dose_engine", "target_volumes_and_prescription", "number_of_fractions", "reference_standard",
+        "reference_standard_qa", "reference_standard_qa_additional_information"
+    ], dataset, f"{section_prefix}_evaluation_dataset", current_task)
+    section_divider()
+
+    # 3.3 Patient Demographics and Clinical Characteristics
+    title_header("3.3 Patient Demographics and Clinical Characteristics", size="1rem")
+    render_fields([
+        "icd10_11", "tnm_staging", "age", "sex", "target_volume_cm3", "bmi", "additional_patient_info"
+    ], dataset, f"{section_prefix}_evaluation_dataset", current_task)
+    section_divider()
+
 
 
 def render_field(key, props, section_prefix):
@@ -96,7 +103,7 @@ def render_field(key, props, section_prefix):
     example = props.get("example", "")
     field_type = props.get("type", "string")
     required = props.get("required", False)
-    options = props.get("options", [])
+    options = props.get("options", []) 
 
     create_helpicon(label, description, field_type, example, required)
 

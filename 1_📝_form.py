@@ -1,5 +1,5 @@
 from persist import persist, load_widget_state
-from render import render_schema_section  # New import
+from render import render_evaluation_section, render_schema_section  # New import
 import streamlit as st
 from pathlib import Path
 from huggingface_hub import upload_file, create_repo
@@ -157,7 +157,7 @@ def main_page():
 
     for i, eval_data in enumerate(st.session_state.evaluation_forms):
         with st.expander(f"Evaluation #{i+1}", expanded=False):
-            render_schema_section(
+            render_evaluation_section(
                 model_card_schema["evaluation_data_methodology_results_commisioning"],
                 section_prefix=f"evaluation_{i}",
                 current_task=task
