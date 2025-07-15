@@ -154,7 +154,7 @@ def main_page():
                 create_helpicon(
                     props.get("label", "Version Number"),
                     props.get("description", ""),
-                    "number",
+                    props.get("type", ""),
                     props.get("example", ""),
                     props.get("required", False),
                 )
@@ -173,7 +173,7 @@ def main_page():
                 create_helpicon(
                     props.get("label", "Version Changes"),
                     props.get("description", ""),
-                    "string",
+                    props.get("type", ""),
                     props.get("example", ""),
                     props.get("required", False),
                 )
