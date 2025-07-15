@@ -17,41 +17,33 @@ def title_header(text, size="1.1rem", bottom_margin="1em", top_margin="0.5em"):
     )
 
 def render_schema_section(schema_section, section_prefix="", current_task=None):
-    """Render fields from a flat schema section with optional task filtering."""
     for key, props in schema_section.items():
-        model_types = props.get("model_types")
-        if model_types is None or (current_task and current_task.lower() in map(str.lower, model_types)):
+        if should_render(props, current_task):
             render_field(key, props, section_prefix)
 
+def has_renderable_fields(field_keys, schema_section, current_task):
+    return any(
+        key in schema_section and should_render(schema_section[key], current_task)
+        for key in field_keys
+    )
 
 def render_evaluation_section(schema_section, section_prefix, current_task):
-
-    def section_divider():
-        st.markdown("<hr style='margin: 1.5em 0; border: none; border-top: 1px solid #ccc;'>", unsafe_allow_html=True)
-
-    def render_fields(field_keys, schema_section, section_prefix, current_task):
-        for key in field_keys:
-            if key in schema_section:
-                props = schema_section[key]
-                model_types = props.get("model_types")
-                if model_types is None or (current_task and current_task.lower() in map(str.lower, model_types)):
-                    render_field(key, props, section_prefix)
-
-
-
-    # 1. Evaluation Date
-    title_header("1. Evaluation Date", size="1.1rem")
     render_fields(["evaluation_date"], schema_section, section_prefix, current_task)
     section_divider()
 
-    # 2. Evaluated by
-    title_header("2. Evaluated by", size="1.1rem")
+    title_header("Evaluated by")
     same_key = f"{section_prefix}_evaluated_same_as_approved"
     same = st.checkbox("Same as 'Approved by'", key=persist(same_key))
+
     if not same:
-        render_fields(["evaluated_by_name", "evaluated_by_institution", "evaluated_by_contact_email"],
-    schema_section, section_prefix, current_task
-)
+        if all(k in schema_section for k in ["evaluated_by_name", "evaluated_by_institution", "evaluated_by_contact_email"]):
+            col1, col2, col3 = st.columns([1, 1.5, 1.5])  # puedes ajustar proporciones
+            with col1:
+                render_field("evaluated_by_name", schema_section["evaluated_by_name"], section_prefix)
+            with col2:
+                render_field("evaluated_by_institution", schema_section["evaluated_by_institution"], section_prefix)
+            with col3:
+                render_field("evaluated_by_contact_email", schema_section["evaluated_by_contact_email"], section_prefix)
 
     else:
         st.info("Evaluation team is the same as the approval team. Fields auto-filled.")
@@ -60,62 +52,111 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
     render_fields(["evaluation_frame", "sanity_check"], schema_section, section_prefix, current_task)
     section_divider()
 
-    title_header("3. Evaluation Dataset", size="1.1rem")
-    dataset = schema_section.get("evaluation_dataset", {})  
+    title_header("Evaluation Dataset")
 
-    # 3.1 General Information
-    title_header("3.1 General Information", size="1rem")
+    title_header("General Information", size="1rem")
     render_fields([
-        "evaluation_dataset_total_size",
-        "evaluation_dataset_number_of_patients",
-        "evaluation_dataset_source",
-        "evaluation_dataset_acquisition_period",
-        "evaluation_dataset_inclusion_exclusion_criteria",
-        "evaluation_dataset_url_info"
+        "total_size", "number_of_patients", "source", "acquisition_period",
+        "inclusion_exclusion_criteria", "url_info"
     ], schema_section, section_prefix, current_task)
-
-
-
-    # 3.2 Technical Characteristics
-    title_header("3.2 Technical Characteristics", size="1rem")
+    section_divider()
+    title_header("Technical Characteristics", size="1rem")
     render_fields([
         "image_resolution", "patient_positioning", "scanner_model", "scan_acquisition_parameters",
         "scan_reconstruction_parameters", "fov", "treatment_modality", "beam_configuration_energy",
-        "dose_engine", "target_volumes_and_prescription", "number_of_fractions", "reference_standard",
-        "reference_standard_qa", "reference_standard_qa_additional_information"
-    ], dataset, f"{section_prefix}_evaluation_dataset", current_task)
+        "dose_engine", "target_volumes_and_prescription", "number_of_fractions",
+        "reference_standard", "reference_standard_qa", "reference_standard_qa_additional_information"
+    ], schema_section, section_prefix, current_task)
     section_divider()
 
-    # 3.3 Patient Demographics and Clinical Characteristics
-    title_header("3.3 Patient Demographics and Clinical Characteristics", size="1rem")
+    title_header("Patient Demographics and Clinical Characteristics", size="1rem")
     render_fields([
-        "icd10_11", "tnm_staging", "age", "sex", "target_volume_cm3", "bmi", "additional_patient_info"
-    ], dataset, f"{section_prefix}_evaluation_dataset", current_task)
+        "icd10_11", "tnm_staging", "age_ev", "sex_ev", "target_volume_cm3", "bmi", "additional_patient_info"
+    ], schema_section, section_prefix, current_task)
     section_divider()
+    title_header("Quantitative Evaluation")
 
+    # Image similarity metrics
+    ism_fields = ["type_ism", "on_volume_ism", "registration_ism", "sample_data_ism", "mean_data_ism", "figure_ism"]
+    if has_renderable_fields(ism_fields, schema_section, current_task):
+        title_header("Image similarity metrics", size="1rem")
+        render_fields(ism_fields, schema_section, section_prefix, current_task)
+
+    # Dose metrics - Image-to-Image
+    dose_dm_fields = ["type_dose_dm", "metric_specifications_dm", "on_volume_dm", "registration_dm", "treatment_modality_dm", "dose_engine_dm", "dose_grid_resolution_dm", "tps_vendor_dm", "sample_data_dm", "mean_data_dm", "figure_dm"]
+    if has_renderable_fields(dose_dm_fields, schema_section, current_task):
+        title_header("Dose metrics", size="1rem")
+        render_fields(dose_dm_fields, schema_section, section_prefix, current_task)
+
+    # Dose metrics - Segmentation
+    dose_seg_fields = ["type_dose_seg", "metric_specifications_seg", "on_volume_seg", "treatment_modality_seg", "dose_engine_seg", "dose_grid_resolution_seg", "tps_vendor_seg", "sample_data_seg", "mean_data_seg", "figure_seg"]
+    if has_renderable_fields(dose_seg_fields, schema_section, current_task):
+        title_header("Geometric metrics", size="1rem")
+        title_header("Dose metrics", size="1rem")
+        render_fields(dose_seg_fields, schema_section, section_prefix, current_task)
+
+    # title_header("Image similarity metrics", size="1rem")
+    # render_fields(["type_ism", "on_volume_ism", "registration_ism", "sample_data_ism", "mean_data_ism", "figure_ism"], schema_section, section_prefix, current_task)
+    # title_header("Dose metrics", size="1rem")
+    # render_fields(["type_dose_dm", "metric_specifications_dm", "on_volume_dm", "registration_dm","treatment_modality_dm","dose_engine_dm", "dose_grid_resolution_dm", "tps_vendor_dm", "sample_data_dm", "mean_data_dm", "figure_dm"], schema_section, section_prefix, current_task)
+    # title_header("Geometric metrics", size="1rem")
+    # title_header("Dose metrics", size="1rem")
+    # render_fields(["type_dose_seg", "metric_specifications_seg", "on_volume_seg", "treatment_modality_seg","dose_engine_seg","dose_grid_resolution_seg", "tps_vendor_seg","sample_data_seg", "mean_data_seg", "figure_seg"],schema_section, section_prefix, current_task)
+    # title_header("IOV (Inter-Observer Variability)", size="1rem")
+    # title_header("Dose metrics", size="1rem")
+    # title_header("Uncertainty metrics", size="1rem")
+    title_header("Other", size="1rem")
+
+    title_header("Qualitative Evaluation")
+
+
+def render_fields(field_keys, schema_section, section_prefix, current_task):
+    for key in field_keys:
+        if key in schema_section and should_render(schema_section[key], current_task):
+            render_field(key, schema_section[key], section_prefix)
+
+def should_render(props, current_task):
+    model_types = props.get("model_types")
+    if not model_types:
+        return True
+    if current_task:
+        return current_task.strip().lower() in map(str.lower, model_types)
+    return False
 
 
 def render_field(key, props, section_prefix):
-    """Render a single field based on type and schema properties."""
     full_key = f"{section_prefix}_{key}"
     label = props.get("label", key)
     description = props.get("description", "")
     example = props.get("example", "")
     field_type = props.get("type", "string")
     required = props.get("required", False)
-    options = props.get("options", []) 
+    options = props.get("options", [])
+
 
     create_helpicon(label, description, field_type, example, required)
 
-    if field_type == "select":
-        st.selectbox(label, options=options, key=persist(full_key), help=description, label_visibility="hidden")
-    else:
-        st.text_input(label, key=persist(full_key), label_visibility="hidden")
+    try:
+        if field_type == "select":
+            if not options:
+                st.warning(f"Field '{label}' is missing options for select dropdown.")
+            else:
+                st.selectbox(label, options=options, key=persist(full_key), help=description, label_visibility="hidden")
+        else:
+            st.text_input(label, key=persist(full_key), label_visibility="hidden")
+    except Exception as e:
+        st.error(f"Error rendering field '{label}': {str(e)}")
 
+
+def section_divider():
+    st.markdown(
+        "<hr style='margin: 1.5em 0; border: none; border-top: 1px solid #ccc;'>",
+        unsafe_allow_html=True
+    )
 
 def create_helpicon(label, description, field_format, example, required=False):
-    """Render a tooltip-style help icon next to field labels."""
     required_tag = "<span style='color: black; font-size: 1.2em; cursor: help;' title='Required field'>*</span>" if required else ""
+    
     st.markdown("""
     <style>
     .tooltip-inline {
@@ -126,7 +167,6 @@ def create_helpicon(label, description, field_format, example, required=False):
         font-size: 0.8em;
         color: #999;
     }
-
     .tooltip-inline .tooltiptext {
         visibility: hidden;
         width: 260px;
@@ -145,19 +185,23 @@ def create_helpicon(label, description, field_format, example, required=False):
         font-size: 0.9em;
         line-height: 1.4;
     }
-
     .tooltip-inline:hover .tooltiptext {
         visibility: visible;
     }
-
+    <style>
+    /* Align number_input and text_input visually */
+    div[data-testid="stNumberInput"] {
+        margin-top: -6px !important;
+    }
     div[data-testid="stTextInput"] {
-        margin-top: -10px;
+        margin-top: 0px !important;
     }
     </style>
-    """, unsafe_allow_html=True)
 
+    </style>
+    """, unsafe_allow_html=True)
     tooltip_html = f"""
-    <div style='margin-bottom: -8px; font-weight: 500; font-size: 0.98em;'>
+    <div style='margin-bottom: 0px; font-weight: 500; font-size: 0.98em;'>
         {label} {required_tag}
         <span class="tooltip-inline">ⓘ
             <span class="tooltiptext">
@@ -169,3 +213,4 @@ def create_helpicon(label, description, field_format, example, required=False):
     </div>
     """
     st.markdown(tooltip_html, unsafe_allow_html=True)
+    

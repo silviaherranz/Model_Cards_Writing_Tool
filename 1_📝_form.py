@@ -1,15 +1,15 @@
 from persist import persist, load_widget_state
-from render import render_evaluation_section, render_schema_section  # New import
+from render import render_evaluation_section, render_schema_section, render_field, title_header, create_helpicon
 import streamlit as st
 from pathlib import Path
 from huggingface_hub import upload_file, create_repo
 from datetime import date
 from middleMan import parse_into_jinja_markdown as pj
+from datetime import datetime
 import pandas as pd
 import tempfile
 import json
 
-# Load schema once
 with open("model_card_schema.json", "r") as f:
     model_card_schema = json.load(f)
 
@@ -17,17 +17,11 @@ def get_state(key, default=None):
     return st.session_state.get(key, default)
 
 def light_header(text, size="16px", bottom_margin="1em"):
-    st.markdown(
-        f"""
-        <div style='
-            font-size: {size};
-            font-weight: normal;
-            color: #444;
-            margin-bottom: {bottom_margin};
-        '>{text}</div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown(f"""
+        <div style='font-size: {size}; font-weight: normal; color: #444; margin-bottom: {bottom_margin};'>
+            {text}
+        </div>
+    """, unsafe_allow_html=True)
 
 def validate_required_fields(schema, session_state, current_task=None):
     missing_fields = []
@@ -43,8 +37,7 @@ def validate_required_fields(schema, session_state, current_task=None):
                         missing_fields.append(label)
     return missing_fields
 
-@st.cache_data(ttl=3600)  # Cache data for 1 hour (3600 seconds)
-
+@st.cache_data(ttl=3600)
 def get_cached_data():
     license_df = pd.read_html("https://huggingface.co/docs/hub/repositories-licenses")[0]
     return pd.Series(
@@ -74,14 +67,12 @@ def save_uploadedfile(uploadedfile):
 
 def task_selector_page():
     st.header("Select Model Task")
-
     st.radio(
         "Choose the model type:",
         ["Image-to-Image translation", "Segmentation", "Dose prediction"],
-        key="task",
+        key=persist("task"),
         index=0
     )
-
     if st.button("Continue"):
         page_switcher(main_page)
         st.rerun()
@@ -93,68 +84,121 @@ def extract_evaluations_from_state():
         entry = {}
         for key, value in st.session_state.items():
             if key.startswith(prefix):
-                field = key[len(prefix):]  # remove the prefix
+                field = key[len(prefix):]
                 entry[field] = value
         evaluations.append(entry)
     return evaluations
 
-
-
 def main_page():
     today = date.today()
-    if "evaluation_forms" not in st.session_state:
-        st.session_state.evaluation_forms = [{}]  # Empieza con un formulario vacío
-    # Ensure required keys are initialized to prevent KeyErrors
-    task = st.session_state.get("task", None)
+    if "task" not in st.session_state:
+        st.session_state.task = "Image-to-Image translation"
 
-    defaults = {
+    if "evaluation_forms" not in st.session_state:
+        existing_keys = [k for k in st.session_state.keys() if k.startswith("evaluation_")]
+        if existing_keys:
+            indices = set(k.split("_")[1] for k in existing_keys if k.split("_")[1].isdigit())
+            st.session_state.evaluation_forms = [{} for _ in indices]
+        else:
+            st.session_state.evaluation_forms = [{}]
+
+    task = st.session_state.get("task", "Image-to-Image translation")
+
+    for key, value in {
         "model_name": "",
         "license": "",
-        "markdown_upload": "current_card.md",
-    }
-    for key, value in defaults.items():
+        "markdown_upload": "current_card.md"
+    }.items():
         st.session_state.setdefault(key, value)
 
-    if "model_name" not in st.session_state:
-        with open("model_card_schema.json", "r") as file:
-            json_data = json.load(file)
-    # Removed unused license_map variable to avoid unnecessary calls to get_cached_data
-    get_cached_data()  # Ensure cache is populated
+    get_cached_data()
 
-    license_map = get_cached_data()
-    #st.header("Card Metadata")
+    # with st.expander("Card Metadata", expanded=False):
+    #     render_schema_section(model_card_schema["card_metadata"], section_prefix="card_metadata", current_task=task)
     with st.expander("Card Metadata", expanded=False):
-        render_schema_section(model_card_schema["card_metadata"], section_prefix="card_metadata", current_task=task)
+        section = model_card_schema["card_metadata"]
+        # Render creation_date
+        #if "creation_date" in section:
+            #render_field("creation_date", section["creation_date"], "card_metadata")
+        if "creation_date" in section:
+            props = section["creation_date"]
+            label = props.get("label", "Creation Date")
+            description = props.get("description", "")
+            example = props.get("example", "")
+            required = props.get("required", False)
+            type = props.get("type", "date")
 
+            create_helpicon(label, description, type, example, required)
 
+            # Calendar input from 1900 to today
+            date_value = st.date_input(
+                "Select a date",
+                min_value=datetime(1900, 1, 1),
+                max_value=datetime.today(),
+                key="creation_date_widget"
+            )
 
+            # Format date as YYYYMMDD (e.g., 20240102)
+            formatted = date_value.strftime("%Y%m%d")
 
-    #st.header("Model basic information")
-    task = st.session_state.get("task")
+            # Store in session using your persistent key logic
+            st.session_state[persist("card_metadata_creation_date")] = formatted
+
+        title_header("Versioning", size="1rem", bottom_margin="0.01em", top_margin="0.5em")
+
+        # Render version_number + version_changes in the same row using create_helpicon for labels
+        if all(k in section for k in ["version_number", "version_changes"]):
+            col1, col2 = st.columns([1, 3])
+            with col1:
+                props = section["version_number"]
+                create_helpicon(
+                    props.get("label", "Version Number"),
+                    props.get("description", ""),
+                    "number",
+                    props.get("example", ""),
+                    props.get("required", False),
+                )
+                st.number_input(
+                    label="",
+                    min_value=0.0,
+                    max_value=100.0,
+                    step=0.10,
+                    format="%.2f",
+                    key=persist("card_metadata_version_number"),
+                    label_visibility="hidden"
+                )
+
+            with col2:
+                props = section["version_changes"]
+                create_helpicon(
+                    props.get("label", "Version Changes"),
+                    props.get("description", ""),
+                    "string",
+                    props.get("example", ""),
+                    props.get("required", False),
+                )
+                st.text_input(
+                    label="",
+                    key=persist("card_metadata_version_changes"),
+                    label_visibility="hidden"
+                )
+        # Render all other metadata fields except the three already handled
+        for key in section:
+            if key not in ["creation_date", "version_number", "version_changes"]:
+                render_field(key, section[key], "card_metadata")
 
     def filter_fields_by_task(fields, task):
-        filtered = {}
-        for key, props in fields.items():
-            if "model_types" not in props or task in props["model_types"]:
-                filtered[key] = props
-        return filtered
-
-    filtered_fields = filter_fields_by_task(model_card_schema["model_basic_information"], task)
+        return {k: v for k, v in fields.items() if "model_types" not in v or task in v["model_types"]}
 
     with st.expander("Model Basic Information", expanded=False):
+        filtered_fields = filter_fields_by_task(model_card_schema["model_basic_information"], task)
         render_schema_section(filtered_fields, section_prefix="model_basic_information", current_task=task)
 
-    task = st.session_state.get("task", None)
     missing_required = validate_required_fields(model_card_schema, st.session_state, current_task=task)
-
-    #light_header("Evaluation Data Methodology, Results & Commissioning")
-
-    evaluation_schema = model_card_schema["evaluation_data_methodology_results_commisioning"]
-
-    to_delete = None  # track index to delete
 
     light_header("Evaluation Data Methodology, Results & Commissioning")
 
+    to_delete = None
     for i, eval_data in enumerate(st.session_state.evaluation_forms):
         with st.expander(f"Evaluation #{i+1}", expanded=False):
             render_evaluation_section(
@@ -162,45 +206,30 @@ def main_page():
                 section_prefix=f"evaluation_{i}",
                 current_task=task
             )
-
             col1, col2 = st.columns([0.2, 0.8])
             with col1:
                 if st.button(f"🗑️ Delete", key=f"delete_eval_{i}"):
                     to_delete = i
 
-
-    # Delete outside loop to avoid rerun errors mid-loop
     if to_delete is not None:
         del st.session_state.evaluation_forms[to_delete]
-
-        # Also remove session_state keys for this form
-        keys_to_delete = [key for key in st.session_state.keys() if key.startswith(f"evaluation_{to_delete}_")]
-        for key in keys_to_delete:
-            del st.session_state[key]
-
-        # Re-index remaining keys if needed (optional, for clarity)
+        for key in list(st.session_state.keys()):
+            if key.startswith(f"evaluation_{to_delete}_"):
+                del st.session_state[key]
         st.rerun()
 
     if st.button("➕ Add Another Evaluation"):
         st.session_state.evaluation_forms.append({})
         st.rerun()
 
-    
     if missing_required:
-        st.warning(
-            "Warning: The following required fields are missing:\n\n"
-            + "\n".join([f"- {field}" for field in missing_required])
-        )
+        st.warning("Warning: The following required fields are missing:\n\n" + "\n".join([f"- {field}" for field in missing_required]))
 
-
-    # Sidebar for file upload and export
     with st.sidebar:
         st.markdown("## Upload Model Card")
-        st.markdown("#### Model Card must be in markdown (.md) format.")
         uploaded_file = st.file_uploader("Choose a file", type=['md'], help='Upload a markdown (.md) file')
-        if uploaded_file is not None:
-            name_of_uploaded_file = save_uploadedfile(uploaded_file)
-            st.session_state.markdown_upload = name_of_uploaded_file
+        if uploaded_file:
+            st.session_state.markdown_upload = save_uploadedfile(uploaded_file)
         else:
             st.session_state.markdown_upload = "current_card.md"
 
@@ -212,7 +241,6 @@ def main_page():
 
         st.markdown("## Export Loaded Model Card to Hub")
         with st.form("Upload to 🤗 Hub"):
-            st.markdown("Use a token with write access from [here](https://hf.co/settings/tokens)")
             token = st.text_input("Token", type='password')
             repo_id = st.text_input("Repo ID")
             submit = st.form_submit_button('Upload to 🤗 Hub')
@@ -220,7 +248,6 @@ def main_page():
         if submit:
             task = st.session_state.get("task")
             missing_required = validate_required_fields(model_card_schema, st.session_state, current_task=task)
-
             if missing_required:
                 st.error("Please complete the required fields:\n\n" + "\n".join([f"- {field}" for field in missing_required]))
             elif len(repo_id.split('/')) == 2:
@@ -231,38 +258,24 @@ def main_page():
             else:
                 st.error("Repo ID invalid. It should be username/repo-name.")
 
-        # Estado de descarga
         if "show_download" not in st.session_state:
             st.session_state.show_download = False
 
         st.markdown("## Download Model Card")
-
         with st.form("Download model card form"):
-            st.markdown("This will export your model card as a Markdown file.")
             download_submit = st.form_submit_button("📥 Download Model Card")
-
             if download_submit:
                 task = st.session_state.get("task")
                 missing_required = validate_required_fields(model_card_schema, st.session_state, current_task=task)
-
                 if missing_required:
                     st.session_state.show_download = False
-                    st.error(
-                        "The following required fields are missing:\n\n" +
-                        "\n".join([f"- {field}" for field in missing_required])
-                    )
+                    st.error("The following required fields are missing:\n\n" + "\n".join([f"- {field}" for field in missing_required]))
                 else:
                     st.session_state.show_download = True
 
-        # Mostrar el botón real de descarga fuera del form si todo es válido
         if st.session_state.get("show_download"):
             card_content = pj(st.session_state)
-            st.download_button(
-                label="📥 Click here to download",
-                data=card_content,
-                file_name="model_card.md",
-                mime="text/markdown"
-            )
+            st.download_button("📥 Click here to download", data=card_content, file_name="model_card.md", mime="text/markdown")
 
 def page_switcher(page):
     st.session_state.runpage = page
@@ -275,7 +288,6 @@ def main():
     else:
         st.error("The file 'about.md' is missing. Please ensure it exists in the current working directory.")
 
-    # Always show this button!
     if st.button('Create a Model Card 📝'):
         page_switcher(task_selector_page)
         st.rerun()
