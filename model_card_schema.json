@@ -214,7 +214,7 @@
       "example": "20241001"
     },
     "version_number": {
-      "type": "String, Free text format",
+      "type": "String, Free text format. Suggested format: MM.mm.bbbb where MM is the major release number, mm is the minor release number, and bbbb is the build number.",
       "label": "Version Number",
       "description": "Version number of the model",
       "required": true,
@@ -264,21 +264,21 @@
     },
     "clearance_approved_by_name": {
       "type": "String, Free text format",
-      "label": "Approved by Name(s)",
+      "label": "Name(s)",
       "description": "Name of person(s) who approved the model or contact person on behalf of the team. If several, separate them by commas.",
       "required": true,
       "example": "Maria Smith"
     },
     "clearance_approved_by_institution": {
       "type": "String, Free text format",
-      "label": "Approved by Institution(s)",
+      "label": "Institution(s)",
       "description": "Institution(s) involved in the approval of the model. If several, separate them by commas.",
       "required": true,
       "example": "UCLouvain"
     },
     "clearance_approved_by_contact_email": {
       "type": "String, Free text format",
-      "label": "Approved by Contact Email(s)",
+      "label": "Contact Email(s)",
       "description": "Contact email(s) for the team or persons. If several, separate them by commas.",
       "required": true
     },
@@ -352,7 +352,7 @@
     },
     "code_source": {
       "type": "String, Free text format",
-      "label": "Code Repository",
+      "label": "Code Source",
       "description": "Link(s) to repository (e.g. github/gitlab) or website where the code source of the learning architecture and inference pipeline is located. If the code source is not made available, indicate “NA” (Not applicable), or eventually, you might use this field to indicate the location / path in your internal computers.",
       "required": false
     },

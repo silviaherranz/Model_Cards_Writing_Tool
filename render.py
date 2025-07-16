@@ -16,6 +16,12 @@ def title_header(text, size="1.1rem", bottom_margin="1em", top_margin="0.5em"):
         unsafe_allow_html=True
     )
 
+def section_divider():
+    st.markdown(
+        "<hr style='margin: 1.5em 0; border: none; border-top: 1px solid #ccc;'>",
+        unsafe_allow_html=True
+    )
+
 def render_schema_section(schema_section, section_prefix="", current_task=None):
     for key, props in schema_section.items():
         if should_render(props, current_task):
@@ -94,17 +100,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         title_header("Geometric metrics", size="1rem")
         title_header("Dose metrics", size="1rem")
         render_fields(dose_seg_fields, schema_section, section_prefix, current_task)
-
-    # title_header("Image similarity metrics", size="1rem")
-    # render_fields(["type_ism", "on_volume_ism", "registration_ism", "sample_data_ism", "mean_data_ism", "figure_ism"], schema_section, section_prefix, current_task)
-    # title_header("Dose metrics", size="1rem")
-    # render_fields(["type_dose_dm", "metric_specifications_dm", "on_volume_dm", "registration_dm","treatment_modality_dm","dose_engine_dm", "dose_grid_resolution_dm", "tps_vendor_dm", "sample_data_dm", "mean_data_dm", "figure_dm"], schema_section, section_prefix, current_task)
-    # title_header("Geometric metrics", size="1rem")
-    # title_header("Dose metrics", size="1rem")
-    # render_fields(["type_dose_seg", "metric_specifications_seg", "on_volume_seg", "treatment_modality_seg","dose_engine_seg","dose_grid_resolution_seg", "tps_vendor_seg","sample_data_seg", "mean_data_seg", "figure_seg"],schema_section, section_prefix, current_task)
-    # title_header("IOV (Inter-Observer Variability)", size="1rem")
-    # title_header("Dose metrics", size="1rem")
-    # title_header("Uncertainty metrics", size="1rem")
     title_header("Other", size="1rem")
 
     title_header("Qualitative Evaluation")
@@ -126,7 +121,8 @@ def should_render(props, current_task):
 
 def render_field(key, props, section_prefix):
     full_key = f"{section_prefix}_{key}"
-    label = props.get("label", key)
+    #label = props.get("label", key)
+    label = props.get("label") or key or "Field"
     description = props.get("description", "")
     example = props.get("example", "")
     field_type = props.get("type", "string")
@@ -137,22 +133,16 @@ def render_field(key, props, section_prefix):
     create_helpicon(label, description, field_type, example, required)
 
     try:
+        safe_label = label if label.strip() else "Field"
         if field_type == "select":
             if not options:
                 st.warning(f"Field '{label}' is missing options for select dropdown.")
             else:
-                st.selectbox(label, options=options, key=persist(full_key), help=description, label_visibility="hidden")
+                st.selectbox(safe_label, options=options, key=persist(full_key), help=description, label_visibility="hidden")
         else:
-            st.text_input(label, key=persist(full_key), label_visibility="hidden")
+            st.text_input(safe_label, key=persist(full_key), label_visibility="hidden")
     except Exception as e:
         st.error(f"Error rendering field '{label}': {str(e)}")
-
-
-def section_divider():
-    st.markdown(
-        "<hr style='margin: 1.5em 0; border: none; border-top: 1px solid #ccc;'>",
-        unsafe_allow_html=True
-    )
 
 def create_helpicon(label, description, field_format, example, required=False):
     required_tag = "<span style='color: black; font-size: 1.2em; cursor: help;' title='Required field'>*</span>" if required else ""
