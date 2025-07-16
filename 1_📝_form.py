@@ -1,5 +1,5 @@
 from persist import persist, load_widget_state
-from render import render_evaluation_section, render_field, title_header, create_helpicon, section_divider
+from render import render_evaluation_section, render_field, title_header, create_helpicon, section_divider, render_schema_section
 import streamlit as st
 from pathlib import Path
 from huggingface_hub import upload_file, create_repo
@@ -22,6 +22,14 @@ def light_header(text, size="16px", bottom_margin="1em"):
             {text}
         </div>
     """, unsafe_allow_html=True)
+
+def light_header_italics(text, size="16px", bottom_margin="1em"):
+    st.markdown(f"""
+        <div style='font-size: {size}; font-style: italic; font-weight: normal; color: #444; margin-bottom: {bottom_margin};'>
+            {text}
+        </div>
+    """, unsafe_allow_html=True)
+
 
 def validate_required_fields(schema, session_state, current_task=None):
     missing_fields = []
@@ -93,6 +101,10 @@ def main_page():
     today = date.today()
     if "task" not in st.session_state:
         st.session_state.task = "Image-to-Image translation"
+    
+    if "learning_architecture_forms" not in st.session_state:
+        st.session_state.learning_architecture_forms = [{}]
+
 
     if "evaluation_forms" not in st.session_state:
         existing_keys = [k for k in st.session_state.keys() if k.startswith("evaluation_")]
@@ -159,9 +171,9 @@ def main_page():
                     props.get("required", False),
                 )
                 st.number_input(
-                    label="Hidden version number input",
+                    label=".",
                     min_value=0.0,
-                    max_value=100.0,
+                    max_value=10000000000.0,
                     step=0.10,
                     format="%.2f",
                     key=persist("card_metadata_version_number"),
@@ -178,11 +190,10 @@ def main_page():
                     props.get("required", False),
                 )
                 st.text_input(
-                    label="Hidden version change input",
+                    label=".",
                     key=persist("card_metadata_version_changes"),
                     label_visibility="hidden"
                 )
-
         # Render all other metadata fields except the three already handled
         for key in section:
             if key not in ["creation_date", "version_number", "version_changes"]:
@@ -201,13 +212,32 @@ def main_page():
             with col1:
                 render_field("name", section["name"], "model_basic_information")
             with col2:
-                render_field("creation_date", section["creation_date"], "model_basic_information")
+                props = section["creation_date"]
+                label = props.get("label", "Creation Date")
+                description = props.get("description", "")
+                example = props.get("example", "")
+                required = props.get("required", False)
+                field_type = props.get("type", "date")
+
+                create_helpicon(label, description, field_type, example, required)
+
+                date_value = st.date_input(
+                    "Select a date",
+                    min_value=datetime(1900, 1, 1),
+                    max_value=datetime.today(),
+                    key="model_basic_information_creation_date_widget"
+                )
+
+                formatted = date_value.strftime("%Y%m%d")
+                st.session_state[persist("model_basic_information_creation_date")] = formatted
+
         section_divider()
         title_header("Versioning", size="1rem", bottom_margin="0.01em", top_margin="0.5em")
         # Line 2: version_number + version_changes
         if "version_number" in section and "version_changes" in section:
             col1, col2 = st.columns([1, 3])
             with col1:
+                section["version_number"]["placeholder"] = "MM.mm.bbbb"
                 render_field("version_number", section["version_number"], "model_basic_information")
             with col2:
                 render_field("version_changes", section["version_changes"], "model_basic_information")
@@ -290,12 +320,126 @@ def main_page():
 
 
     missing_required = validate_required_fields(model_card_schema, st.session_state, current_task=task)
+    
+    with st.expander("Technical Specifications", expanded=False):
+        title_header("Model overview", size="1.1rem")
+        title_header("1. Model pipeline", size="1rem", bottom_margin="0.5em")
+        #render_schema_section(model_card_schema["technical_specifications"], section_prefix="technical_specifications")
+        section = model_card_schema["technical_specifications"]
+        render_field("model_pipeline_summary", section["model_pipeline_summary"], "technical_specifications")
+        render_field("model_pipeline_figure", section["model_pipeline_figure"], "technical_specifications")
+
+        section_divider()
+        # Row 1: model_inputs and model_outputs
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            render_field("model_inputs", section["model_inputs"], "technical_specifications")
+        with col2:
+            render_field("model_outputs", section["model_outputs"], "technical_specifications")
+
+        # Row 2: pre_processing and post_processing with larger boxes
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            render_field("pre-processing", section["pre-processing"], "technical_specifications")
+        with col2:
+            render_field("post-processing", section["post-processing"], "technical_specifications")
+
+        # Optional: Render any other leftover fields
+        # for key in section:
+        #     if key not in ["model_inputs", "model_outputs", "pre_processing", "post_processing"]:
+        #         render_field(key, section[key], "technical_specifications")
+
+        section_divider()
+        # -- Learning Architecture Header --
+        title_header("2. Learning Architecture", size="1rem", bottom_margin="0.5em")
+        light_header_italics("If several models are used (e.g. cascade, cycle, tree,...), repeat this section for each of them.")
+         # Add before the UI block (safe initialization)
+        if "selected_learning_arch_to_delete" not in st.session_state:
+            st.session_state.selected_learning_arch_to_delete = None
+        # -- Cleaner Button Layout --
+        with st.container():
+            col1, col2 = st.columns([1, 2])
+            
+            with col1:
+                st.button("➕ Add Learning Architecture", key="add_learning_arch")
+            
+            with col2:
+                if len(st.session_state.learning_architecture_forms) > 1:
+                    selected_model_to_delete = st.selectbox(
+                        "Delete a model:",
+                        [f"Learning Architecture {i+1}" for i in range(len(st.session_state.learning_architecture_forms))],
+                        key="learning_architecture_delete_select_clean"
+                    )
+
+                    if selected_model_to_delete:
+                        selected_idx = int(selected_model_to_delete.split()[-1]) - 1
+                        st.session_state.selected_learning_arch_to_delete = selected_idx
+
+                    if st.button("🗑️ Delete", key="delete_learning_arch_clean"):
+                        idx = st.session_state.get("selected_learning_arch_to_delete")
+                        if idx is not None and idx < len(st.session_state.learning_architecture_forms):
+                            del st.session_state.learning_architecture_forms[idx]
+
+                            # Clean up corresponding keys
+                            for key in list(st.session_state.keys()):
+                                if key.startswith(f"learning_architecture_{idx}_"):
+                                    del st.session_state[key]
+
+                            # Shift all remaining keys down
+                            for i in range(idx + 1, 100):  # arbitrary upper bound
+                                for key in list(st.session_state.keys()):
+                                    if key.startswith(f"learning_architecture_{i}_"):
+                                        new_key = key.replace(f"learning_architecture_{i}_", f"learning_architecture_{i-1}_")
+                                        st.session_state[new_key] = st.session_state.pop(key)
+
+                            st.rerun()
+
+
+            # -- Add New Architecture on Click --
+            if st.session_state.get("add_learning_arch", False):
+                st.session_state.learning_architecture_forms.append({})
+                st.rerun()
+
+
+        # --- TABS FOR EACH LEARNING ARCHITECTURE ---
+        tab_labels = [f"Learning Architecture {i+1}" for i in range(len(st.session_state.learning_architecture_forms))]
+        tabs = st.tabs(tab_labels)
+
+        for i, tab in enumerate(tabs):
+            with tab:
+                render_schema_section(
+                    model_card_schema["learning_architecture"],
+                    section_prefix=f"learning_architecture_{i}"
+                )
+
+        section_divider()
+        title_header("3. Hardware & Software", size="1rem")
+        #render_schema_section(model_card_schema["hw_and_sw"], section_prefix="hw_and_sw")
+        section = model_card_schema["hw_and_sw"]
+        # Row 1: Libraries and Dependencies (longer input, full width)
+        render_field("libraries_and_dependencies", section["libraries_and_dependencies"], "hw_and_sw")
+
+        # Row 2: Hardware + Inference time side-by-side
+        col1, col2 = st.columns(2)
+        with col1:
+            render_field("hardware_recommended", section["hardware_recommended"], "hw_and_sw")
+        with col2:
+            render_field("inference_time_for_recommended_hw", section["inference_time_for_recommended_hw"], "hw_and_sw")
+        col1, col2 = st.columns(2)
+        with col1:
+            render_field("installation_getting_started", section["installation_getting_started"], "hw_and_sw")
+        with col2:
+            render_field("environmental_impact", section["environmental_impact"], "hw_and_sw")
+
+
+
 
     light_header("Evaluation Data Methodology, Results & Commissioning")
+    light_header_italics("To be repeated as many times as evaluations sets used", bottom_margin="1em")
 
     to_delete = None
     for i, eval_data in enumerate(st.session_state.evaluation_forms):
-        with st.expander(f"Evaluation #{i+1}", expanded=False):
+        with st.expander(f"Evaluation {i+1}", expanded=False):
             render_evaluation_section(
                 model_card_schema["evaluation_data_methodology_results_commisioning"],
                 section_prefix=f"evaluation_{i}",
@@ -316,6 +460,12 @@ def main_page():
     if st.button("➕ Add Another Evaluation"):
         st.session_state.evaluation_forms.append({})
         st.rerun()
+
+    with st.expander("Other considerations", expanded=False):
+        section = model_card_schema["other_considerations"]
+        render_field("responsible_use_and_ethical_considerations", section["responsible_use_and_ethical_considerations"], "other_considerations")
+        render_field("risk_analysis", section["risk_analysis"], "other_considerations")
+        render_field("post_market_surveillance_live_monitoring", section["post_market_surveillance_live_monitoring"], "other_considerations")
 
     if missing_required:
         st.warning("Warning: The following required fields are missing:\n\n" + "\n".join([f"- {field}" for field in missing_required]))
@@ -388,6 +538,9 @@ def main():
         st.rerun()
 
 if __name__ == '__main__':
+    # Pre-initialize problematic widget keys to avoid KeyErrors
+    if "learning_architecture_delete_select_clean" not in st.session_state:
+        st.session_state.learning_architecture_delete_select_clean = None
     load_widget_state()
     if 'runpage' not in st.session_state:
         st.session_state.runpage = main

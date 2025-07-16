@@ -1,4 +1,5 @@
 # render.py
+from datetime import datetime
 import streamlit as st
 from persist import persist
 
@@ -34,7 +35,29 @@ def has_renderable_fields(field_keys, schema_section, current_task):
     )
 
 def render_evaluation_section(schema_section, section_prefix, current_task):
-    render_fields(["evaluation_date"], schema_section, section_prefix, current_task)
+    #render_fields(["evaluation_date"], schema_section, section_prefix, current_task)
+    # Custom rendering for evaluation_date as a calendar input
+    if "evaluation_date" in schema_section:
+        props = schema_section["evaluation_date"]
+        label = props.get("label", "Evaluation Date")
+        description = props.get("description", "")
+        example = props.get("example", "")
+        required = props.get("required", False)
+        field_type = props.get("type", "date")
+
+        create_helpicon(label, description, field_type, example, required)
+
+        date_key = f"{section_prefix}_evaluation_date_widget"
+        value = st.date_input(
+            label="Select a date",
+            min_value=datetime(1900, 1, 1),
+            max_value=datetime.today(),
+            key=date_key
+        )
+
+        formatted = value.strftime("%Y%m%d")
+        st.session_state[persist(f"{section_prefix}_evaluation_date")] = formatted
+
     section_divider()
 
     title_header("Evaluated by")
@@ -60,7 +83,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
 
     title_header("Evaluation Dataset")
 
-    title_header("General Information", size="1rem")
+    title_header("1. General Information", size="1rem")
     render_fields([
         "total_size", "number_of_patients", "source", "acquisition_period",
         "inclusion_exclusion_criteria", "url_info"
@@ -121,28 +144,73 @@ def should_render(props, current_task):
 
 def render_field(key, props, section_prefix):
     full_key = f"{section_prefix}_{key}"
-    #label = props.get("label", key)
     label = props.get("label") or key or "Field"
     description = props.get("description", "")
     example = props.get("example", "")
-    field_type = props.get("type", "string")
+    field_type = props.get("type", "")
     required = props.get("required", False)
     options = props.get("options", [])
+    placeholder = props.get("placeholder", "")
 
 
     create_helpicon(label, description, field_type, example, required)
 
     try:
-        safe_label = label if label.strip() else "Field"
+        safe_label = label.strip() or "Field"
+
         if field_type == "select":
             if not options:
                 st.warning(f"Field '{label}' is missing options for select dropdown.")
             else:
-                st.selectbox(safe_label, options=options, key=persist(full_key), help=description, label_visibility="hidden")
+                st.selectbox(
+                    safe_label,
+                    options=options,
+                    key=persist(full_key),
+                    help=description,
+                    label_visibility="hidden"
+                )
+
+        elif field_type == "image":
+            # Description below the label
+            st.markdown("<i>If too big or not readable, please indicate the figure number and attach it to the appendix", unsafe_allow_html=True)
+
+            # Horizontal layout: Text input (wide) + file uploader (narrow)
+            col1, col2 = st.columns([1, 2])
+
+            with col1:
+                st.text_input(
+                    label=".",
+                    placeholder="e.g., Fig. 1",
+                    key=f"{full_key}_appendix_note",
+                    label_visibility="collapsed"
+                )
+
+            with col2:
+                uploaded_image = st.file_uploader(
+                    label=".",
+                    type=["png", "jpg", "jpeg"],
+                    key=full_key,
+                    label_visibility="collapsed"
+                )
+
+            if uploaded_image:
+                st.image(uploaded_image, caption="Uploaded pipeline figure", use_container_width=True)
+
+                #If you plan to export this data (e.g., to markdown or Hugging Face hub), you can retrieve it later via
+                    #image = st.session_state.get("technical_specifications_model_pipeline_figure_image")
+                    #note = st.session_state.get("technical_specifications_model_pipeline_figure_appendix_note")
+
         else:
-            st.text_input(safe_label, key=persist(full_key), label_visibility="hidden")
+            st.text_input(
+                safe_label,
+                key=persist(full_key),
+                label_visibility="hidden",
+                placeholder=placeholder
+            )
+
     except Exception as e:
         st.error(f"Error rendering field '{label}': {str(e)}")
+
 
 def create_helpicon(label, description, field_format, example, required=False):
     required_tag = "<span style='color: black; font-size: 1.2em; cursor: help;' title='Required field'>*</span>" if required else ""
