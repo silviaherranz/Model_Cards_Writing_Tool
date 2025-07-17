@@ -2,6 +2,8 @@
 from datetime import datetime
 import streamlit as st
 from persist import persist
+from tg263 import RTSTRUCT_SUBTYPES
+
 
 def title_header(text, size="1.1rem", bottom_margin="1em", top_margin="0.5em"):
     st.markdown(
@@ -152,25 +154,72 @@ def render_field(key, props, section_prefix):
     options = props.get("options", [])
     placeholder = props.get("placeholder", "")
 
-
     create_helpicon(label, description, field_type, example, required)
 
     try:
         safe_label = label.strip() or "Field"
-
         if field_type == "select":
             if not options:
                 st.warning(f"Field '{label}' is missing options for select dropdown.")
             else:
-                st.selectbox(
-                    safe_label,
-                    options=options,
-                    key=persist(full_key),
-                    help=description,
-                    label_visibility="hidden"
-                )
+                if key in ["input_content", "output_content"]:
+                    import re
+                    from tg263 import RTSTRUCT_SUBTYPES  # Make sure this list exists in that file
 
-        elif field_type == "image":
+                    content_list_key = persist(f"{full_key}_list")
+                    type_key = persist(f"{full_key}_new_type")
+                    subtype_key = persist(f"{full_key}_new_subtype")
+
+                    # Init session state if needed
+                    if content_list_key not in st.session_state:
+                        st.session_state[content_list_key] = []
+                    if type_key not in st.session_state:
+                        st.session_state[type_key] = options[0]
+                    if subtype_key not in st.session_state:
+                        st.session_state[subtype_key] = RTSTRUCT_SUBTYPES[0]
+
+                    col1, col2 = st.columns([2, 1])
+                    with col1:
+                        st.selectbox("Select content type", options=options, key=type_key)
+
+                    selected_type = st.session_state.get(type_key)
+                    if selected_type == "RTSTRUCT":
+                        with col2:
+                            st.selectbox("Select RTSTRUCT subtype", options=RTSTRUCT_SUBTYPES, key=subtype_key)
+
+                    # Add button
+                    if st.button("➕ Add", key=f"{full_key}_add_button"):
+                        if selected_type == "RTSTRUCT":
+                            subtype = st.session_state[subtype_key]
+                            entry = f"RTSTRUCT_{subtype}"
+                        else:
+                            entry = selected_type
+                        st.session_state[content_list_key].append(entry)
+                        st.session_state[persist(full_key)] = st.session_state[content_list_key]
+
+                    # Display added entries
+                    if st.session_state[content_list_key]:
+                        st.markdown("**Selected:**")
+                        for idx, val in enumerate(st.session_state[content_list_key]):
+                            col1, col2 = st.columns([6, 1])
+                            with col1:
+                                st.markdown(f"`{val}`")
+                            with col2:
+                                if st.button("❌", key=f"{full_key}_remove_{idx}"):
+                                    st.session_state[content_list_key].pop(idx)
+
+
+                else:
+                    # Default behavior for single select fields
+                    st.selectbox(
+                        safe_label,
+                        options=options,
+                        key=persist(full_key),
+                        help=description,
+                        label_visibility="hidden"
+                    )
+       
+        elif field_type == "Image":
             # Description below the label
             st.markdown("<i>If too big or not readable, please indicate the figure number and attach it to the appendix", unsafe_allow_html=True)
 
@@ -193,13 +242,15 @@ def render_field(key, props, section_prefix):
                     label_visibility="collapsed"
                 )
 
+            # if uploaded_image:
+            #     st.image(uploaded_image, caption="Uploaded pipeline figure", use_container_width=True)
+            # Do NOT display the image
             if uploaded_image:
-                st.image(uploaded_image, caption="Uploaded pipeline figure", use_container_width=True)
+                st.session_state[persist(f"{full_key}_image")] = uploaded_image
 
                 #If you plan to export this data (e.g., to markdown or Hugging Face hub), you can retrieve it later via
                     #image = st.session_state.get("technical_specifications_model_pipeline_figure_image")
                     #note = st.session_state.get("technical_specifications_model_pipeline_figure_appendix_note")
-
         else:
             st.text_input(
                 safe_label,

@@ -322,8 +322,8 @@ def main_page():
     missing_required = validate_required_fields(model_card_schema, st.session_state, current_task=task)
     
     with st.expander("Technical Specifications", expanded=False):
-        title_header("Model overview", size="1.1rem")
-        title_header("1. Model pipeline", size="1rem", bottom_margin="0.5em")
+        title_header("1. Model overview", size="1.1rem")
+        title_header("Model pipeline", size="1rem", bottom_margin="0.5em")
         #render_schema_section(model_card_schema["technical_specifications"], section_prefix="technical_specifications")
         section = model_card_schema["technical_specifications"]
         render_field("model_pipeline_summary", section["model_pipeline_summary"], "technical_specifications")
@@ -364,35 +364,41 @@ def main_page():
                 st.button("➕ Add Learning Architecture", key="add_learning_arch")
             
             with col2:
-                if len(st.session_state.learning_architecture_forms) > 1:
-                    selected_model_to_delete = st.selectbox(
-                        "Delete a model:",
-                        [f"Learning Architecture {i+1}" for i in range(len(st.session_state.learning_architecture_forms))],
+                forms = st.session_state.get("learning_architecture_forms", [])
+
+                if len(forms) > 1:
+                    deletable_indices = list(range(1, len(forms)))
+
+                    delete_index = st.selectbox(
+                        "Delete a previously added model (cannot delete the first one):",
+                        options=deletable_indices,
+                        format_func=lambda i: f"Learning Architecture {i+1}",
                         key="learning_architecture_delete_select_clean"
                     )
 
-                    if selected_model_to_delete:
-                        selected_idx = int(selected_model_to_delete.split()[-1]) - 1
-                        st.session_state.selected_learning_arch_to_delete = selected_idx
+                    if st.button("🗑️ Delete Selected (Most recently added is last)", key="delete_learning_arch_clean"):
+                        # Remove the selected form
+                        st.session_state.learning_architecture_forms.pop(delete_index)
 
-                    if st.button("🗑️ Delete", key="delete_learning_arch_clean"):
-                        idx = st.session_state.get("selected_learning_arch_to_delete")
-                        if idx is not None and idx < len(st.session_state.learning_architecture_forms):
-                            del st.session_state.learning_architecture_forms[idx]
+                        # Remove all session keys related to that form
+                        keys_to_remove = [
+                            k for k in list(st.session_state.keys())
+                            if k.startswith(f"learning_architecture_{delete_index}_")
+                        ]
+                        for k in keys_to_remove:
+                            del st.session_state[k]
 
-                            # Clean up corresponding keys
-                            for key in list(st.session_state.keys()):
-                                if key.startswith(f"learning_architecture_{idx}_"):
-                                    del st.session_state[key]
+                        # ✅ Also remove all keys for shifted forms to avoid widget conflict
+                        for i in range(delete_index + 1, len(forms)):
+                            old_prefix = f"learning_architecture_{i}_"
+                            new_prefix = f"learning_architecture_{i - 1}_"
+                            for k in list(st.session_state.keys()):
+                                if k.startswith(old_prefix):
+                                    new_key = k.replace(old_prefix, new_prefix)
+                                    st.session_state[new_key] = st.session_state.pop(k)
 
-                            # Shift all remaining keys down
-                            for i in range(idx + 1, 100):  # arbitrary upper bound
-                                for key in list(st.session_state.keys()):
-                                    if key.startswith(f"learning_architecture_{i}_"):
-                                        new_key = key.replace(f"learning_architecture_{i}_", f"learning_architecture_{i-1}_")
-                                        st.session_state[new_key] = st.session_state.pop(key)
+                        st.rerun()
 
-                            st.rerun()
 
 
             # -- Add New Architecture on Click --
@@ -405,12 +411,53 @@ def main_page():
         tab_labels = [f"Learning Architecture {i+1}" for i in range(len(st.session_state.learning_architecture_forms))]
         tabs = st.tabs(tab_labels)
 
+
+        # for i, tab in enumerate(tabs):
+        #     with tab:
+        #         render_schema_section(
+        #             model_card_schema["learning_architecture"],
+        #             section_prefix=f"learning_architecture_{i}"
+        #         )
         for i, tab in enumerate(tabs):
             with tab:
-                render_schema_section(
-                    model_card_schema["learning_architecture"],
-                    section_prefix=f"learning_architecture_{i}"
-                )
+                section = model_card_schema["learning_architecture"]
+                prefix = f"learning_architecture_{i}"
+
+                # Row 1: Parameters and Inputs
+                col1, col2= st.columns([2, 1])
+                with col1:
+                    render_field("total_number_trainable_parameters", section["total_number_trainable_parameters"], prefix)
+                with col2:
+                    render_field("number_of_inputs", section["number_of_inputs"], prefix)
+                #with col3:
+                render_field("input_content", section["input_content"], prefix)
+
+                #Row 2: Additional input details (optional)
+                col1, col2= st.columns([1, 1])
+                with col1:
+                    render_field("additional_information_input_content", section["additional_information_input_content"], prefix)
+                with col2:
+                    render_field("input_format", section["input_format"], prefix)
+
+                render_field("input_size", section["input_size"], prefix)
+
+                # Row 3: Output details
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    render_field("number_of_outputs", section["number_of_outputs"], prefix)
+                with col2:
+                    render_field("output_content", section["output_content"], prefix)
+                render_field("additional_information_output_content", section["additional_information_output_content"], prefix)
+                # You can continue rendering other fields similarly, skipping the ones you don't want
+                for field in [
+                    "output_format", "output_size", "loss_function",
+                    "batch_size", "regularisation", "architecture_figure",
+                    "uncertainty_quantification_techniques", "explainability_techniques",
+                    "additional_information_ts", "citation_details_ts"
+                ]:
+                    if field in section:
+                        render_field(field, section[field], prefix)
+
 
         section_divider()
         title_header("3. Hardware & Software", size="1rem")
