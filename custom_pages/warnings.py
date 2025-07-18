@@ -1,12 +1,5 @@
 import streamlit as st
 import utils
-from persist import persist
-from render import (
-    create_helpicon,
-    render_evaluation_section,
-    render_field,
-    title_header,
-)
 
 model_card_schema = utils.get_model_card_schema()
 
