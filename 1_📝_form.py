@@ -103,7 +103,7 @@ def main_page():
         st.session_state.task = "Image-to-Image translation"
     
     if "learning_architecture_forms" not in st.session_state:
-        st.session_state.learning_architecture_forms = [{}]
+        st.session_state.learning_architecture_forms = {"Learning Architecture 1": {}}
 
 
     if "evaluation_forms" not in st.session_state:
@@ -363,52 +363,50 @@ def main_page():
             with col1:
                 st.button("➕ Add Learning Architecture", key="add_learning_arch")
             
-            with col2:
-                forms = st.session_state.get("learning_architecture_forms", [])
+        with col2:
+            forms = list(st.session_state.learning_architecture_forms.keys())
 
-                if len(forms) > 1:
-                    deletable_indices = list(range(1, len(forms)))
+            delete_index = st.selectbox(
+                "Delete a model (cannot delete #1):",
+                options=forms[1:],  # Can't delete the first one
+                key="learning_architecture_delete_select_clean"
+            )
 
-                    delete_index = st.selectbox(
-                        "Delete a previously added model (cannot delete the first one):",
-                        options=deletable_indices,
-                        format_func=lambda i: f"Learning Architecture {i+1}",
-                        key="learning_architecture_delete_select_clean"
-                    )
+            if st.button("🗑️ Delete", key="delete_learning_arch_clean"):
+                selected_key = delete_index
+                selected_index = int(selected_key.split()[-1])  # Extracts the index number
 
-                    if st.button("🗑️ Delete Selected (Most recently added is last)", key="delete_learning_arch_clean"):
-                        # Remove the selected form
-                        st.session_state.learning_architecture_forms.pop(delete_index)
+                # Remove the selected form
+                st.session_state.learning_architecture_forms.pop(selected_key)
 
-                        # Remove all session keys related to that form
-                        keys_to_remove = [
-                            k for k in list(st.session_state.keys())
-                            if k.startswith(f"learning_architecture_{delete_index}_")
-                        ]
-                        for k in keys_to_remove:
-                            del st.session_state[k]
+                # Remove all session keys related to that form
+                keys_to_remove = [
+                    k for k in list(st.session_state.keys())
+                    if k.startswith(f"learning_architecture_{selected_index}_")
+                ]
+                for k in keys_to_remove:
+                    del st.session_state[k]
 
-                        # ✅ Also remove all keys for shifted forms to avoid widget conflict
-                        for i in range(delete_index + 1, len(forms)):
-                            old_prefix = f"learning_architecture_{i}_"
-                            new_prefix = f"learning_architecture_{i - 1}_"
-                            for k in list(st.session_state.keys()):
-                                if k.startswith(old_prefix):
-                                    new_key = k.replace(old_prefix, new_prefix)
-                                    st.session_state[new_key] = st.session_state.pop(k)
+                # Shift all later forms down by 1 to fill the gap
+                for i in range(selected_index + 1, len(forms) + 1):
+                    old_prefix = f"learning_architecture_{i}_"
+                    new_prefix = f"learning_architecture_{i - 1}_"
+                    for k in list(st.session_state.keys()):
+                        if k.startswith(old_prefix):
+                            new_key = k.replace(old_prefix, new_prefix)
+                            st.session_state[new_key] = st.session_state.pop(k)
 
-                        st.rerun()
-
-
+                st.rerun()
 
             # -- Add New Architecture on Click --
             if st.session_state.get("add_learning_arch", False):
-                st.session_state.learning_architecture_forms.append({})
+                n = len(st.session_state.learning_architecture_forms)
+                st.session_state.learning_architecture_forms[f"Learning Architecture {n+1}"] = {}
                 st.rerun()
 
 
         # --- TABS FOR EACH LEARNING ARCHITECTURE ---
-        tab_labels = [f"Learning Architecture {i+1}" for i in range(len(st.session_state.learning_architecture_forms))]
+        tab_labels = list(st.session_state.learning_architecture_forms.keys())
         tabs = st.tabs(tab_labels)
 
 
