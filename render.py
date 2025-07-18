@@ -3,6 +3,7 @@ from datetime import datetime
 import streamlit as st
 from persist import persist
 from tg263 import RTSTRUCT_SUBTYPES
+import html
 
 
 def title_header(text, size="1.1rem", bottom_margin="1em", top_margin="0.5em"):
@@ -163,43 +164,58 @@ def render_field(key, props, section_prefix):
                 st.warning(f"Field '{label}' is missing options for select dropdown.")
             else:
                 if key in ["input_content", "output_content"]:
-                    # Initialize keys
+
                     content_list_key = persist(f"{full_key}_list")
                     type_key = persist(f"{full_key}_new_type")
                     subtype_key = persist(f"{full_key}_new_subtype")
 
-                    if content_list_key not in st.session_state:
-                        st.session_state[content_list_key] = []
-                    if type_key not in st.session_state:
-                        st.session_state[type_key] = options[0]
-                    if subtype_key not in st.session_state:
-                        st.session_state[subtype_key] = RTSTRUCT_SUBTYPES[0]
+                    st.session_state.setdefault(content_list_key, [])
+                    st.session_state.setdefault(type_key, options[0])
+                    st.session_state.setdefault(subtype_key, RTSTRUCT_SUBTYPES[0])
 
-                    # UI: dropdown + add button inline
-                    col1, col2 = st.columns([2, 1])
-                    with col1:
-                        st.selectbox("Select content type", options=options, key=type_key)
-                    with col2:
-                        if st.session_state[type_key] == "RTSTRUCT":
+                    if st.session_state[type_key] == "RTSTRUCT":
+                        col1, col2, col3 = st.columns([2, 2, 0.4])
+                        with col1:
+                            st.selectbox("Select content type", options=options, key=type_key)
+                        with col2:
                             st.selectbox("Select RTSTRUCT subtype", options=RTSTRUCT_SUBTYPES, key=subtype_key)
-                        if st.button("➕", key=f"{full_key}_add_button"):
-                            selected_type = st.session_state[type_key]
-                            if selected_type == "RTSTRUCT":
+                        with col3:
+                            st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
+                            if st.button("➕", key=f"{full_key}_add_button"):
                                 subtype = st.session_state[subtype_key]
                                 entry = f"RTSTRUCT_{subtype}"
-                            else:
-                                entry = selected_type
-                            if entry not in st.session_state[content_list_key]:
                                 st.session_state[content_list_key].append(entry)
                                 st.session_state[persist(full_key)] = st.session_state[content_list_key]
+                            st.markdown("</div>", unsafe_allow_html=True)
+                    else:
+                        col1, col2 = st.columns([4, 0.5])
+                        with col1:
+                            st.selectbox("Select content type", options=options, key=type_key)
+                        with col2:
+                            st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
+                            if st.button("➕", key=f"{full_key}_add_button"):
+                                entry = st.session_state[type_key]
+                                st.session_state[content_list_key].append(entry)
+                                st.session_state[persist(full_key)] = st.session_state[content_list_key]
+                            st.markdown("</div>", unsafe_allow_html=True)
 
-                    # UI: Show current selections as comma-separated list
-                    if st.session_state[content_list_key]:
-                        joined = ", ".join(st.session_state[content_list_key])
-                        st.markdown(f"**Selected:** {joined}")
-
-
-
+                    # Show selections
+                    entries = st.session_state[content_list_key]
+                    if entries:
+                        label_text = "Input Content" if "input" in key else "Output Content"
+                        col1, col2 = st.columns([5, 1])
+                        with col1:
+                            tooltip_items = [
+                                f"<span title='{html.escape(item)}' style='margin-right: 6px; font-weight: 500; color: #333;'>{html.escape(item)}</span>"
+                                for item in entries
+                            ]
+                            line = ", ".join(tooltip_items)
+                            st.markdown(f"**{label_text}:** {line}", unsafe_allow_html=True)
+                        with col2:
+                            if st.button("🧹 Clear", key=f"{full_key}_clear_all"):
+                                st.session_state[content_list_key] = []
+                                st.session_state[persist(full_key)] = []
+                                st.rerun()
 
 
                 else:

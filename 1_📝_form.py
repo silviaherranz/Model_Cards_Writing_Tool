@@ -445,28 +445,28 @@ def main_page():
                         render_field("total_number_trainable_parameters", section["total_number_trainable_parameters"], prefix)
                     with col2:
                         render_field("number_of_inputs", section["number_of_inputs"], prefix)
-                    #with col3:
+                        
                     render_field("input_content", section["input_content"], prefix)
+                    
+                    render_field("additional_information_input_content", section["additional_information_input_content"], prefix)
 
-                    #Row 2: Additional input details (optional)
                     col1, col2= st.columns([1, 1])
                     with col1:
-                        render_field("additional_information_input_content", section["additional_information_input_content"], prefix)
-                    with col2:
                         render_field("input_format", section["input_format"], prefix)
-
-                    render_field("input_size", section["input_size"], prefix)
-
-                    # Row 3: Output details
-                    col1, col2 = st.columns([1, 1])
-                    with col1:
-                        render_field("number_of_outputs", section["number_of_outputs"], prefix)
                     with col2:
-                        render_field("output_content", section["output_content"], prefix)
+                        render_field("input_size", section["input_size"], prefix)
+
+                    render_field("number_of_outputs", section["number_of_outputs"], prefix)
+                    render_field("output_content", section["output_content"], prefix)
                     render_field("additional_information_output_content", section["additional_information_output_content"], prefix)
+                    col1, col2= st.columns([1, 1])
+                    with col1:
+                        render_field("output_format", section["output_format"], prefix)
+                    with col2:
+                        render_field("output_size", section["output_size"], prefix)
                     # You can continue rendering other fields similarly, skipping the ones you don't want
                     for field in [
-                        "output_format", "output_size", "loss_function",
+                         "loss_function",
                         "batch_size", "regularisation", "architecture_figure",
                         "uncertainty_quantification_techniques", "explainability_techniques",
                         "additional_information_ts", "citation_details_ts"

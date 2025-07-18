@@ -1800,7 +1800,7 @@
       "example": "Dropout"
     },
     "architecture_figure":{
-      "type": "png",
+      "type": "Image",
       "label": "Architecture Figure",
       "description": "Plot summarising the learning architecture and the main operations",
       "required": true
