@@ -163,14 +163,11 @@ def render_field(key, props, section_prefix):
                 st.warning(f"Field '{label}' is missing options for select dropdown.")
             else:
                 if key in ["input_content", "output_content"]:
-                    import re
-                    from tg263 import RTSTRUCT_SUBTYPES  # Make sure this list exists in that file
-
+                    # Initialize keys
                     content_list_key = persist(f"{full_key}_list")
                     type_key = persist(f"{full_key}_new_type")
                     subtype_key = persist(f"{full_key}_new_subtype")
 
-                    # Init session state if needed
                     if content_list_key not in st.session_state:
                         st.session_state[content_list_key] = []
                     if type_key not in st.session_state:
@@ -178,35 +175,31 @@ def render_field(key, props, section_prefix):
                     if subtype_key not in st.session_state:
                         st.session_state[subtype_key] = RTSTRUCT_SUBTYPES[0]
 
+                    # UI: dropdown + add button inline
                     col1, col2 = st.columns([2, 1])
                     with col1:
                         st.selectbox("Select content type", options=options, key=type_key)
-
-                    selected_type = st.session_state.get(type_key)
-                    if selected_type == "RTSTRUCT":
-                        with col2:
+                    with col2:
+                        if st.session_state[type_key] == "RTSTRUCT":
                             st.selectbox("Select RTSTRUCT subtype", options=RTSTRUCT_SUBTYPES, key=subtype_key)
+                        if st.button("➕", key=f"{full_key}_add_button"):
+                            selected_type = st.session_state[type_key]
+                            if selected_type == "RTSTRUCT":
+                                subtype = st.session_state[subtype_key]
+                                entry = f"RTSTRUCT_{subtype}"
+                            else:
+                                entry = selected_type
+                            if entry not in st.session_state[content_list_key]:
+                                st.session_state[content_list_key].append(entry)
+                                st.session_state[persist(full_key)] = st.session_state[content_list_key]
 
-                    # Add button
-                    if st.button("➕ Add", key=f"{full_key}_add_button"):
-                        if selected_type == "RTSTRUCT":
-                            subtype = st.session_state[subtype_key]
-                            entry = f"RTSTRUCT_{subtype}"
-                        else:
-                            entry = selected_type
-                        st.session_state[content_list_key].append(entry)
-                        st.session_state[persist(full_key)] = st.session_state[content_list_key]
-
-                    # Display added entries
+                    # UI: Show current selections as comma-separated list
                     if st.session_state[content_list_key]:
-                        st.markdown("**Selected:**")
-                        for idx, val in enumerate(st.session_state[content_list_key]):
-                            col1, col2 = st.columns([6, 1])
-                            with col1:
-                                st.markdown(f"`{val}`")
-                            with col2:
-                                if st.button("❌", key=f"{full_key}_remove_{idx}"):
-                                    st.session_state[content_list_key].pop(idx)
+                        joined = ", ".join(st.session_state[content_list_key])
+                        st.markdown(f"**Selected:** {joined}")
+
+
+
 
 
                 else:
