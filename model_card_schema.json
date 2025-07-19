@@ -1992,89 +1992,25 @@
       "example": "[409.6, 409.6, 276.7]"
     },
     "treatment_modality": {
-      "type": "select_nested",
-      "label": "Modality and Technique",
-      "description": "Select a treatment modality and corresponding technique.",
+      "type": "List of strings",
+      "label": "Treatment modality",
+      "description": "List of radiotherapy treatment techniques for which the model has been trained for. If only one modality, then the list will have only one entry",
       "required": true,
       "model_types": [
         "Dose prediction"
       ],
-      "options": {
-        "External beam radiation therapy (EBRT)": {
-          "Protons": [
-            "Passive scattering",
-            "Scanning beam intensity modulated proton therapy",
-            "Scanning beam multi-field optimization",
-            "Scanning beam single-field optimization"
-          ],
-          "Electrons": [
-            "2D",
-            "3D planned",
-            "IORT"
-          ],
-          "Photons (LINAC)": [
-            "2D",
-            "3D",
-            "IMRT/VMAT"
-          ],
-          "Photons (isotope source)": [
-            "2D",
-            "3D",
-            "Intracranial stereotactic"
-          ],
-          "Neutrons": [
-            "2D",
-            "3D",
-            "IMRT/VMAT"
-          ],
-          "Carbon": [
-            "2D",
-            "3D",
-            "IMRT/VMAT"
-          ]
-        },
-        "Brachytherapy": {
-          "Low dose rate": [
-            "Interstitial permanent",
-            "Interstitial temporary",
-            "Intracavitary permanent",
-            "Intracavitary temporary"
-          ],
-          "High dose rate": [
-            "Interstitial temporary",
-            "Intracavitary temporary",
-            "IORT"
-          ],
-          "Pulse dose rate": [
-            "Interstitial temporary",
-            "Intracavitary temporary"
-          ],
-          "Radiopharmaceuticals": [
-            "Sealed",
-            "Unsealed"
-          ],
-          "Electronic brachytherapy": [
-            "Intracavitary"
-          ]
-        },
-        "kV x-rays": {
-          "IORT": [],
-          "Superficial": [],
-          "Orthovoltage": []
-        }
-      },
-      "example": [
-        {
-          "category": "EBRT",
-          "modality": "Protons",
-          "technique": "Scanning beam multi-field optimization"
-        },
-        {
-          "category": "Brachytherapy",
-          "modality": "High dose rate",
-          "technique": "IORT"
-        }
-      ]
+      "options": [
+        "External beam radiation therapy (EBRT) - Protons - Passive scattering",
+        "External beam radiation therapy (EBRT) - Protons - Scanning beam multi-field optimization",
+        "External beam radiation therapy (EBRT) - Protons - Scanning beam single-field optimization",
+        "External beam radiation therapy (EBRT) - Electrons",
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - 3D",
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - IMRT",
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - VMAT",
+        "External beam radiation therapy (EBRT) - Carbon",
+        "Brachytherapy"
+      ],
+      "example": ["VMAT"]
     },
     "beam_configuration_energy": {
       "type": "String, Free text format",
@@ -2398,89 +2334,25 @@
       "example": "[409.6, 409.6, 276.7]"
     },
     "treatment_modality": {
-      "type": "select_nested",
-      "label": "Modality and Technique",
-      "description": "Select a treatment modality and corresponding technique.",
+      "type": "List of strings",
+      "label": "Treatment modality",
+      "description": "List of radiotherapy treatment techniques for which the model has been trained for. If only one modality, then the list will have only one entry",
       "required": true,
       "model_types": [
         "Dose prediction"
       ],
-      "options": {
-        "External beam radiation therapy (EBRT)": {
-          "Protons": [
-            "Passive scattering",
-            "Scanning beam intensity modulated proton therapy",
-            "Scanning beam multi-field optimization",
-            "Scanning beam single-field optimization"
-          ],
-          "Electrons": [
-            "2D",
-            "3D planned",
-            "IORT"
-          ],
-          "Photons (LINAC)": [
-            "2D",
-            "3D",
-            "IMRT/VMAT"
-          ],
-          "Photons (isotope source)": [
-            "2D",
-            "3D",
-            "Intracranial stereotactic"
-          ],
-          "Neutrons": [
-            "2D",
-            "3D",
-            "IMRT/VMAT"
-          ],
-          "Carbon": [
-            "2D",
-            "3D",
-            "IMRT/VMAT"
-          ]
-        },
-        "Brachytherapy": {
-          "Low dose rate": [
-            "Interstitial permanent",
-            "Interstitial temporary",
-            "Intracavitary permanent",
-            "Intracavitary temporary"
-          ],
-          "High dose rate": [
-            "Interstitial temporary",
-            "Intracavitary temporary",
-            "IORT"
-          ],
-          "Pulse dose rate": [
-            "Interstitial temporary",
-            "Intracavitary temporary"
-          ],
-          "Radiopharmaceuticals": [
-            "Sealed",
-            "Unsealed"
-          ],
-          "Electronic brachytherapy": [
-            "Intracavitary"
-          ]
-        },
-        "kV x-rays": {
-          "IORT": [],
-          "Superficial": [],
-          "Orthovoltage": []
-        }
-      },
-      "example": [
-        {
-          "category": "EBRT",
-          "modality": "Protons",
-          "technique": "Scanning beam multi-field optimization"
-        },
-        {
-          "category": "Brachytherapy",
-          "modality": "High dose rate",
-          "technique": "IORT"
-        }
-      ]
+      "options": [
+        "External beam radiation therapy (EBRT) - Protons - Passive scattering",
+        "External beam radiation therapy (EBRT) - Protons - Scanning beam multi-field optimization",
+        "External beam radiation therapy (EBRT) - Protons - Scanning beam single-field optimization",
+        "External beam radiation therapy (EBRT) - Electrons",
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - 3D",
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - IMRT",
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - VMAT",
+        "External beam radiation therapy (EBRT) - Carbon",
+        "Brachytherapy"
+      ],
+      "example": ["VMAT"]
     },
     "beam_configuration_energy": {
       "type": "String, Free text format",
@@ -4175,89 +4047,25 @@
       "required": true
     },
     "treatment_modality_dm": {
-      "type": "select_nested",
-      "label": "Modality and Technique",
-      "description": "Select a treatment modality and corresponding technique.",
+      "type": "List of strings",
+      "label": "Treatment modality",
+      "description": "Treatment technique used to plan on the evaluation dataset.",
       "required": true,
       "model_types": [
         "Image-to-Image translation"
       ],
-      "options": {
-        "External beam radiation therapy (EBRT)": {
-          "Protons": [
-            "Passive scattering",
-            "Scanning beam intensity modulated proton therapy",
-            "Scanning beam multi-field optimization",
-            "Scanning beam single-field optimization"
-          ],
-          "Electrons": [
-            "2D",
-            "3D planned",
-            "IORT"
-          ],
-          "Photons (LINAC)": [
-            "2D",
-            "3D",
-            "IMRT/VMAT"
-          ],
-          "Photons (isotope source)": [
-            "2D",
-            "3D",
-            "Intracranial stereotactic"
-          ],
-          "Neutrons": [
-            "2D",
-            "3D",
-            "IMRT/VMAT"
-          ],
-          "Carbon": [
-            "2D",
-            "3D",
-            "IMRT/VMAT"
-          ]
-        },
-        "Brachytherapy": {
-          "Low dose rate": [
-            "Interstitial permanent",
-            "Interstitial temporary",
-            "Intracavitary permanent",
-            "Intracavitary temporary"
-          ],
-          "High dose rate": [
-            "Interstitial temporary",
-            "Intracavitary temporary",
-            "IORT"
-          ],
-          "Pulse dose rate": [
-            "Interstitial temporary",
-            "Intracavitary temporary"
-          ],
-          "Radiopharmaceuticals": [
-            "Sealed",
-            "Unsealed"
-          ],
-          "Electronic brachytherapy": [
-            "Intracavitary"
-          ]
-        },
-        "kV x-rays": {
-          "IORT": [],
-          "Superficial": [],
-          "Orthovoltage": []
-        }
-      },
-      "example": [
-        {
-          "category": "EBRT",
-          "modality": "Protons",
-          "technique": "Scanning beam multi-field optimization"
-        },
-        {
-          "category": "Brachytherapy",
-          "modality": "High dose rate",
-          "technique": "IORT"
-        }
-      ]
+      "options": [
+        "External beam radiation therapy (EBRT) - Protons - Passive scattering",
+        "External beam radiation therapy (EBRT) - Protons - Scanning beam multi-field optimization",
+        "External beam radiation therapy (EBRT) - Protons - Scanning beam single-field optimization",
+        "External beam radiation therapy (EBRT) - Electrons",
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - 3D",
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - IMRT",
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - VMAT",
+        "External beam radiation therapy (EBRT) - Carbon",
+        "Brachytherapy"
+      ],
+      "example": ["VMAT"]
     },
     "dose_engine_dm": {
       "type": "select",
@@ -5091,89 +4899,25 @@
       "required": true
     },
     "treatment_modality_seg": {
-      "type": "select_nested",
-      "label": "Modality and Technique",
-      "description": "Select a treatment modality and corresponding technique.",
+      "type": "List of strings",
+      "label": "Treatment modality",
+      "description": "Treatment technique used to plan on the evaluation dataset.",
       "required": true,
       "model_types": [
         "Segmentation"
       ],
-      "options": {
-        "External beam radiation therapy (EBRT)": {
-          "Protons": [
-            "Passive scattering",
-            "Scanning beam intensity modulated proton therapy",
-            "Scanning beam multi-field optimization",
-            "Scanning beam single-field optimization"
-          ],
-          "Electrons": [
-            "2D",
-            "3D planned",
-            "IORT"
-          ],
-          "Photons (LINAC)": [
-            "2D",
-            "3D",
-            "IMRT/VMAT"
-          ],
-          "Photons (isotope source)": [
-            "2D",
-            "3D",
-            "Intracranial stereotactic"
-          ],
-          "Neutrons": [
-            "2D",
-            "3D",
-            "IMRT/VMAT"
-          ],
-          "Carbon": [
-            "2D",
-            "3D",
-            "IMRT/VMAT"
-          ]
-        },
-        "Brachytherapy": {
-          "Low dose rate": [
-            "Interstitial permanent",
-            "Interstitial temporary",
-            "Intracavitary permanent",
-            "Intracavitary temporary"
-          ],
-          "High dose rate": [
-            "Interstitial temporary",
-            "Intracavitary temporary",
-            "IORT"
-          ],
-          "Pulse dose rate": [
-            "Interstitial temporary",
-            "Intracavitary temporary"
-          ],
-          "Radiopharmaceuticals": [
-            "Sealed",
-            "Unsealed"
-          ],
-          "Electronic brachytherapy": [
-            "Intracavitary"
-          ]
-        },
-        "kV x-rays": {
-          "IORT": [],
-          "Superficial": [],
-          "Orthovoltage": []
-        }
-      },
-      "example": [
-        {
-          "category": "EBRT",
-          "modality": "Protons",
-          "technique": "Scanning beam multi-field optimization"
-        },
-        {
-          "category": "Brachytherapy",
-          "modality": "High dose rate",
-          "technique": "IORT"
-        }
-      ]
+      "options": [
+        "External beam radiation therapy (EBRT) - Protons - Passive scattering",
+        "External beam radiation therapy (EBRT) - Protons - Scanning beam multi-field optimization",
+        "External beam radiation therapy (EBRT) - Protons - Scanning beam single-field optimization",
+        "External beam radiation therapy (EBRT) - Electrons",
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - 3D",
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - IMRT",
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - VMAT",
+        "External beam radiation therapy (EBRT) - Carbon",
+        "Brachytherapy"
+      ],
+      "example": ["VMAT"]
     },
     "dose_engine_seg": {
       "type": "select",

@@ -1,4 +1,4 @@
-# Byte-compiled / optimized / DLL files
+__pycache__/card_metadata.cpython-311.pyc# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
 *$py.class
