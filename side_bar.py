@@ -110,7 +110,7 @@ def sidebar_render():
                 )
             elif len(repo_id.split("/")) == 2:
                 create_repo(repo_id, exist_ok=True, token=token)
-                card_content = pj(st.session_state)
+                card_content = parse_into_jinja_markdown(st.session_state)
                 new_url = card_upload(card_content, repo_id, token=token)
                 st.success(f"Pushed the card to the repo [here]({new_url})!")
             else:
