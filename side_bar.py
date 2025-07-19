@@ -3,8 +3,9 @@ from huggingface_hub import upload_file, create_repo
 import tempfile
 from pathlib import Path
 import json
+from custom_pages.other_considerations import other_considerations_render
 import utils
-from middleMan import parse_into_jinja_markdown as pj
+from middleMan import parse_into_jinja_markdown, parse_into_json
 from custom_pages.card_metadata import card_metadata_render
 from custom_pages.model_basic_information import model_basic_information_render
 from custom_pages.technical_specifications import technical_specifications_render
@@ -57,6 +58,10 @@ def sidebar_render():
         
         if st.button("🔬 Evaluation Data Methodology, Results & Commissioning"):
             st.session_state.runpage = evaluation_data_mrc_render
+            st.rerun()
+        
+        if st.button("⚠️ Other Considerations"):
+            st.session_state.runpage = other_considerations_render
             st.rerun()
 
 
@@ -114,16 +119,16 @@ def sidebar_render():
         if "show_download" not in st.session_state:
             st.session_state.show_download = False
 
-        st.markdown("## Download Model Card `.md`")
-        with st.form("Download model card form"):
-            download_submit = st.form_submit_button("📥 Download Model Card")
+        st.markdown("## Download Model Card")
+        """ with st.form("Download model card form"):
+            download_submit = st.form_submit_button("📥 Download Model Card as `.md`")
             if download_submit:
                 task = st.session_state.get("task")
                 missing_required = utils.validate_required_fields(
                     model_card_schema, st.session_state, current_task=task
                 )
                 if missing_required:
-                    st.session_state.show_download = False
+                    st.session_state.show_download = True
                     st.error(
                         "The following required fields are missing:\n\n"
                         + "\n".join([f"- {field}" for field in missing_required])
@@ -132,34 +137,45 @@ def sidebar_render():
                     st.session_state.show_download = True
 
         if st.session_state.get("show_download"):
-            card_content = pj(st.session_state)
+            card_content = parse_into_jinja_markdown(st.session_state)
             st.download_button(
                 "📥 Click here to download",
                 data=card_content,
                 file_name="model_card.md",
                 mime="text/markdown",
-            )
+            ) """
         
-        for key, value in {
+        """ for key, value in {
             "model_name": "",
             "license": "",
             "markdown_upload": "current_card.md",
         }.items():
-            st.session_state.setdefault(key, value)
+            st.session_state.setdefault(key, value) """
 
-        st.markdown("## Download Model Card `.json`")
-        with st.form("Download model card json"):
-            download_submit = st.form_submit_button("📥 Download Model Card")
+        with st.form("Download model card as json"):
+            download_submit = st.form_submit_button("📥 Download Model Card as `.json`")
             if download_submit:
                 task = st.session_state.get("task")
                 missing_required = utils.validate_required_fields(
                     model_card_schema, st.session_state, current_task=task
                 )
                 if missing_required:
-                    st.session_state.show_download = False
+                    st.session_state.download_ready = True
                     st.error(
                         "The following required fields are missing:\n\n"
                         + "\n".join([f"- {field}" for field in missing_required])
                     )
                 else:
-                    st.session_state.show_download = True
+                    st.session_state.download_ready = True
+
+        # Trigger download immediately if validation passed
+        if st.session_state.get("download_ready"):
+            card_content = parse_into_json()
+            st.download_button(
+                "📥 Your download is ready — click here",
+                data=card_content,
+                file_name="model_card.json",
+                mime="application/json",
+            )
+            # Optional: Reset download state after showing the button
+            st.session_state.download_ready = False

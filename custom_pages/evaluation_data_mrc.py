@@ -57,16 +57,3 @@ def evaluation_data_mrc_render():
         st.session_state.evaluation_forms.append({})
         st.rerun()
 
-    with st.expander("Other considerations", expanded=False):
-        section = model_card_schema["other_considerations"]
-        render_field(
-            "responsible_use_and_ethical_considerations",
-            section["responsible_use_and_ethical_considerations"],
-            "other_considerations",
-        )
-        render_field("risk_analysis", section["risk_analysis"], "other_considerations")
-        render_field(
-            "post_market_surveillance_live_monitoring",
-            section["post_market_surveillance_live_monitoring"],
-            "other_considerations",
-        )
