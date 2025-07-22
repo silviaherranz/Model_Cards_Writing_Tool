@@ -1,6 +1,6 @@
 import streamlit as st
-from persist import persist, load_widget_state
 import json
+import utils
 # from pages.viewCardProgress import get_card
 from modelcards import CardData, ModelCard
 from markdownTagExtract import tag_checker, listToString, to_markdown
@@ -82,10 +82,29 @@ def parse_into_jinja_markdown():
         # results = st.session_state['Model_Results'],
         # testing_metrics = st.session_state["Metrics"]
     )
+
+
 # Instead of dumping st.session_state directly:
 
+
+""" def parse_into_json():
+    model_card_schema = utils.get_model_card_schema()
+    serializable_state = {}
+
+    for key in ["model_basic_information"]:
+        serializable_state[key] = {}
+        for variable in model_card_schema.get(key, []):
+            session_key = f"{key}_{variable}"
+            if session_key in st.session_state:
+                serializable_state[key][variable] = st.session_state[session_key]
+            else:
+                serializable_state[key][variable] = None  # Or omit with .setdefault(), depending on needs
+
+    json_string = json.dumps(serializable_state)
+    return json_string
+ """
 
 def parse_into_json():
     serializable_state = {key: st.session_state[key] for key in st.session_state if isinstance(st.session_state[key], (str, int, float, bool, list, dict, type(None)))}
     json_string = json.dumps(serializable_state)
-    return json_string
+    return json_string 

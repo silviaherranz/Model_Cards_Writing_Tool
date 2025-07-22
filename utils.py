@@ -1,11 +1,19 @@
 import json
 import streamlit as st
+import time
 
 @st.cache_data  # This avoids reloading on every rerun
 def get_model_card_schema():
     with open("model_card_schema.json", "r") as f:
         return json.load(f)
-    
+
+
+def store_value(key):
+    st.session_state[key] = st.session_state["_"+key]
+def load_value(key, default = None):
+    if key not in st.session_state:
+        st.session_state[key] = default
+    st.session_state["_" + key] = st.session_state[key]
 
 def validate_required_fields(schema, session_state, current_task=None):
     missing_fields = []
@@ -43,3 +51,4 @@ def light_header_italics(text, size="16px", bottom_margin="1em"):
     """,
         unsafe_allow_html=True,
     )
+    

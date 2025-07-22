@@ -2,14 +2,8 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
-import utils
-from persist import persist
 from side_bar import sidebar_render
 from custom_pages.card_metadata import card_metadata_render
-
-
-model_card_schema = utils.get_model_card_schema()
-
 
 def get_state(key, default=None):
     return st.session_state.get(key, default)
@@ -31,7 +25,7 @@ def task_selector_page():
     st.radio(
         "Choose the model type:",
         ["Image-to-Image translation", "Segmentation", "Dose prediction"],
-        key=persist("task"),
+        key="task",
         index=0,
     )
     if st.button("Continue"):
@@ -85,7 +79,6 @@ def main():
     if st.button("Create a Model Card 📝"):
         page_switcher(task_selector_page)
         st.rerun()
-
 
 if __name__ == "__main__":
     if "runpage" not in st.session_state:

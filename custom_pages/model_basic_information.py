@@ -1,26 +1,26 @@
 from datetime import datetime
-
 import streamlit as st
 import utils
-from persist import persist
 from render import (
     create_helpicon,
     render_field,
     title_header,
     section_divider,
+    titulo,
+    subtitulo,
 )
-
-model_card_schema = utils.get_model_card_schema()
+import uuid
 
 
 def model_basic_information_render():
     from side_bar import sidebar_render
-    sidebar_render()
 
-    # filtered_fields = filter_fields_by_task(model_card_schema["model_basic_information"], task)
-    # render_schema_section(filtered_fields, section_prefix="model_basic_information", current_task=task)
+    sidebar_render()
+    model_card_schema = utils.get_model_card_schema()
     section = model_card_schema["model_basic_information"]
-    # Line 1: name + creation_date
+    titulo("Model Basic Information")
+    subtitulo("with the main information to use the model")
+
     if "name" in section and "creation_date" in section:
         col1, col2 = st.columns(2)
         with col1:
@@ -35,23 +35,23 @@ def model_basic_information_render():
 
             create_helpicon(label, description, field_type, example, required)
 
+            utils.load_value(
+                "model_basic_information_creation_date_widget", datetime.today()
+            )
             date_value = st.date_input(
                 "Select a date",
                 min_value=datetime(1900, 1, 1),
                 max_value=datetime.today(),
-                key="model_basic_information_creation_date_widget",
+                key="_model_basic_information_creation_date_widget",
+                on_change=utils.store_value,
+                args=["model_basic_information_creation_date_widget"],
             )
 
             formatted = date_value.strftime("%Y%m%d")
-            st.session_state[persist("model_basic_information_creation_date")] = (
-                formatted
-            )
+            st.session_state["model_basic_information_creation_date"] = formatted
 
     section_divider()
-    title_header(
-        "Versioning", size="1rem", bottom_margin="0.01em", top_margin="0.5em"
-    )
-    # Line 2: version_number + version_changes
+    title_header("Versioning")
     if "version_number" in section and "version_changes" in section:
         col1, col2 = st.columns([1, 3])
         with col1:
@@ -72,14 +72,9 @@ def model_basic_information_render():
     if "doi" in section:
         render_field("doi", section["doi"], "model_basic_information")
     section_divider()
-    title_header(
-        "Model scope", size="1rem", bottom_margin="0.01em", top_margin="0.5em"
-    )
+    title_header("Model scope")
     # Line 4: summary + anatomical_site
-    if (
-        "model_scope_summary" in section
-        and "model_scope_anatomical_site" in section
-    ):
+    if "model_scope_summary" in section and "model_scope_anatomical_site" in section:
         col1, col2 = st.columns([2, 1])
         with col1:
             render_field(
@@ -95,9 +90,7 @@ def model_basic_information_render():
             )
     section_divider()
     # Line 5: Clearance
-    title_header(
-        "Clearance", size="1rem", bottom_margin="0.01em", top_margin="0.5em"
-    )
+    title_header("Clearance")
     # Render clearance_type
     if "clearance_type" in section:
         render_field(
@@ -112,7 +105,7 @@ def model_basic_information_render():
             "clearance_approved_by_contact_email",
         ]
     ):
-        title_header("Approved by", size="1rem", bottom_margin="0.5em")
+        title_header("Approved by")
         col1, col2, col3 = st.columns([1, 1.5, 1.5])
         with col1:
             render_field(
@@ -143,9 +136,7 @@ def model_basic_information_render():
 
     section_divider()
 
-    render_field(
-        "intended_users", section["intended_users"], "model_basic_information"
-    )
+    render_field("intended_users", section["intended_users"], "model_basic_information")
     render_field(
         "observed_limitations",
         section["observed_limitations"],
@@ -165,7 +156,7 @@ def model_basic_information_render():
     section_divider()
 
     # Developer Information
-    title_header("Developed by", size="1rem", bottom_margin="0.5em")
+    title_header("Developed by")
     col1, col2, col3 = st.columns([1, 1.5, 1.5])
     with col1:
         render_field(
@@ -202,13 +193,9 @@ def model_basic_information_render():
             "model_basic_information",
         )
     with col2:
-        render_field(
-            "code_source", section["code_source"], "model_basic_information"
-        )
+        render_field("code_source", section["code_source"], "model_basic_information")
     with col3:
-        render_field(
-            "model_source", section["model_source"], "model_basic_information"
-        )
+        render_field("model_source", section["model_source"], "model_basic_information")
 
     col1, col2 = st.columns([1, 1])
     with col1:
@@ -219,3 +206,32 @@ def model_basic_information_render():
         )
     with col2:
         render_field("url_info", section["url_info"], "model_basic_information")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    col1, col2, col3, col4, col5 = st.columns([1.5, 2, 4.3, 2, 1.1])
+
+    with col1:
+        if st.button("Previous"):
+            from custom_pages.card_metadata import card_metadata_render
+
+            st.session_state.runpage = card_metadata_render
+            st.rerun()
+
+    with col5:
+        if st.button("Next"):
+            from custom_pages.technical_specifications import (
+                technical_specifications_render,
+            )
+
+            st.session_state.runpage = technical_specifications_render
+            st.rerun()
+
+    # st.markdown("---")
+    # st.subheader("🔍 Debug: Session State")
+    # st.json(st.session_state)
+
+    if "session_id" not in st.session_state:
+        st.session_state["session_id"] = str(uuid.uuid4())
+
+    # st.write("🔁 Session ID:", st.session_state["session_id"])

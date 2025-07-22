@@ -1,5 +1,4 @@
 import streamlit as st
-from persist import persist, load_widget_state
 from jinja2 import Environment, FileSystemLoader
 
 def parse_into_jinja_markdown():

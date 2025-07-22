@@ -1,10 +1,9 @@
 # render.py
 from datetime import datetime
 import streamlit as st
-from persist import persist
 from tg263 import RTSTRUCT_SUBTYPES
 import html
-
+import utils
 
 def title_header(text, size="1.1rem", bottom_margin="1em", top_margin="0.5em"):
     st.markdown(
@@ -15,6 +14,36 @@ def title_header(text, size="1.1rem", bottom_margin="1em", top_margin="0.5em"):
             color: #333;
             margin-top: {top_margin};
             margin-bottom: {bottom_margin};
+        '>{text}</div>
+        """,
+        unsafe_allow_html=True
+    )
+
+def titulo(text, size="2rem", bottom_margin="0.1em", top_margin="0.4em"):
+    st.markdown(
+        f"""
+        <div style='
+            font-size: {size};
+            font-weight: 650;
+            color: #222;
+            margin-top: {top_margin};
+            margin-bottom: {bottom_margin};
+            text-align: justify;
+        '>{text}</div>
+        """,
+        unsafe_allow_html=True
+    )
+
+def subtitulo(text, size="1rem", bottom_margin="0.8em", top_margin="0.2em"):
+    st.markdown(
+        f"""
+        <div style='
+            font-size: {size};
+            font-weight: 400;
+            color: #444;
+            margin-top: {top_margin};
+            margin-bottom: {bottom_margin};
+            text-align: justify;
         '>{text}</div>
         """,
         unsafe_allow_html=True
@@ -59,13 +88,13 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         )
 
         formatted = value.strftime("%Y%m%d")
-        st.session_state[persist(f"{section_prefix}_evaluation_date")] = formatted
+        st.session_state[f"{section_prefix}_evaluation_date"] = formatted
 
     section_divider()
 
     title_header("Evaluated by")
     same_key = f"{section_prefix}_evaluated_same_as_approved"
-    same = st.checkbox("Same as 'Approved by'", key=persist(same_key))
+    same = st.checkbox("Same as 'Approved by'", key=same_key)
 
     if not same:
         if all(k in schema_section for k in ["evaluated_by_name", "evaluated_by_institution", "evaluated_by_contact_email"]):
@@ -156,6 +185,9 @@ def render_field(key, props, section_prefix):
     placeholder = props.get("placeholder", "")
 
     create_helpicon(label, description, field_type, example, required)
+    if key in ["input_content", "output_content"]:
+        st.write(f"📌 full_key used: {full_key}")
+        st.write(f"📌 stored list: {st.session_state.get(full_key)}")
 
     try:
         safe_label = label.strip() or "Field"
@@ -164,40 +196,68 @@ def render_field(key, props, section_prefix):
                 st.warning(f"Field '{label}' is missing options for select dropdown.")
             else:
                 if key in ["input_content", "output_content"]:
+                    content_list_key = f"{full_key}_list"
+                    type_key = f"{full_key}_new_type"
+                    subtype_key = f"{full_key}_new_subtype"
 
-                    content_list_key = persist(f"{full_key}_list")
-                    type_key = persist(f"{full_key}_new_type")
-                    subtype_key = persist(f"{full_key}_new_subtype")
+                    # Initialize persistent values
+                    utils.load_value(content_list_key, default=[])
+                    utils.load_value(type_key, default=options[0] if options else "")
+                    utils.load_value(subtype_key, default=RTSTRUCT_SUBTYPES[0])
 
-                    st.session_state.setdefault(content_list_key, [])
-                    st.session_state.setdefault(type_key, options[0])
-                    st.session_state.setdefault(subtype_key, RTSTRUCT_SUBTYPES[0])
-
-                    if st.session_state[type_key] == "RTSTRUCT":
+                    if st.session_state["_" + type_key] == "RTSTRUCT":
                         col1, col2, col3 = st.columns([2, 2, 0.4])
                         with col1:
-                            st.selectbox("Select content type", options=options, key=type_key)
+                            st.selectbox(
+                                "Select content type",
+                                options=options,
+                                key="_" + type_key,
+                                on_change=utils.store_value,
+                                args=[type_key],
+                            )
                         with col2:
-                            st.selectbox("Select RTSTRUCT subtype", options=RTSTRUCT_SUBTYPES, key=subtype_key)
+                            st.selectbox(
+                                "Select RTSTRUCT subtype",
+                                options=RTSTRUCT_SUBTYPES,
+                                key="_" + subtype_key,
+                                on_change=utils.store_value,
+                                args=[subtype_key],
+                            )
                         with col3:
                             st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
                             if st.button("➕", key=f"{full_key}_add_button"):
-                                subtype = st.session_state[subtype_key]
+                                subtype = st.session_state.get(subtype_key, "")
                                 entry = f"RTSTRUCT_{subtype}"
                                 st.session_state[content_list_key].append(entry)
-                                st.session_state[persist(full_key)] = st.session_state[content_list_key]
+                                st.session_state[full_key] = st.session_state[content_list_key]
                             st.markdown("</div>", unsafe_allow_html=True)
                     else:
                         col1, col2 = st.columns([4, 0.5])
                         with col1:
-                            st.selectbox("Select content type", options=options, key=type_key)
+                            st.selectbox(
+                                "Select content type",
+                                options=options,
+                                key="_" + type_key,
+                                on_change=utils.store_value,
+                                args=[type_key],
+                            )
                         with col2:
                             st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
+                            st.write("📌 type_key =", type_key)
+                            st.write("📌 current type =", st.session_state.get(type_key))
+                            st.write("📌 list before =", st.session_state.get(content_list_key, []))
+
                             if st.button("➕", key=f"{full_key}_add_button"):
-                                entry = st.session_state[type_key]
+                                entry = st.session_state.get(type_key, "")
                                 st.session_state[content_list_key].append(entry)
-                                st.session_state[persist(full_key)] = st.session_state[content_list_key]
+                                st.session_state[full_key] = st.session_state[content_list_key]
+                            st.write("📌 added entry =", entry)
+                            st.write("📌 updated list =", st.session_state[content_list_key])
                             st.markdown("</div>", unsafe_allow_html=True)
+                            
+
+                    # ✅ Always keep main field in sync, even outside the ➕ button
+                    #st.session_state[full_key] = st.session_state.get(content_list_key, [])
 
                     # Show selections
                     entries = st.session_state[content_list_key]
@@ -214,19 +274,23 @@ def render_field(key, props, section_prefix):
                         with col2:
                             if st.button("🧹 Clear", key=f"{full_key}_clear_all"):
                                 st.session_state[content_list_key] = []
-                                st.session_state[persist(full_key)] = []
+                                st.session_state[full_key] = []
                                 st.rerun()
 
 
                 else:
                     # Default behavior for single select fields
+                    utils.load_value(full_key, default=options[0] if options else "")
                     st.selectbox(
                         safe_label,
                         options=options,
-                        key=persist(full_key),
+                        key="_" + full_key,
+                        on_change=utils.store_value,
+                        args=[full_key],
                         help=description,
                         label_visibility="hidden"
                     )
+
        
         elif field_type == "Image":
             # Description below the label
@@ -255,15 +319,18 @@ def render_field(key, props, section_prefix):
             #     st.image(uploaded_image, caption="Uploaded pipeline figure", use_container_width=True)
             # Do NOT display the image
             if uploaded_image:
-                st.session_state[persist(f"{full_key}_image")] = uploaded_image
+                st.session_state[f"{full_key}_image"] = uploaded_image
 
                 #If you plan to export this data (e.g., to markdown or Hugging Face hub), you can retrieve it later via
                     #image = st.session_state.get("technical_specifications_model_pipeline_figure_image")
                     #note = st.session_state.get("technical_specifications_model_pipeline_figure_appendix_note")
         else:
+            utils.load_value(full_key)
             st.text_input(
                 safe_label,
-                key=persist(full_key),
+                key="_"+full_key,
+                on_change=utils.store_value, 
+                args=[full_key],
                 label_visibility="hidden",
                 placeholder=placeholder
             )

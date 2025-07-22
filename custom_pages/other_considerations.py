@@ -1,20 +1,15 @@
 import streamlit as st
 import utils
-from persist import persist
-from render import (
-    create_helpicon,
-    render_evaluation_section,
-    render_field,
-    title_header,
-)
-
-model_card_schema = utils.get_model_card_schema()
+from render import render_field, titulo
 
 
 def other_considerations_render():
     from side_bar import sidebar_render
+
     sidebar_render()
+    model_card_schema = utils.get_model_card_schema()
     section = model_card_schema["other_considerations"]
+    titulo("Other considerations")
     render_field(
         "responsible_use_and_ethical_considerations",
         section["responsible_use_and_ethical_considerations"],
@@ -26,3 +21,11 @@ def other_considerations_render():
         section["post_market_surveillance_live_monitoring"],
         "other_considerations",
     )
+    st.markdown("<br>", unsafe_allow_html=True)
+    col1, col2 = st.columns([2, 12])
+    with col1:
+        if st.button("Previous"):
+            from custom_pages.evaluation_data_mrc import evaluation_data_mrc_render
+
+            st.session_state.runpage = evaluation_data_mrc_render
+            st.rerun()

@@ -4,24 +4,23 @@ from render import (
     render_field,
     section_divider,
     title_header,
+    titulo,
+    subtitulo
 )
-
-model_card_schema = utils.get_model_card_schema()
-
 
 def technical_specifications_render():
     from side_bar import sidebar_render
 
     sidebar_render()
-
-    st.markdown("## Technical Specifications"
-    "In this section, the user must include...")
+    model_card_schema = utils.get_model_card_schema()
+    titulo("Technical Specifications")
+    subtitulo("(i.e. model pipeline, learning architecture, software and hardware)")
 
     if "learning_architecture_forms" not in st.session_state:
         st.session_state.learning_architecture_forms = {"Learning Architecture 1": {}}
 
-    title_header("1. Model overview", size="1.1rem")
-    title_header("Model pipeline", size="1rem", bottom_margin="0.5em")
+    title_header("1. Model overview", size="1.2rem")
+    title_header("Model pipeline")
     # render_schema_section(model_card_schema["technical_specifications"], section_prefix="technical_specifications")
     section = model_card_schema["technical_specifications"]
     render_field(
@@ -67,7 +66,7 @@ def technical_specifications_render():
 
     section_divider()
     # -- Learning Architecture Header --
-    title_header("2. Learning Architecture", size="1rem", bottom_margin="0.5em")
+    title_header("2. Learning Architecture", size="1.2rem")
     utils.light_header_italics(
         "If several models are used (e.g. cascade, cycle, tree,...), repeat this section for each of them."
     )
@@ -199,7 +198,7 @@ def technical_specifications_render():
                     if field in section:
                         render_field(field, section[field], prefix)
     section_divider()
-    title_header("3. Hardware & Software", size="1rem")
+    title_header("3. Hardware & Software", size="1.2rem")
     # render_schema_section(model_card_schema["hw_and_sw"], section_prefix="hw_and_sw")
     section = model_card_schema["hw_and_sw"]
     # Row 1: Libraries and Dependencies (longer input, full width)
@@ -232,3 +231,24 @@ def technical_specifications_render():
         render_field(
             "environmental_impact", section["environmental_impact"], "hw_and_sw"
         )
+
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    col1, col2, col3, col4, col5 = st.columns([1.5, 2, 4.3, 2, 1.1])
+
+    with col1:
+        if st.button("Previous"):
+            from custom_pages.model_basic_information import model_basic_information_render
+            st.session_state.runpage = model_basic_information_render
+            st.rerun()
+
+
+    with col5:
+        if st.button("Next"):
+            from custom_pages.training_data import training_data_render
+            st.session_state.runpage = training_data_render
+            st.rerun()
+
+    
+    st.write("🔍 Model Inputs:", st.session_state.get("technical_specifications_model_inputs"))
+    st.write("🔍 Model Outputs:", st.session_state.get("technical_specifications_model_outputs"))

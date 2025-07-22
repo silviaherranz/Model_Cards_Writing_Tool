@@ -9,6 +9,7 @@ from middleMan import parse_into_jinja_markdown, parse_into_json
 from custom_pages.card_metadata import card_metadata_render
 from custom_pages.model_basic_information import model_basic_information_render
 from custom_pages.technical_specifications import technical_specifications_render
+from custom_pages.training_data import training_data_render
 from custom_pages.evaluation_data_mrc import evaluation_data_mrc_render
 from custom_pages.warnings import warnings_render
 
@@ -54,6 +55,10 @@ def sidebar_render():
         
         if st.button("🔎 Technical Specifications"):
             st.session_state.runpage = technical_specifications_render
+            st.rerun()
+
+        if st.button("📊 Training Data Methodology, Results & Commissioning"):
+            st.session_state.runpage = training_data_render
             st.rerun()
         
         if st.button("🔬 Evaluation Data Methodology, Results & Commissioning"):

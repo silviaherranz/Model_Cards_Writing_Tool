@@ -1,5 +1,4 @@
 import streamlit as st
-from persist import persist, load_widget_state
 import pandas as pd
 import requests
 
@@ -34,7 +33,7 @@ def main():
     #st.set_page_config(layout="wide")
     st.markdown('## Model Details')
     st.markdown('### Model Description')
-    st.text_area("Provide a 1-2 sentence summary of what this model is.", help="The model description provides basic details about the model. This includes the architecture, version, if it was introduced in a paper, if an original implementation is available, the author, and general information about the model. Any copyright should be attributed here. General information about training procedures, parameters, and important disclaimers can also be mentioned in this section.", key=persist('model_description'))
+    st.text_area("Provide a 1-2 sentence summary of what this model is.", help="The model description provides basic details about the model. This includes the architecture, version, if it was introduced in a paper, if an original implementation is available, the author, and general information about the model. Any copyright should be attributed here. General information about training procedures, parameters, and important disclaimers can also be mentioned in this section.", key='model_description')
 
     left, right = st.columns([2,6], gap="small")
     with left: 
@@ -54,18 +53,17 @@ def main():
     with right:
         st.write("\n")
         st.write("\n")
-        st.text_input("",help="Developed By work", key=persist("Model_developers"))
+        st.text_input("",help="Developed By work", key="Model_developers")
         st.write("\n")
         st.write("\n")
 
-        st.text_input("",help="Shared By work",key=persist("shared_by"))
+        st.text_input("",help="Shared By work",key="shared_by")
         st.text_input("",help="Model Type work")
         #st.write("\n")
-        st.selectbox("",[""] + list(license_map.values()), help="Licenses work", key=persist("license"))
+        st.selectbox("",[""] + list(license_map.values()), help="Licenses work", key="license")
         
    
 
 
 if __name__ == '__main__':
-    load_widget_state()
     main()

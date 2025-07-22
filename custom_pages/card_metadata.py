@@ -2,24 +2,28 @@ from datetime import datetime
 
 import streamlit as st
 import utils
-from persist import persist
 from render import (
     create_helpicon,
     render_field,
     title_header,
+    titulo,
+    subtitulo,
+    section_divider
+
 )
-
-model_card_schema = utils.get_model_card_schema()
-
+import uuid
 
 def card_metadata_render():
     from side_bar import sidebar_render
     sidebar_render()
 
+    model_card_schema = utils.get_model_card_schema()
+
     section = model_card_schema["card_metadata"]
-    # Render creation_date
-    # if "creation_date" in section:
-    # render_field("creation_date", section["creation_date"], "card_metadata")
+
+    titulo("Card Metadata")
+    subtitulo("with relevant information about the model card itself")
+
     if "creation_date" in section:
         props = section["creation_date"]
         label = props.get("label", "Creation Date")
@@ -29,23 +33,26 @@ def card_metadata_render():
         type = props.get("type", "date")
 
         create_helpicon(label, description, type, example, required)
-
+        utils.load_value("creation_date_widget", datetime.today())
         # Calendar input from 1900 to today
         date_value = st.date_input(
             "Select a date",
             min_value=datetime(1900, 1, 1),
             max_value=datetime.today(),
-            key="creation_date_widget",
+            key="_creation_date_widget",
+            on_change=utils.store_value, 
+            args=["creation_date_widget"],
         )
 
         # Format date as YYYYMMDD (e.g., 20240102)
         formatted = date_value.strftime("%Y%m%d")
 
         # Store in session using your persistent key logic
-        st.session_state[persist("card_metadata_creation_date")] = formatted
+        st.session_state["card_metadata_creation_date"] = formatted
+    section_divider()
 
     title_header(
-        "Versioning", size="1rem", bottom_margin="0.01em", top_margin="0.5em"
+        "Versioning"
     )
 
     # Render version_number + version_changes in the same row using create_helpicon for labels
@@ -60,13 +67,16 @@ def card_metadata_render():
                 props.get("example", ""),
                 props.get("required", False),
             )
+            utils.load_value("card_metadata_version_number", 0)
             st.number_input(
                 label=".",
                 min_value=0.0,
                 max_value=10000000000.0,
                 step=0.10,
                 format="%.2f",
-                key=persist("card_metadata_version_number"),
+                key="_card_metadata_version_number",
+                on_change=utils.store_value, 
+                args=["card_metadata_version_number"],
                 label_visibility="hidden",
             )
 
@@ -79,12 +89,35 @@ def card_metadata_render():
                 props.get("example", ""),
                 props.get("required", False),
             )
+            utils.load_value("card_metadata_version_changes")
             st.text_input(
                 label=".",
-                key=persist("card_metadata_version_changes"),
+                key="_card_metadata_version_changes",
+                on_change=utils.store_value, 
+                args=["card_metadata_version_changes"],
                 label_visibility="hidden",
             )
+    section_divider()
     # Render all other metadata fields except the three already handled
     for key in section:
         if key not in ["creation_date", "version_number", "version_changes"]:
             render_field(key, section[key], "card_metadata")
+            
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    col1, col2 = st.columns([9.4, 1])  
+    with col2:
+        if st.button("Next"):
+            from custom_pages.model_basic_information import model_basic_information_render
+            st.session_state.runpage = model_basic_information_render
+            st.rerun()
+    
+    # st.markdown("---")
+    # st.subheader("🔍 Debug: Session State")
+    # st.json(st.session_state)
+
+
+    if "session_id" not in st.session_state:
+        st.session_state["session_id"] = str(uuid.uuid4())
+
+    # st.write("🔁 Session ID:", st.session_state["session_id"])

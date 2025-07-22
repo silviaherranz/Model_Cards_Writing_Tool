@@ -1,5 +1,4 @@
 import streamlit as st
-from persist import persist, load_widget_state
 from modelcards import CardData, ModelCard
 from huggingface_hub import create_repo
 
