@@ -2,47 +2,49 @@ import streamlit as st
 import utils
 from render import (
     render_field,
-    title_header,
-    titulo,
-    subtitulo,
-    section_divider,
+    should_render
 )
-import uuid
+#import uuid
+import re
 
 
 def training_data_render():
+    utils.require_task()
+
     from side_bar import sidebar_render
 
     sidebar_render()
     model_card_schema = utils.get_model_card_schema()
     section = model_card_schema["training_data_methodology_results_commisioning"]
-    titulo("Training data, methodology, and information")
-    subtitulo("containing all information about training and validation data (in case of a fine-tuned model, this section contains information about the tuning dataset)")
-    title_header("Fine tuned form")
+    utils.title("Training data, methodology, and information")
+    utils.subtitle(
+        "containing all information about training and validation data (in case of a fine-tuned model, this section contains information about the tuning dataset)"
+    )
+    utils.title_header("Fine tuned form")
     col1, col2, col3 = st.columns([1, 1.5, 1.5])
     with col1:
         render_field(
             "model_name",
             section["model_name"],
-            "model_basic_information",
+            "training_data",
         )
     with col2:
         render_field(
             "url_doi_to_model_card",
             section["url_doi_to_model_card"],
-            "model_basic_information",
+            "training_data",
         )
     with col3:
         render_field(
             "tuning_technique",
             section["tuning_technique"],
-            "model_basic_information",
+            "training_data",
         )
 
-    section_divider()
+    utils.section_divider()
 
-    title_header("Training Dataset", size="1.2rem")
-    title_header("1. General information")
+    utils.title_header("Training Dataset", size="1.2rem")
+    utils.title_header("1. General information")
 
     col1, col2, col3 = st.columns([0.8, 0.6, 1])
     with col1:
@@ -87,25 +89,29 @@ def training_data_render():
             section[field],
             "training_data",
         )
-    section_divider()
-    title_header("2. Technical characteristics")
+    utils.section_divider()
+    utils.title_header("2. Technical characteristics")
     utils.light_header_italics(
         "(i.e. image acquisition protocol, treatment details, …)"
     )
 
-    import re
-
     tech_section_prefix = "training_data"
-    section = model_card_schema["training_data_methodology_results_commisioning"]  # ✅ this was missing
+    section = model_card_schema[
+        "training_data_methodology_results_commisioning"
+    ]  # ✅ this was missing
 
     model_inputs = []
     model_outputs = []
 
     # ✅ Collect from all learning_architecture_X_input_content/output_content keys
     for key, value in st.session_state.items():
-        if re.match(r"^learning_architecture_\d+_input_content$", key) and isinstance(value, list):
+        if re.match(r"^learning_architecture_\d+_input_content$", key) and isinstance(
+            value, list
+        ):
             model_inputs.extend(value)
-        if re.match(r"^learning_architecture_\d+_output_content$", key) and isinstance(value, list):
+        if re.match(r"^learning_architecture_\d+_output_content$", key) and isinstance(
+            value, list
+        ):
             model_outputs.extend(value)
 
     # ✅ Deduplicate
@@ -122,15 +128,19 @@ def training_data_render():
 
             with tabs[idx]:
                 clean_modality = modality.strip().replace(" ", "_").lower()
-                title_header(f"{utils.strip_brackets(modality)} Details", size="1rem")
+                utils.title_header(f"{utils.strip_brackets(modality)} Details", size="1rem")
 
                 # Campos con layout personalizado
                 field_keys = {
                     "image_resolution": section["image_resolution"],
                     "patient_positioning": section["patient_positioning"],
                     "scanner_model": section["scanner_model"],
-                    "scan_acquisition_parameters": section["scan_acquisition_parameters"],
-                    "scan_reconstruction_parameters": section["scan_reconstruction_parameters"],
+                    "scan_acquisition_parameters": section[
+                        "scan_acquisition_parameters"
+                    ],
+                    "scan_reconstruction_parameters": section[
+                        "scan_reconstruction_parameters"
+                    ],
                     "fov": section["fov"],
                 }
 
@@ -141,23 +151,149 @@ def training_data_render():
                 # First row: image_resolution + patient_positioning
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    render_field(f"{tech_section_prefix}_{clean_modality}_image_resolution", field_keys["image_resolution"], "")
+                    render_field(
+                        f"{tech_section_prefix}_{clean_modality}_image_resolution",
+                        field_keys["image_resolution"],
+                        "",
+                    )
                 with col2:
-                    render_field(f"{tech_section_prefix}_{clean_modality}_patient_positioning", field_keys["patient_positioning"], "")
+                    render_field(
+                        f"{tech_section_prefix}_{clean_modality}_patient_positioning",
+                        field_keys["patient_positioning"],
+                        "",
+                    )
 
                 # Second row: scanner_model
-                render_field(f"{tech_section_prefix}_{clean_modality}_scanner_model", field_keys["scanner_model"], "")
+                render_field(
+                    f"{tech_section_prefix}_{clean_modality}_scanner_model",
+                    field_keys["scanner_model"],
+                    "",
+                )
 
                 # Third row: acquisition + reconstruction parameters
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    render_field(f"{tech_section_prefix}_{clean_modality}_scan_acquisition_parameters", field_keys["scan_acquisition_parameters"], "")
+                    render_field(
+                        f"{tech_section_prefix}_{clean_modality}_scan_acquisition_parameters",
+                        field_keys["scan_acquisition_parameters"],
+                        "",
+                    )
                 with col2:
-                    render_field(f"{tech_section_prefix}_{clean_modality}_scan_reconstruction_parameters", field_keys["scan_reconstruction_parameters"], "")
+                    render_field(
+                        f"{tech_section_prefix}_{clean_modality}_scan_reconstruction_parameters",
+                        field_keys["scan_reconstruction_parameters"],
+                        "",
+                    )
 
                 # Fourth row: fov
-                render_field(f"{tech_section_prefix}_{clean_modality}_fov", field_keys["fov"], "")
+                render_field(
+                    f"{tech_section_prefix}_{clean_modality}_fov", field_keys["fov"], ""
+                )
 
+    model_card_schema = utils.get_model_card_schema()
+    section = model_card_schema["training_data_methodology_results_commisioning"]
+    task = st.session_state.get("task").strip().lower()
+
+    utils.section_divider()
+    # st.write("Current task:", task)
+    if should_render(section["treatment_modality"], task):
+        render_field(
+            "treatment_modality", section["treatment_modality"], "training_data"
+        )
+
+    col1, col2 = st.columns([2, 1.1])
+    with col1:
+        if should_render(section["beam_configuration_energy"], task):
+            render_field(
+                "beam_configuration_energy",
+                section["beam_configuration_energy"],
+                "training_data",
+            )
+    with col2:
+        if should_render(section["dose_engine"], task):
+            render_field("dose_engine", section["dose_engine"], "training_data")
+    col1, col2 = st.columns([2, 1.1])
+    with col1:
+        if should_render(section["target_volumes_and_prescription"], task):
+            render_field(
+                "target_volumes_and_prescription",
+                section["target_volumes_and_prescription"],
+                "training_data",
+            )
+    with col2:
+        if should_render(section["number_of_fractions"], task):
+            render_field(
+                "number_of_fractions", section["number_of_fractions"], "training_data"
+            )
+
+    utils.section_divider()
+    for field in [
+        "reference_standard",
+        "reference_standard_qa",
+        "reference_standard_qa_additional_information",
+    ]:
+        render_field(
+            field,
+            section[field],
+            "training_data",
+        )
+
+    utils.section_divider()
+    utils.title_header("3. Patient demographics and clinical characteristics")
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        render_field("icd10_11", section["icd10_11"], "training_data")
+    with col2:
+        render_field("tnm_staging", section["tnm_staging"], "training_data")
+
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        render_field("age", section["age"], "training_data")
+    with col2:
+        render_field("sex", section["sex"], "training_data")
+    col1, col2 = st.columns([2.5, 1])
+    with col1:
+        render_field("target_volume_cm3", section["target_volume_cm3"], "training_data")
+    with col2:
+        render_field("bmi", section["bmi"], "training_data")
+    render_field(
+        "additional_patient_info",
+        section["additional_patient_info"],
+        "training_data",
+    )
+    col1, col2, col3 = st.columns([1.7, 1.2, 1])
+    with col1:
+        render_field(
+            "validation_strategy", section["validation_strategy"], "training_data"
+        )
+    with col2:
+        render_field(
+            "validation_data_partition",
+            section["validation_data_partition"],
+            "training_data",
+        )
+    with col3:
+        render_field(
+            "weights_initialization", section["weights_initialization"], "training_data"
+        )
+    col1, col2, col3 = st.columns([2, 1.1, 1])
+    with col1:
+        render_field("epochs", section["epochs"], "training_data")
+    with col2:
+        render_field("optimiser", section["optimiser"], "training_data")
+    with col3:
+        render_field("learning_rate", section["learning_rate"], "training_data")
+
+    for field in [
+        "train_and_validation_loss_curves",
+        "model_choice_criteria",
+        "inference_method",
+    ]:
+        render_field(
+            field,
+            section[field],
+            "training_data",
+        )
 
     st.markdown("<br>", unsafe_allow_html=True)
     col1, col2, col3, col4, col5 = st.columns([1.5, 2, 4.3, 2, 1.1])
@@ -175,10 +311,3 @@ def training_data_render():
 
             st.session_state.runpage = evaluation_data_mrc_render
             st.rerun()
-
-    # st.markdown("---")
-    # st.subheader("🔍 Debug: Session State")
-    # st.json(st.session_state)
-    if "session_id" not in st.session_state:
-        st.session_state["session_id"] = str(uuid.uuid4())
-    # st.write("🔁 Session ID:", st.session_state["session_id"])

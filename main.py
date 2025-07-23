@@ -3,7 +3,6 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 from side_bar import sidebar_render
-from custom_pages.card_metadata import card_metadata_render
 
 def get_state(key, default=None):
     return st.session_state.get(key, default)
@@ -20,17 +19,39 @@ def get_cached_data():
     ).to_dict()
 
 
+# def task_selector_page():
+#     st.header("Select Model Task")
+#     st.radio(
+#         "Choose the model type:",
+#         ["Image-to-Image translation", "Segmentation", "Dose prediction"],
+#         key="task",
+#         index=0,
+#     )
+#     if st.button("Continue"):
+#         page_switcher(card_metadata_render)
+#         st.rerun()
+
+
 def task_selector_page():
     st.header("Select Model Task")
-    st.radio(
-        "Choose the model type:",
-        ["Image-to-Image translation", "Segmentation", "Dose prediction"],
-        key="task",
-        index=0,
-    )
-    if st.button("Continue"):
-        page_switcher(card_metadata_render)
-        st.rerun()
+
+    if "task" not in st.session_state:
+        # Show the radio input ONLY if task is not yet selected
+        selected_task = st.radio(
+            "Choose the model type:",
+            ["Image-to-Image translation", "Segmentation", "Dose prediction"],
+            key="task_temp",
+        )
+
+        if st.button("Continue"):
+            st.session_state["task"] = selected_task
+            from custom_pages.card_metadata import card_metadata_render
+
+            st.session_state.runpage = card_metadata_render
+            st.rerun()
+    else:
+        # Task already selected — inform user
+        st.success(f"✅ Task already selected: **{st.session_state['task']}**")
 
 
 def extract_evaluations_from_state():
@@ -79,6 +100,7 @@ def main():
     if st.button("Create a Model Card 📝"):
         page_switcher(task_selector_page)
         st.rerun()
+
 
 if __name__ == "__main__":
     if "runpage" not in st.session_state:

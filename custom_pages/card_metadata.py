@@ -2,27 +2,20 @@ from datetime import datetime
 
 import streamlit as st
 import utils
-from render import (
-    create_helpicon,
-    render_field,
-    title_header,
-    titulo,
-    subtitulo,
-    section_divider
+from render import create_helpicon, render_field
 
-)
-import uuid
 
 def card_metadata_render():
     from side_bar import sidebar_render
+
     sidebar_render()
 
     model_card_schema = utils.get_model_card_schema()
 
     section = model_card_schema["card_metadata"]
 
-    titulo("Card Metadata")
-    subtitulo("with relevant information about the model card itself")
+    utils.title("Card Metadata")
+    utils.subtitle("with relevant information about the model card itself")
 
     if "creation_date" in section:
         props = section["creation_date"]
@@ -40,7 +33,7 @@ def card_metadata_render():
             min_value=datetime(1900, 1, 1),
             max_value=datetime.today(),
             key="_creation_date_widget",
-            on_change=utils.store_value, 
+            on_change=utils.store_value,
             args=["creation_date_widget"],
         )
 
@@ -49,11 +42,9 @@ def card_metadata_render():
 
         # Store in session using your persistent key logic
         st.session_state["card_metadata_creation_date"] = formatted
-    section_divider()
+    utils.section_divider()
 
-    title_header(
-        "Versioning"
-    )
+    utils.title_header("Versioning")
 
     # Render version_number + version_changes in the same row using create_helpicon for labels
     if all(k in section for k in ["version_number", "version_changes"]):
@@ -75,7 +66,7 @@ def card_metadata_render():
                 step=0.10,
                 format="%.2f",
                 key="_card_metadata_version_number",
-                on_change=utils.store_value, 
+                on_change=utils.store_value,
                 args=["card_metadata_version_number"],
                 label_visibility="hidden",
             )
@@ -93,31 +84,24 @@ def card_metadata_render():
             st.text_input(
                 label=".",
                 key="_card_metadata_version_changes",
-                on_change=utils.store_value, 
+                on_change=utils.store_value,
                 args=["card_metadata_version_changes"],
                 label_visibility="hidden",
             )
-    section_divider()
+    utils.section_divider()
     # Render all other metadata fields except the three already handled
     for key in section:
         if key not in ["creation_date", "version_number", "version_changes"]:
             render_field(key, section[key], "card_metadata")
-            
+
     st.markdown("<br>", unsafe_allow_html=True)
 
-    col1, col2 = st.columns([9.4, 1])  
+    col1, col2 = st.columns([9.4, 1])
     with col2:
         if st.button("Next"):
-            from custom_pages.model_basic_information import model_basic_information_render
+            from custom_pages.model_basic_information import (
+                model_basic_information_render,
+            )
+
             st.session_state.runpage = model_basic_information_render
             st.rerun()
-    
-    # st.markdown("---")
-    # st.subheader("🔍 Debug: Session State")
-    # st.json(st.session_state)
-
-
-    if "session_id" not in st.session_state:
-        st.session_state["session_id"] = str(uuid.uuid4())
-
-    # st.write("🔁 Session ID:", st.session_state["session_id"])

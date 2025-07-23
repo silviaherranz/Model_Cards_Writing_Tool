@@ -1,6 +1,6 @@
 import streamlit as st
 import utils
-from render import render_field, titulo
+from render import render_field
 
 
 def other_considerations_render():
@@ -9,7 +9,7 @@ def other_considerations_render():
     sidebar_render()
     model_card_schema = utils.get_model_card_schema()
     section = model_card_schema["other_considerations"]
-    titulo("Other considerations")
+    utils.title("Other considerations")
     render_field(
         "responsible_use_and_ethical_considerations",
         section["responsible_use_and_ethical_considerations"],

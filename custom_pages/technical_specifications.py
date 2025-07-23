@@ -1,26 +1,20 @@
 import streamlit as st
 import utils
-from render import (
-    render_field,
-    section_divider,
-    title_header,
-    titulo,
-    subtitulo
-)
+from render import render_field
 
 def technical_specifications_render():
     from side_bar import sidebar_render
 
     sidebar_render()
     model_card_schema = utils.get_model_card_schema()
-    titulo("Technical Specifications")
-    subtitulo("(i.e. model pipeline, learning architecture, software and hardware)")
+    utils.title("Technical Specifications")
+    utils.subtitle("(i.e. model pipeline, learning architecture, software and hardware)")
 
     if "learning_architecture_forms" not in st.session_state:
         st.session_state.learning_architecture_forms = {"Learning Architecture 1": {}}
 
-    title_header("1. Model overview", size="1.2rem")
-    title_header("Model pipeline")
+    utils.title_header("1. Model overview", size="1.2rem")
+    utils.title_header("Model pipeline")
     # render_schema_section(model_card_schema["technical_specifications"], section_prefix="technical_specifications")
     section = model_card_schema["technical_specifications"]
     render_field(
@@ -34,7 +28,7 @@ def technical_specifications_render():
         "technical_specifications",
     )
 
-    section_divider()
+    utils.section_divider()
     # Row 1: model_inputs and model_outputs
     col1, col2 = st.columns([1, 1])
     with col1:
@@ -59,8 +53,8 @@ def technical_specifications_render():
             "technical_specifications",
         )
 
-    section_divider()
-    title_header("2. Learning Architecture", size="1.2rem")
+    utils.section_divider()
+    utils.title_header("2. Learning Architecture", size="1.2rem")
     utils.light_header_italics(
         "If several models are used (e.g. cascade, cycle, tree,...), repeat this section for each of them."
     )
@@ -178,8 +172,8 @@ def technical_specifications_render():
                 ]:
                     if field in section:
                         render_field(field, section[field], prefix)
-    section_divider()
-    title_header("3. Hardware & Software", size="1.2rem")
+    utils.section_divider()
+    utils.title_header("3. Hardware & Software", size="1.2rem")
     # render_schema_section(model_card_schema["hw_and_sw"], section_prefix="hw_and_sw")
     section = model_card_schema["hw_and_sw"]
     # Row 1: Libraries and Dependencies (longer input, full width)

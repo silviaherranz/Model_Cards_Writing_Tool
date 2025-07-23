@@ -2037,7 +2037,7 @@
       "example": "[409.6, 409.6, 276.7]"
     },
     "treatment_modality": {
-      "type": "List of strings",
+      "type": "select",
       "label": "Treatment modality",
       "description": "List of radiotherapy treatment techniques for which the model has been trained for. If only one modality, then the list will have only one entry",
       "required": true,
@@ -2218,8 +2218,7 @@
       "example": "1e-6, PolynomialLR"
     },
     "train_and_validation_loss_curves": {
-      "type": "file",
-      "format": "image/png",
+      "type": "Image",
       "label": "Train and Validation Loss Curves",
       "description": "Figure of the training and validation losses",
       "required": true
@@ -2365,7 +2364,7 @@
       "example": "[409.6, 409.6, 276.7]"
     },
     "treatment_modality": {
-      "type": "List of strings",
+      "type": "select",
       "label": "Treatment modality",
       "description": "List of radiotherapy treatment techniques for which the model has been trained for. If only one modality, then the list will have only one entry",
       "required": true,
@@ -2384,7 +2383,7 @@
         "Brachytherapy"
       ],
       "example": [
-        "VMAT"
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - VMAT"
       ]
     },
     "beam_configuration_energy": {
@@ -3307,7 +3306,7 @@
       ]
     },
     "figure_ism": {
-      "type": "file",
+      "type": "Image",
       "label": "Figure",
       "description": "A figure including a representation of the metric values, such as bars, scatter plots, box plots, etc",
       "model_types": [
@@ -4176,7 +4175,7 @@
       ]
     },
     "figure_dm": {
-      "type": "file",
+      "type": "Image",
       "label": "Figure",
       "description": "A figure including a representation of the metric values, such as bars, scatter plots, box plots, etc",
       "model_types": [
@@ -5030,7 +5029,7 @@
       ]
     },
     "figure_seg": {
-      "type": "file",
+      "type": "Image",
       "label": "Figure",
       "description": "A figure including a representation of the metric values, such as bars, scatter plots, box plots, etc",
       "model_types": [

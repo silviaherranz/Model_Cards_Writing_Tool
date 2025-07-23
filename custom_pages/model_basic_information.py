@@ -3,13 +3,9 @@ import streamlit as st
 import utils
 from render import (
     create_helpicon,
-    render_field,
-    title_header,
-    section_divider,
-    titulo,
-    subtitulo,
+    render_field
 )
-import uuid
+#import uuid
 
 
 def model_basic_information_render():
@@ -18,8 +14,8 @@ def model_basic_information_render():
     sidebar_render()
     model_card_schema = utils.get_model_card_schema()
     section = model_card_schema["model_basic_information"]
-    titulo("Model Basic Information")
-    subtitulo("with the main information to use the model")
+    utils.title("Model Basic Information")
+    utils.subtitle("with the main information to use the model")
 
     if "name" in section and "creation_date" in section:
         col1, col2 = st.columns(2)
@@ -50,8 +46,8 @@ def model_basic_information_render():
             formatted = date_value.strftime("%Y%m%d")
             st.session_state["model_basic_information_creation_date"] = formatted
 
-    section_divider()
-    title_header("Versioning")
+    utils.section_divider()
+    utils.title_header("Versioning")
     if "version_number" in section and "version_changes" in section:
         col1, col2 = st.columns([1, 3])
         with col1:
@@ -67,12 +63,12 @@ def model_basic_information_render():
                 section["version_changes"],
                 "model_basic_information",
             )
-    section_divider()
+    utils.section_divider()
     # Line 3: doi
     if "doi" in section:
         render_field("doi", section["doi"], "model_basic_information")
-    section_divider()
-    title_header("Model scope")
+    utils.section_divider()
+    utils.title_header("Model scope")
     # Line 4: summary + anatomical_site
     if "model_scope_summary" in section and "model_scope_anatomical_site" in section:
         col1, col2 = st.columns([2, 1])
@@ -88,9 +84,9 @@ def model_basic_information_render():
                 section["model_scope_anatomical_site"],
                 "model_basic_information",
             )
-    section_divider()
+    utils.section_divider()
     # Line 5: Clearance
-    title_header("Clearance")
+    utils.title_header("Clearance")
     # Render clearance_type
     if "clearance_type" in section:
         render_field(
@@ -105,7 +101,7 @@ def model_basic_information_render():
             "clearance_approved_by_contact_email",
         ]
     ):
-        title_header("Approved by")
+        utils.title_header("Approved by")
         col1, col2, col3 = st.columns([1, 1.5, 1.5])
         with col1:
             render_field(
@@ -134,7 +130,7 @@ def model_basic_information_render():
             "model_basic_information",
         )
 
-    section_divider()
+    utils.section_divider()
 
     render_field("intended_users", section["intended_users"], "model_basic_information")
     render_field(
@@ -153,10 +149,10 @@ def model_basic_information_render():
         "model_basic_information",
     )
 
-    section_divider()
+    utils.section_divider()
 
     # Developer Information
-    title_header("Developed by")
+    utils.title_header("Developed by")
     col1, col2, col3 = st.columns([1, 1.5, 1.5])
     with col1:
         render_field(
@@ -177,7 +173,7 @@ def model_basic_information_render():
             "model_basic_information",
         )
 
-    section_divider()
+    utils.section_divider()
 
     render_field(
         "conflict_of_interest",
@@ -226,12 +222,3 @@ def model_basic_information_render():
 
             st.session_state.runpage = technical_specifications_render
             st.rerun()
-
-    # st.markdown("---")
-    # st.subheader("🔍 Debug: Session State")
-    # st.json(st.session_state)
-
-    if "session_id" not in st.session_state:
-        st.session_state["session_id"] = str(uuid.uuid4())
-
-    # st.write("🔁 Session ID:", st.session_state["session_id"])
