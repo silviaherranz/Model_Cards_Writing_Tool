@@ -112,45 +112,52 @@ def training_data_render():
     model_inputs = list(set(model_inputs))
     model_outputs = list(set(model_outputs))
 
-    st.write("✅ Aggregated Inputs:", model_inputs)
-    st.write("✅ Aggregated Outputs:", model_outputs)
-
     all_modalities = list(set(model_inputs + model_outputs))
 
-    modality_fields = [
-        "image_resolution",
-        "patient_positioning",
-        "scanner_model",
-        "scan_acquisition_parameters",
-        "scan_reconstruction_parameters",
-        "fov",
-    ]
-
-    for modality in all_modalities:
-        if not modality.strip():
-            continue
-
-        clean_modality = modality.strip().replace(" ", "_").lower()
-        title_header(f"{modality} Details", size="1rem")
-
-        for field in modality_fields:
-            if field not in section:
-                st.warning(f"Missing schema for field: {field}")
+    if all_modalities:
+        tabs = st.tabs([utils.strip_brackets(mod) for mod in all_modalities])
+        for idx, modality in enumerate(all_modalities):
+            if not modality.strip():
                 continue
 
-            unique_key = f"{tech_section_prefix}_{clean_modality}_{field}"
-            field_schema = section[field].copy()
+            with tabs[idx]:
+                clean_modality = modality.strip().replace(" ", "_").lower()
+                title_header(f"{utils.strip_brackets(modality)} Details", size="1rem")
 
-            utils.load_value(unique_key)
-            st.text_input(
-                label=field_schema.get("label", field),
-                value=st.session_state.get("_" + unique_key, ""),
-                key="_" + unique_key,
-                on_change=utils.store_value,
-                args=[unique_key],
-                placeholder=field_schema.get("placeholder", ""),
-                help=field_schema.get("description", ""),
-            )
+                # Campos con layout personalizado
+                field_keys = {
+                    "image_resolution": section["image_resolution"],
+                    "patient_positioning": section["patient_positioning"],
+                    "scanner_model": section["scanner_model"],
+                    "scan_acquisition_parameters": section["scan_acquisition_parameters"],
+                    "scan_reconstruction_parameters": section["scan_reconstruction_parameters"],
+                    "fov": section["fov"],
+                }
+
+                # Forzar placeholders
+                for f in field_keys.values():
+                    f["placeholder"] = f.get("placeholder", "NA if Not Applicable")
+
+                # First row: image_resolution + patient_positioning
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    render_field(f"{tech_section_prefix}_{clean_modality}_image_resolution", field_keys["image_resolution"], "")
+                with col2:
+                    render_field(f"{tech_section_prefix}_{clean_modality}_patient_positioning", field_keys["patient_positioning"], "")
+
+                # Second row: scanner_model
+                render_field(f"{tech_section_prefix}_{clean_modality}_scanner_model", field_keys["scanner_model"], "")
+
+                # Third row: acquisition + reconstruction parameters
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    render_field(f"{tech_section_prefix}_{clean_modality}_scan_acquisition_parameters", field_keys["scan_acquisition_parameters"], "")
+                with col2:
+                    render_field(f"{tech_section_prefix}_{clean_modality}_scan_reconstruction_parameters", field_keys["scan_reconstruction_parameters"], "")
+
+                # Fourth row: fov
+                render_field(f"{tech_section_prefix}_{clean_modality}_fov", field_keys["fov"], "")
+
 
     st.markdown("<br>", unsafe_allow_html=True)
     col1, col2, col3, col4, col5 = st.columns([1.5, 2, 4.3, 2, 1.1])
@@ -175,12 +182,3 @@ def training_data_render():
     if "session_id" not in st.session_state:
         st.session_state["session_id"] = str(uuid.uuid4())
     # st.write("🔁 Session ID:", st.session_state["session_id"])
-
-    model_inputs = st.session_state.get("technical_specifications_input_content") or []
-    model_outputs = st.session_state.get("technical_specifications_output_content") or []
-
-    st.write("✅ Inputs:", model_inputs)
-    st.write("✅ Outputs:", model_outputs)
-    for modality in all_modalities:
-        st.write("🔄 Rendering fields for:", modality)
-

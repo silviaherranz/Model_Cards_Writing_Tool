@@ -1,6 +1,10 @@
 import json
 import streamlit as st
-import time
+import re
+
+def strip_brackets(text):
+    return re.sub(r"\s*\(.*?\)", "", text).strip()
+
 
 @st.cache_data  # This avoids reloading on every rerun
 def get_model_card_schema():

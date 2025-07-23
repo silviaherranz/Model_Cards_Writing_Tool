@@ -59,18 +59,11 @@ def technical_specifications_render():
             "technical_specifications",
         )
 
-    # Optional: Render any other leftover fields
-    # for key in section:
-    #     if key not in ["model_inputs", "model_outputs", "pre_processing", "post_processing"]:
-    #         render_field(key, section[key], "technical_specifications")
-
     section_divider()
-    # -- Learning Architecture Header --
     title_header("2. Learning Architecture", size="1.2rem")
     utils.light_header_italics(
         "If several models are used (e.g. cascade, cycle, tree,...), repeat this section for each of them."
     )
-    # Add before the UI block (safe initialization)
     if "selected_learning_arch_to_delete" not in st.session_state:
         st.session_state.selected_learning_arch_to_delete = None
     # -- Cleaner Button Layout --
@@ -82,17 +75,8 @@ def technical_specifications_render():
             st.button("➕ Add Learning Architecture", key="add_learning_arch")
             st.markdown("</div>", unsafe_allow_html=True)
 
-        # with col2:
-        #     forms = list(st.session_state.learning_architecture_forms.keys())
-        #     delete_index = st.selectbox(
-        #         label=".",
-        #         options=forms,
-        #         key="learning_architecture_delete_select_clean",
-        #         label_visibility="hidden"
-        #     )
         with col2:
             forms = list(st.session_state.learning_architecture_forms.keys())
-            # Slight vertical alignment fix for the dropdown
             st.markdown(
                 "<div style='height: 1px; margin-top: -28px;'></div>",
                 unsafe_allow_html=True,
@@ -104,7 +88,6 @@ def technical_specifications_render():
                 key="learning_architecture_delete_select_clean",
                 label_visibility="collapsed",
             )
-            # st.markdown("</div>", unsafe_allow_html=True)
 
         with col3:
             st.markdown("<div style='margin-top: 6px;'>", unsafe_allow_html=True)
@@ -115,12 +98,10 @@ def technical_specifications_render():
                     selected_key = delete_index
                     selected_index = int(
                         selected_key.split()[-1]
-                    )  # Extracts the index number
+                    ) 
 
-                    # Remove the selected form
                     st.session_state.learning_architecture_forms.pop(selected_key)
 
-                    # Remove all session keys related to that form
                     keys_to_remove = [
                         k
                         for k in list(st.session_state.keys())
@@ -248,7 +229,3 @@ def technical_specifications_render():
             from custom_pages.training_data import training_data_render
             st.session_state.runpage = training_data_render
             st.rerun()
-
-    
-    st.write("🔍 Model Inputs:", st.session_state.get("technical_specifications_model_inputs"))
-    st.write("🔍 Model Outputs:", st.session_state.get("technical_specifications_model_outputs"))

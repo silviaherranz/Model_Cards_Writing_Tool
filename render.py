@@ -185,9 +185,6 @@ def render_field(key, props, section_prefix):
     placeholder = props.get("placeholder", "")
 
     create_helpicon(label, description, field_type, example, required)
-    if key in ["input_content", "output_content"]:
-        st.write(f"📌 full_key used: {full_key}")
-        st.write(f"📌 stored list: {st.session_state.get(full_key)}")
 
     try:
         safe_label = label.strip() or "Field"
@@ -243,21 +240,11 @@ def render_field(key, props, section_prefix):
                             )
                         with col2:
                             st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
-                            st.write("📌 type_key =", type_key)
-                            st.write("📌 current type =", st.session_state.get(type_key))
-                            st.write("📌 list before =", st.session_state.get(content_list_key, []))
-
                             if st.button("➕", key=f"{full_key}_add_button"):
-                                entry = st.session_state.get(type_key, "")
+                                entry = utils.strip_brackets(st.session_state.get(type_key, ""))
                                 st.session_state[content_list_key].append(entry)
                                 st.session_state[full_key] = st.session_state[content_list_key]
-                            st.write("📌 added entry =", entry)
-                            st.write("📌 updated list =", st.session_state[content_list_key])
                             st.markdown("</div>", unsafe_allow_html=True)
-                            
-
-                    # ✅ Always keep main field in sync, even outside the ➕ button
-                    #st.session_state[full_key] = st.session_state.get(content_list_key, [])
 
                     # Show selections
                     entries = st.session_state[content_list_key]
