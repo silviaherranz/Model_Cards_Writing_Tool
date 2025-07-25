@@ -46,7 +46,7 @@ def training_data_render():
     utils.title_header("Training Dataset", size="1.2rem")
     utils.title_header("1. General information")
 
-    col1, col2, col3 = st.columns([0.8, 0.6, 1])
+    col1, col2 = st.columns([1,1])
     with col1:
         render_field(
             "total_size",
@@ -59,12 +59,11 @@ def training_data_render():
             section["number_of_patients"],
             "training_data",
         )
-    with col3:
-        render_field(
-            "source",
-            section["source"],
-            "training_data",
-        )
+    render_field(
+        "source",
+        section["source"],
+        "training_data",
+    )
 
     col1, col2 = st.columns([1, 1])
     with col1:

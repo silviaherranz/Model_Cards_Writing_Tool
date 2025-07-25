@@ -2,6 +2,21 @@ import streamlit as st
 from tg263 import RTSTRUCT_SUBTYPES
 import html
 import utils
+import numpy as np 
+DEFAULT_SELECT = "< PICK A VALUE >"
+
+
+def selectbox_with_default(label, values, key=None, help=None):
+    all_options = np.insert(np.array(values, object), 0, DEFAULT_SELECT)
+    selected = st.selectbox(
+        label,
+        options=all_options,
+        key=key,
+        help=help,
+        format_func=lambda x: "" if x == DEFAULT_SELECT else x
+    )
+    return selected
+
 
 def render_schema_section(schema_section, section_prefix="", current_task=None):
     for key, props in schema_section.items():
@@ -30,19 +45,6 @@ def should_render(props, current_task):
         return current_task.strip().lower() in map(str.lower, model_types)
     return False
 
-
-def render_field(key, props, section_prefix):
-    full_key = f"{section_prefix}_{key}"
-    label = props.get("label") or key or "Field"
-    description = props.get("description", "")
-    example = props.get("example", "")
-    field_type = props.get("type", "")
-    required = props.get("required", False)
-    options = props.get("options", [])
-    placeholder = props.get("placeholder", "")
-
-    create_helpicon(label, description, field_type, example, required)
-
 def render_field(key, props, section_prefix):
     full_key = f"{section_prefix}_{key}"
     label = props.get("label") or key or "Field"
@@ -68,26 +70,30 @@ def render_field(key, props, section_prefix):
 
                     # Initialize persistent values
                     utils.load_value(content_list_key, default=[])
-                    utils.load_value(type_key, default=options[0] if options else "")
-                    utils.load_value(subtype_key, default=RTSTRUCT_SUBTYPES[0])
+                    utils.load_value(type_key)
+                    utils.load_value(subtype_key)
 
                     if st.session_state["_" + type_key] == "RTSTRUCT":
                         col1, col2, col3 = st.columns([2, 2, 0.4])
                         with col1:
                             st.selectbox(
-                                "Select content type",
+                                label="",
                                 options=options,
                                 key="_" + type_key,
                                 on_change=utils.store_value,
                                 args=[type_key],
+                                label_visibility="hidden",
+                                placeholder="-Select an option-"
                             )
                         with col2:
                             st.selectbox(
-                                "Select RTSTRUCT subtype",
+                                label="",
                                 options=RTSTRUCT_SUBTYPES,
                                 key="_" + subtype_key,
                                 on_change=utils.store_value,
                                 args=[subtype_key],
+                                label_visibility="hidden",
+                                placeholder="-Select an option-"
                             )
                         with col3:
                             st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
@@ -138,7 +144,7 @@ def render_field(key, props, section_prefix):
                     select_key = f"{full_key}_selected"
 
                     utils.load_value(content_list_key, default=[])
-                    utils.load_value(select_key, default=options[0] if options else "")
+                    utils.load_value(select_key)
 
                     col1, col2 = st.columns([4, 0.5])
                     with col1:
@@ -148,6 +154,7 @@ def render_field(key, props, section_prefix):
                             key="_" + select_key,
                             on_change=utils.store_value,
                             args=[select_key],
+                            placeholder="-Select an option-"
                         )
                     with col2:
                         st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
@@ -175,19 +182,20 @@ def render_field(key, props, section_prefix):
                                 st.session_state[full_key] = []
                                 st.rerun()
 
-                    return  # ✅ Prevent fallback selectbox from rendering
-
-                # Fallback for other select fields
-                utils.load_value(full_key, default=options[0] if options else "")
+                    return  
+                utils.load_value(full_key)
                 st.selectbox(
-                    safe_label,
-                    options=options,
-                    key="_" + full_key,
-                    on_change=utils.store_value,
-                    args=[full_key],
-                    help=description,
-                    label_visibility="hidden",
+                     safe_label,
+                     options=options,
+                     key="_" + full_key,
+                     on_change=utils.store_value,
+                     args=[full_key],
+                     help=description,
+                     label_visibility="hidden",
+                     placeholder="-Select an option-"
                 )
+
+
 
         elif field_type == "Image":
             st.markdown(

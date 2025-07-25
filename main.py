@@ -39,7 +39,7 @@ def task_selector_page():
         # Show the radio input ONLY if task is not yet selected
         selected_task = st.radio(
             "Choose the model type:",
-            ["Image-to-Image translation", "Segmentation", "Dose prediction"],
+            ["Image-to-Image translation", "Segmentation", "Dose prediction", "Other"],
             key="task_temp",
         )
 

@@ -11,6 +11,8 @@ from render import (
 
 def render_evaluation_section(schema_section, section_prefix, current_task):
     utils.require_task()
+    # model_card_schema = utils.get_model_card_schema()
+    # section = model_card_schema["evaluation_data_methodology_results_commisioning"]
 
     if "evaluation_date" in schema_section:
         props = schema_section["evaluation_date"]
@@ -37,7 +39,8 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
 
     utils.title_header("Evaluated by")
     same_key = f"{section_prefix}_evaluated_same_as_approved"
-    same = st.checkbox("Same as 'Approved by'", key=same_key)
+    utils.load_value(same_key, 0)
+    same = st.checkbox("Same as 'Approved by'", key="_" + same_key, on_change=utils.store_value, args=[same_key])
 
     if not same:
         if all(
@@ -48,7 +51,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                 "evaluated_by_contact_email",
             ]
         ):
-            col1, col2, col3 = st.columns([1, 1.5, 1.5])  # puedes ajustar proporciones
+            col1, col2, col3 = st.columns([1, 1.5, 1.5])
             with col1:
                 render_field(
                     "evaluated_by_name",
@@ -80,24 +83,47 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
     )
     utils.section_divider()
 
-    utils.title_header("Evaluation Dataset")
+    utils.title_header("Evaluation Dataset", size="1.2rem")
+    utils.title_header("1. General information")
 
-    utils.title_header("1. General Information", size="1rem")
-    render_fields(
-        [
+    col1, col2 = st.columns([1,1])
+    with col1:
+        render_field(
             "total_size",
+            schema_section["total_size"],
+            "training_data",
+        )
+    with col2:
+        render_field(
             "number_of_patients",
-            "source",
-            "acquisition_period",
-            "inclusion_exclusion_criteria",
-            "url_info",
-        ],
-        schema_section,
-        section_prefix,
-        current_task,
+            schema_section["number_of_patients"],
+        section_prefix
+        )
+    render_field(
+        "source",
+        schema_section["source"],
+        section_prefix
     )
+
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        render_field(
+            "acquisition_period",
+            schema_section["acquisition_period"],
+            section_prefix
+        )
+    with col2:
+        render_field(
+            "inclusion_exclusion_criteria",
+            schema_section["inclusion_exclusion_criteria"],
+            section_prefix
+        )
+    render_field("url_info", schema_section["url_info"], section_prefix)
     utils.section_divider()
-    utils.title_header("Technical Characteristics", size="1rem")
+    utils.title_header("2. Technical characteristics")
+    utils.light_header_italics(
+        "(i.e. image acquisition protocol, treatment details, …)"
+    )
     render_fields(
         [
             "image_resolution",

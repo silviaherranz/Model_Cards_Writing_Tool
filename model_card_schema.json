@@ -2324,7 +2324,7 @@
       "required": false
     },
     "image_resolution": {
-      "type": "list[float]",
+      "type": "Array of floats",
       "label": "Image resolution",
       "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Use a list of arrays, one for each image type defined in both “input content” and “output content” fields. Remember that this field refers to images before pre-processing steps.",
       "required": true,
@@ -2335,21 +2335,21 @@
       "label": "Patient positioning",
       "description": "Patient positioning during image acquisition or treatment delivery.",
       "required": true,
-      "example": "[\"Supine\", \"arms above head\", \"flat couch\"]"
+      "example": "[Supine, arms above head, flat couch]"
     },
     "scanner_model": {
       "type": "List of strings, Free text format",
       "label": "Scan(s) manufacturer and model",
       "description": "Manufacturer and model name of the image acquisition system. Use a list of strings, one for each image type defined in both 'model input' and 'model output' fields. If the model has been trained with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant.",
       "required": true,
-      "example": "[\"Varian ETHOS hypersight\", \"Siemens Somatom\"]"
+      "example": "[Varian ETHOS hypersight, Siemens Somatom]"
     },
     "scan_acquisition_parameters": {
       "type": "List of strings, Free text format",
       "label": "Scan(s) acquisition parameters",
       "description": "Acquisition parameters of the image acquisition system(s). Use a list of strings, one for each image type defined in both 'model input' and 'model output' fields. If the model has been trained with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant. For MR: Magnetic Field (T), Repetition Time (ms), and Echo Time (ms) must be disclosed. For CT: Voltage (kV) must be disclosed.",
       "required": true,
-      "example": "[\"MR: 1.5T, TR 2000ms, TE 80ms\", \"CT: 120kV\"]"
+      "example": "[MR: 1.5T, TR 2000ms, TE 80ms, CT: 120kV]"
     },
     "scan_reconstruction_parameters": {
       "type": "List of strings, Free text format",
@@ -2359,7 +2359,7 @@
     },
     "fov": {
       "type": "list[float]",
-      "label": "FOV",
+      "label": "Field of View (FOV)",
       "description": "Field-Of-View in mm of the acquired images. [left to right, posterior to anterior, inferior to superior].Use a list of strings, one for each image type defined in both “model input” and “model output” fields. If the model has been trained with images acquired with different FOV, include the median and range of them. Indicate “NA” (Not Applicable) whenever not relevant.",
       "example": "[409.6, 409.6, 276.7]"
     },
@@ -2412,40 +2412,24 @@
       "example": "Monte Carlo"
     },
     "target_volumes_and_prescription": {
-      "type": "list[List of strings], Formatted as combinations of target volume type and prescriptions in cGy (i.e. Target_xxxx), separated by commas",
+      "type": "List of strings, Formatted as combinations of target volume type and prescriptions in cGy (i.e. Target_xxxx), separated by commas",
       "label": "Target volumes and prescription",
       "description": "List of target volumes and prescriptions in cGy.",
       "model_types": [
         "Dose prediction"
       ],
       "required": true,
-      "example": [
-        [
-          "PTV_5000",
-          "PTV_7000"
-        ],
-        [
-          "PTV_5425",
-          "PTV_7000"
-        ],
-        [
-          "PTV_6900"
-        ]
-      ]
+      "example": "[[PTV_5000,PTV_7000],[PTV_5425,PTV_7000],[PTV_6900]]"
     },
     "number_of_fractions": {
-      "type": "list[float]",
+      "type": "List of floats, Formatted as fraction numbers separated by commas, in the same order as the indicated target prescriptions",
       "label": "Number of fractions",
       "description": "Number of fractions for the given prescription list in the field 'Target prescription'",
       "model_types": [
         "Dose prediction"
       ],
       "required": true,
-      "example": [
-        "30",
-        "30",
-        "30"
-      ]
+      "example": "[30, 30, 30]"
     },
     "reference_standard": {
       "type": "String, Free text format",
@@ -2457,7 +2441,7 @@
     "reference_standard_qa": {
       "type": "String, Free text format",
       "label": "Reference Standard QA",
-      "description": "Describe the quality assurance (QA) methods to ensure a high quality reference standard. For instance, how inter-observer variability in the annotations was dealt with when generating the training data.",
+      "description": "Describe the quality assurance (QA) methods to ensure a high quality reference standard. For instance, how inter-observer variability in the annotations was dealt with when generating the training data. If no QA has been applied, disclose “NA” (Not Applicable)",
       "required": true,
       "example": "delineations checked and corrected by 2 radiation oncologists according to delineation guidelines"
     },
@@ -2480,21 +2464,21 @@
       "description": "Details of the TNM staging for the patients in the dataset (e.g. types and proportion).",
       "required": false
     },
-    "age_ev": {
+    "age": {
       "type": "String, Free text format",
       "label": "Age",
       "description": "Median and range of the age of patients in the dataset. If not possible to retrieve (e.g. anonymisation), disclose 'NA'.",
       "required": true
     },
-    "sex_ev": {
+    "sex": {
       "type": "String, Free text format",
       "label": "Sex",
-      "description": "Proportion of M, F, or O (other) in the model. If not possible to retrieve, disclose 'NA'.",
+      "description": "Proportion of M, F, or O (other) in the model. If not possible to retrieve (e.g. anonymisation), disclose 'NA'.",
       "required": true,
       "example": "60% M, 40% F"
     },
     "target_volume_cm3": {
-      "type": "List of strings. List of strings, one entry per target volume",
+      "type": "List of strings, Free text format. One per type of target volume",
       "label": "Target volume [cm3]",
       "description": "Median and range of the target volumes of patients in the dataset. If several target volumes (GTV, CTVp, etc), use one entry per type.",
       "required": false,
@@ -3278,7 +3262,7 @@
     "sample_data_ism": {
       "type": "String, Free text format",
       "label": "Sample Data",
-      "description": "If the metric values for each sample in the evaluation dataset are available in the model card appendix or somewhere else, please indicate the",
+      "description": "If the metric values for each sample in the evaluation dataset are available in the model card appendix or somewhere else, please indicate the location of it (e.g. page, table index, figure index, url...)",
       "model_types": [
         "Image-to-Image translation"
       ],
@@ -3312,7 +3296,6 @@
       "model_types": [
         "Image-to-Image translation"
       ],
-      "format": "image/png",
       "required": false
     },
     "type_dose_dm": {
@@ -4108,7 +4091,7 @@
         "Image-to-Image translation"
       ],
       "required": true,
-      "description": "Dose engine used to plan on the training dataset.",
+      "description": "Dose engine used to plan on the evaluation dataset.",
       "options": [
         "Monte Carlo",
         "Pencil beam",
@@ -4181,7 +4164,6 @@
       "model_types": [
         "Image-to-Image translation"
       ],
-      "format": "image/png",
       "required": false
     },
     "type_dose_seg": {
