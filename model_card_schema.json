@@ -3300,7 +3300,7 @@
     },
     "type_dose_dm": {
       "type": "select",
-      "options": ["GPR", "MAE", "MSE", "D", "V"],
+      "options": ["GPR", "MAE", "MSE", "D", "V", "Other"],
       "label": "Type",
       "model_types": [
         "Image-to-Image translation"
@@ -4063,7 +4063,7 @@
       "required": true
     },
     "treatment_modality_dm": {
-      "type": "List of strings",
+      "type": "select",
       "label": "Treatment modality",
       "description": "Treatment technique used to plan on the evaluation dataset.",
       "required": true,
@@ -4082,7 +4082,7 @@
         "Brachytherapy"
       ],
       "example": [
-        "VMAT"
+        "External beam radiation therapy (EBRT) - Photons (LINAC) - VMAT"
       ]
     },
     "dose_engine_dm": {

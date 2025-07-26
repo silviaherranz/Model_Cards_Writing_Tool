@@ -4,7 +4,6 @@ from render import (
     render_field,
     should_render
 )
-#import uuid
 import re
 
 
