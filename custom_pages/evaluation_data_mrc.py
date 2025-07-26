@@ -122,19 +122,68 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
     utils.light_header_italics(
         "(i.e. image acquisition protocol, treatment details, …)"
     )
+
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        render_field(
+            "image_resolution", schema_section["image_resolution"], section_prefix
+        )
+    with col2:
+        render_field(
+            "patient_positioning", schema_section["patient_positioning"], section_prefix
+        )
     render_fields(
         [
-            "image_resolution",
-            "patient_positioning",
             "scanner_model",
             "scan_acquisition_parameters",
             "scan_reconstruction_parameters",
             "fov",
-            "treatment_modality",
-            "beam_configuration_energy",
-            "dose_engine",
-            "target_volumes_and_prescription",
-            "number_of_fractions",
+        ],
+        schema_section,
+        section_prefix,
+        current_task,
+    )
+    ####################################
+    # EXCLUSIVE TO DOSE PREDICTION TASK
+    ####################################
+    task = st.session_state.get("task").strip().lower()
+    if should_render(schema_section["treatment_modality"], task):
+        render_field("treatment_modality", schema_section["treatment_modality"], section_prefix)
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if should_render(schema_section["beam_configuration_energy"], task):
+            render_field(
+                "beam_configuration_energy",
+                schema_section["beam_configuration_energy"],
+                section_prefix,
+            )
+    with col2:
+        if should_render(schema_section["dose_engine"], task):
+            render_field(
+                "dose_engine",
+                schema_section["dose_engine"],
+                section_prefix,
+            )
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if should_render(schema_section["target_volumes_and_prescription"], task):
+            render_field(
+                "target_volumes_and_prescription",
+                schema_section["target_volumes_and_prescription"],
+                section_prefix,
+            )
+    with col2:
+        if should_render(schema_section["number_of_fractions"], task):
+            render_field(
+                "number_of_fractions",
+                schema_section["number_of_fractions"],
+                section_prefix,
+            )
+    ########################################
+    # END EXCLUSIVE TO DOSE PREDICTION TASK
+    ########################################
+    render_fields(
+        [
             "reference_standard",
             "reference_standard_qa",
             "reference_standard_qa_additional_information",
@@ -143,29 +192,56 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         section_prefix,
         current_task,
     )
+
     utils.section_divider()
 
     utils.title_header("3. Patient Demographics and Clinical Characteristics")
-    render_fields(
-        [
-            "icd10_11",
-            "tnm_staging",
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        render_field(
+            "icd10_11_ev",
+            schema_section["icd10_11_ev"],
+            section_prefix,
+        )
+    with col2:
+        render_field(
+            "tnm_staging_ev",
+            schema_section["tnm_staging_ev"],
+            section_prefix,
+        )
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        render_field(
             "age_ev",
+            schema_section["age_ev"],
+            section_prefix,
+        )
+    with col2:
+        render_field(
             "sex_ev",
-            "target_volume_cm3",
-            "bmi",
-            "additional_patient_info",
-        ],
-        schema_section,
+            schema_section["sex_ev"],
+            section_prefix,
+        )
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        render_field(
+            "target_volume_cm3_ev",
+            schema_section["target_volume_cm3_ev"],
+            section_prefix,
+        )
+    with col2:
+        render_field(
+            "bmi_ev",
+            schema_section["bmi_ev"],
+            section_prefix,
+        )
+    render_field(
+        "additional_patient_info_ev",
+        schema_section["additional_patient_info_ev"],
         section_prefix,
-        current_task,
     )
     utils.section_divider()
     utils.title_header("Quantitative Evaluation")
-
-    ##############################################
-    # EXCLUSIVE TO IMAGE-TO-IMAGE TRANSLATION TASK
-    ##############################################
 
     ism_fields = [
         "on_volume_ism",
@@ -174,7 +250,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         "mean_data_ism",
         "figure_ism",
     ]
-    
+
     task = st.session_state.get("task").strip().lower()
     if should_render(schema_section["type_ism"], task):
         utils.title_header("Image Similarity Metrics")
@@ -222,9 +298,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                     )
 
                 if should_render(schema_section["figure_ism"], task):
-                    render_field(
-                        "figure_ism", schema_section["figure_ism"], sub_prefix
-                    )
+                    render_field("figure_ism", schema_section["figure_ism"], sub_prefix)
     utils.section_divider()
 
     dm_base_fields = [
@@ -239,7 +313,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         "mean_data_dm",
         "figure_dm",
     ]
-    
+
     task = st.session_state.get("task").strip().lower()
     if should_render(schema_section["type_dose_dm"], task):
         utils.title_header("Dose Metrics")
@@ -316,7 +390,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         schema_section["sample_data_dm"],
                         sub_prefix,
                     )
-                
+
                 if should_render(schema_section["mean_data_dm"], task):
                     render_field(
                         "mean_data_dm",
@@ -325,32 +399,57 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                     )
 
                 if should_render(schema_section["figure_dm"], task):
-                    render_field(
-                        "figure_dm", schema_section["figure_dm"], sub_prefix
-                    )
-                    
+                    render_field("figure_dm", schema_section["figure_dm"], sub_prefix)
+
                 utils.section_divider()
 
     ##################################################
     # END EXCLUSIVE TO IMAGE-TO-IMAGE TRANSLATION TASK
     ##################################################
 
+    ####################################
+    # EXCLUSIVE TO SEGMENTATION TASK
+    ####################################
+    task = st.session_state.get("task").strip().lower()
+
+    if should_render(schema_section["type_gm_seg"], task):
+        utils.title_header("Geometric Metrics")
+        render_field(
+            "type_gm_seg",
+            schema_section["type_gm_seg"],
+            section_prefix,
+        )
+
     dose_seg_fields = [
-        "type_dose_seg",
-        "metric_specifications_seg",
-        "on_volume_seg",
-        "treatment_modality_seg",
-        "dose_engine_seg",
-        "dose_grid_resolution_seg",
-        "tps_vendor_seg",
-        "sample_data_seg",
-        "mean_data_seg",
-        "figure_seg",
+        "metric_specifications_gm_seg",
+        "on_volume_gm_seg",
+        "sample_data_gm_seg",
+        "mean_data_gm_seg",
+        "figure_gm_seg",
     ]
-    if has_renderable_fields(dose_seg_fields, schema_section, current_task):
-        utils.title_header("Geometric metrics", size="1rem")
-        utils.title_header("Dose metrics", size="1rem")
-        render_fields(dose_seg_fields, schema_section, section_prefix, current_task)
+
+    seg_entries = st.session_state.get(f"{section_prefix}_type_gm_seg_list", [])
+
+    if seg_entries and has_renderable_fields(dose_seg_fields, schema_section, task):
+        utils.title_header("Geometric Metric Specifications")
+        tabs = st.tabs([str(entry) for entry in seg_entries if entry])
+
+        for tab, seg_name in zip(tabs, seg_entries):
+            with tab:
+                sub_prefix = f"{section_prefix}.{seg_name}"
+
+                # First row: two fields side by side
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    render_field("metric_specifications_gm_seg", schema_section["metric_specifications_gm_seg"], sub_prefix)
+                with col2:
+                    render_field("on_volume_gm_seg", schema_section["on_volume_gm_seg"], sub_prefix)
+
+                # Other fields on separate lines
+                render_field("sample_data_gm_seg", schema_section["sample_data_gm_seg"], sub_prefix)
+                render_field("mean_data_gm_seg", schema_section["mean_data_gm_seg"], sub_prefix)
+                render_field("figure_gm_seg", schema_section["figure_gm_seg"], sub_prefix)
+
 
     utils.title_header("Qualitative Evaluation")
 

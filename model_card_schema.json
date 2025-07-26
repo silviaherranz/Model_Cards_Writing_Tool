@@ -2452,32 +2452,32 @@
       "required": false,
       "example": "Use of paired data or not; if any QA of the machine has been done (es. magnetic field homogeneity and the spatial integrity); TG263 compliance to output format (e.g. tags for AI generated structures)"
     },
-    "icd10_11": {
+    "icd10_11_ev": {
       "type": "List of strings",
       "label": "ICD10/11",
       "description": "ICD10/11 codes for the tumour location of the patients in the dataset.",
       "required": false
     },
-    "tnm_staging": {
+    "tnm_staging_ev": {
       "type": "String, Free text format",
       "label": "TNM staging",
       "description": "Details of the TNM staging for the patients in the dataset (e.g. types and proportion).",
       "required": false
     },
-    "age": {
+    "age_ev": {
       "type": "String, Free text format",
       "label": "Age",
       "description": "Median and range of the age of patients in the dataset. If not possible to retrieve (e.g. anonymisation), disclose 'NA'.",
       "required": true
     },
-    "sex": {
+    "sex_ev": {
       "type": "String, Free text format",
       "label": "Sex",
       "description": "Proportion of M, F, or O (other) in the model. If not possible to retrieve (e.g. anonymisation), disclose 'NA'.",
       "required": true,
       "example": "60% M, 40% F"
     },
-    "target_volume_cm3": {
+    "target_volume_cm3_ev": {
       "type": "List of strings, Free text format. One per type of target volume",
       "label": "Target volume [cm3]",
       "description": "Median and range of the target volumes of patients in the dataset. If several target volumes (GTV, CTVp, etc), use one entry per type.",
@@ -2487,13 +2487,13 @@
         "(130–350)"
       ]
     },
-    "bmi": {
+    "bmi_ev": {
       "type": "String, Free text format",
       "label": "BMI",
       "description": "Median and range of the BMI of patients in the dataset.",
       "required": false
     },
-    "additional_patient_info": {
+    "additional_patient_info_ev": {
       "type": "String, Free text format",
       "label": "Additional information",
       "description": "Additional information regarding patient demographics and clinical characteristics.",
@@ -4167,26 +4167,27 @@
       ],
       "required": false
     },
-    "type_dose_seg": {
-      "type": "String. Must match one of the following: 'GPR', 'MAE', 'MSE', or a custom format like 'DXX' or 'VXX' where XX is a number.",
+    "type_gm_seg": {
+      "type": "select",
       "label": "Type",
+      "options": ["DSC", "Surface DSC", "DTA", "HD", "HD95", "APL"],
       "model_types": [
         "Segmentation"
       ],
-      "description": "Type of metrics used to quantify dosimetric differences between treatment plans generated on real and synthetic images. GPR = gamma passing rate, DXX = dose to XX% of volume (e.g. D95), VXX = volume receiving XX% of the dose (e.g. V20).",
+      "description": "Type of similarity metrics between the real and generated contours.",
       "required": true,
-      "example": "MAE"
+      "example": "DSC"
     },
-    "metric_specifications_seg": {
+    "metric_specifications_gm_seg": {
       "type": "String, Free text format",
       "model_types": [
         "Segmentation"
       ],
       "label": "Metric Specifications",
-      "description": "Specifications on how the metric is defined. Indicate 'NA' when not relevant. For GPR: 2D/3D, local or global, DD/DTA threshold, dose threshold (>x%) and evaluation threshold must be disclosed.",
+      "description": "Specifications on how the metric is defined. Indicate 'NA' when not relevant. For GPR: 2D/3Dmust be disclosed.",
       "required": true
     },
-    "on_volume_seg": {
+    "on_volume_gm_seg": {
       "type": "select",
       "label": "onVolume",
       "description": "Volume for which the metric was computed. Leave empty if not applicable.",
@@ -4914,6 +4915,45 @@
       ],
       "example": "A_Aorta",
       "required": true
+    },
+    "sample_data_gm_seg": {
+      "type": "list[float] or list[list[float]]. Array of floats, same size as the evaluation dataset",
+      "label": "Sample Data",
+      "model_types": [
+        "Segmentation"
+      ],
+      "description": "Metric values for each sample in the evaluation dataset. For metrics of type DXX, VXX, an array of two columns must be used, the first one for the metric value on the real image and the second for that on the predicted image.",
+      "example": "[124.54, 132.27, ….]"
+    },
+    "mean_data_gm_seg": {
+      "type": "array",
+      "label": "Mean Data",
+      "description": "Mean, range, and standard deviation for the entire evaluation dataset.",
+      "model_types": [
+        "Segmentation"
+      ],
+      "items": {
+        "type": "number"
+      },
+      "required": true,
+      "minItems": 4,
+      "maxItems": 4,
+      "example": [
+        128.56,
+        87.12,
+        130.45,
+        40
+      ]
+    },
+    "figure_gm_seg": {
+      "type": "Image",
+      "label": "Figure",
+      "description": "A figure including a representation of the metric values, such as bars, scatter plots, box plots, etc",
+      "model_types": [
+        "Segmentation"
+      ],
+      "format": "image/png",
+      "required": false
     },
     "treatment_modality_seg": {
       "type": "List of strings",
