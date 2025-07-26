@@ -452,6 +452,39 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
 
 
     utils.title_header("Qualitative Evaluation")
+    model_card_schema = utils.get_model_card_schema()
+    if "qualitative_evaluation" in model_card_schema:
+        qeval = model_card_schema["qualitative_evaluation"]
+        section_prefix = "qualitative_evaluation"
+
+        utils.section_divider()
+        utils.title_header("Qualitative Evaluation")
+
+        render_field("evaluators_informations", qeval["evaluators_informations"], section_prefix)
+        utils.section_divider()
+
+        def render_method_result_row(method_key, result_key, label: str):
+            utils.title_header(label)
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                render_field(method_key, qeval[method_key], section_prefix)
+            with col2:
+                render_field(result_key, qeval[result_key], section_prefix)
+
+        # Render method/result pairs
+        render_method_result_row("likert_scoring_method", "likert_scoring_results", "Likert Scoring")
+        utils.section_divider()
+        render_method_result_row("turing_test_method", "turing_test_results", "Turing Test")
+        utils.section_divider()
+        render_method_result_row("time_saving_method", "time_saving_results", "Time Saving")
+        utils.section_divider()
+        render_method_result_row("other_method", "other_results", "Other")
+        utils.section_divider()
+
+        # Final single-line fields
+        render_field("explainability", qeval["explainability"], section_prefix)
+        render_field("citation_details", qeval["citation_details"], section_prefix)
+
 
 
 def evaluation_data_mrc_render():
