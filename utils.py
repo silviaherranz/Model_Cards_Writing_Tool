@@ -1,7 +1,15 @@
 import json
 import streamlit as st
 import re
+from datetime import datetime, date, timedelta
 
+def generate_date_options(start_year=1970, end_year=None):
+    if end_year is None:
+        end_year = datetime.today().year
+    start = date(start_year, 1, 1)
+    end = datetime.today().date()
+    delta = (end - start).days
+    return [start + timedelta(days=i) for i in range(delta + 1)]
 
 def require_task():
     if "task" not in st.session_state:

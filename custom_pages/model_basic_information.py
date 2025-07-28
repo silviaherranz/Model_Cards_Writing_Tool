@@ -22,29 +22,41 @@ def model_basic_information_render():
         with col1:
             render_field("name", section["name"], "model_basic_information")
         with col2:
-            props = section["creation_date"]
-            label = props.get("label", "Creation Date")
-            description = props.get("description", "")
-            example = props.get("example", "")
-            required = props.get("required", False)
-            field_type = props.get("type", "date")
+            if "creation_date" in section:
+                props = section["creation_date"]
+                label = props.get("label", "Creation Date")
+                description = props.get("description", "")
+                example = props.get("example", "")
+                required = props.get("required", False)
+                field_type = props.get("type", "date")
 
-            create_helpicon(label, description, field_type, example, required)
+                create_helpicon(label, description, field_type, example, required)
 
-            utils.load_value(
-                "model_basic_information_creation_date_widget", datetime.today()
-            )
-            date_value = st.date_input(
-                "Select a date",
-                min_value=datetime(1900, 1, 1),
-                max_value=datetime.today(),
-                key="_model_basic_information_creation_date_widget",
-                on_change=utils.store_value,
-                args=["model_basic_information_creation_date_widget"],
-            )
+                # Ensure value is initialized once
+                if "creation_date_widget" not in st.session_state:
+                    utils.load_value("creation_date_widget")
 
-            formatted = date_value.strftime("%Y%m%d")
-            st.session_state["model_basic_information_creation_date"] = formatted
+                st.date_input(
+                    "Select a date",
+                    min_value=datetime(1900, 1, 1),
+                    max_value=datetime.today(),
+                    key="_creation_date_widget",
+                    on_change=utils.store_value,
+                    args=["creation_date_widget"],
+                )
+
+                # Check if user actually interacted with the input
+                user_date = st.session_state.get("_creation_date_widget")
+
+                if user_date:
+                    formatted = user_date.strftime("%Y%m%d")
+                    st.session_state["model_basic_information_creation_date"] = formatted
+                elif required and user_date is not None:
+                    # Only show error if field exists but is empty (not on initial load)
+                    st.session_state["model_basic_information_creation_date"] = None
+                    st.error("Creation date is required. Please select a valid date.")
+                else:
+                    st.session_state["model_basic_information_creation_date"] = None
 
     utils.section_divider()
     utils.title_header("Versioning")

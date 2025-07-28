@@ -16,33 +16,42 @@ def card_metadata_render():
 
     utils.title("Card Metadata")
     utils.subtitle("with relevant information about the model card itself")
-
-    if "creation_date" in section:
-        props = section["creation_date"]
+    
+    if "card_creation_date" in section:
+        props = section["card_creation_date"]
         label = props.get("label", "Creation Date")
         description = props.get("description", "")
         example = props.get("example", "")
         required = props.get("required", False)
-        type = props.get("type", "date")
+        field_type = props.get("type", "date")
 
-        create_helpicon(label, description, type, example, required)
-        utils.load_value("creation_date_widget", datetime.today())
-        # Calendar input from 1900 to today
-        date_value = st.date_input(
-            "Select a date",
+        create_helpicon(label, description, field_type, example, required)
+
+        # Ensure value is initialized once
+        if "card_creation_date_widget" not in st.session_state:
+            utils.load_value("card_creation_date_widget")
+
+        st.date_input(
+            "Click and select a date",
             min_value=datetime(1900, 1, 1),
             max_value=datetime.today(),
-            key="_creation_date_widget",
+            key="_card_creation_date_widget",
             on_change=utils.store_value,
-            args=["creation_date_widget"],
+            args=["card_creation_date_widget"],
         )
 
-        # Format date as YYYYMMDD (e.g., 20240102)
-        formatted = date_value.strftime("%Y%m%d")
+        # Check if user actually interacted with the input
+        user_date = st.session_state.get("_card_creation_date_widget")
 
-        # Store in session using your persistent key logic
-        st.session_state["card_metadata_creation_date"] = formatted
-    utils.section_divider()
+        if user_date:
+            formatted = user_date.strftime("%Y%m%d")
+            st.session_state["card_metadata_creation_date"] = formatted
+        elif required and user_date is not None:
+            # Only show error if field exists but is empty (not on initial load)
+            st.session_state["card_metadata_creation_date"] = None
+            st.error("Creation date is required. Please select a valid date.")
+        else:
+            st.session_state["card_metadata_creation_date"] = None
 
     utils.title_header("Versioning")
 
@@ -91,7 +100,7 @@ def card_metadata_render():
     utils.section_divider()
     # Render all other metadata fields except the three already handled
     for key in section:
-        if key not in ["creation_date", "version_number", "version_changes"]:
+        if key not in ["card_creation_date", "version_number", "version_changes"]:
             render_field(key, section[key], "card_metadata")
 
     st.markdown("<br>", unsafe_allow_html=True)

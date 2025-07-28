@@ -3,6 +3,8 @@ from tg263 import RTSTRUCT_SUBTYPES
 import html
 import utils
 import numpy as np
+import calendar
+from datetime import datetime, date
 
 DEFAULT_SELECT = "< PICK A VALUE >"
 
@@ -61,6 +63,9 @@ def render_field(key, props, section_prefix):
 
     try:
         safe_label = label.strip() or "Field"
+        if key == "type_metrics_other":
+            render_type_metrics_other(full_key, label)
+            return
         if field_type == "select":
             if not options:
                 st.warning(f"Field '{label}' is missing options for select dropdown.")
@@ -202,8 +207,8 @@ def render_field(key, props, section_prefix):
                             st.markdown("</div>", unsafe_allow_html=True)
 
                     return
-                    # 2. Special case for type_dose_dm (dose metrics)
-                if key == "type_dose_dm":
+                
+                if key in ["type_dose_dm", "type_dose_dm_seg", "type_dose_dm_dp"]:
                     static_options = ["GPR", "MAE", "MSE", "Other"]
                     parametric_options = ["D", "V"]
 
@@ -322,51 +327,6 @@ def render_field(key, props, section_prefix):
                             st.markdown("</div>", unsafe_allow_html=True)
 
                     return
-
-                # if key == "treatment_modality":
-                #     content_list_key = f"{full_key}_list"
-                #     select_key = f"{full_key}_selected"
-
-                #     utils.load_value(content_list_key, default=[])
-                #     utils.load_value(select_key)
-
-                #     col1, col2 = st.columns([4, 0.5])
-                #     with col1:
-                #         st.selectbox(
-                #             "Select treatment modality",
-                #             options=options,
-                #             key="_" + select_key,
-                #             on_change=utils.store_value,
-                #             args=[select_key],
-                #             placeholder="-Select an option-"
-                #         )
-                #     with col2:
-                #         st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
-                #         if st.button("➕", key=f"{full_key}_add_button"):
-                #             entry = st.session_state.get(select_key, "")
-                #             if entry not in st.session_state[content_list_key]:
-                #                 st.session_state[content_list_key].append(entry)
-                #                 st.session_state[full_key] = st.session_state[content_list_key]
-                #         st.markdown("</div>", unsafe_allow_html=True)
-
-                #     # Show selections
-                #     entries = st.session_state[content_list_key]
-                #     if entries:
-                #         col1, col2 = st.columns([5, 1])
-                #         with col1:
-                #             tooltip_items = [
-                #                 f"<span title='{html.escape(item)}' style='margin-right: 6px; font-weight: 500; color: #333;'>{html.escape(item)}</span>"
-                #                 for item in entries
-                #             ]
-                #             line = ", ".join(tooltip_items)
-                #             st.markdown(f"**Selected Modalities:** {line}", unsafe_allow_html=True)
-                #         with col2:
-                #             if st.button("🧹 Clear", key=f"{full_key}_clear_all"):
-                #                 st.session_state[content_list_key] = []
-                #                 st.session_state[full_key] = []
-                #                 st.rerun()
-
-                #     return
                 utils.load_value(full_key)
                 st.selectbox(
                     safe_label,
@@ -415,6 +375,49 @@ def render_field(key, props, section_prefix):
 
     except Exception as e:
         st.error(f"Error rendering field '{label}': {str(e)}")
+
+def render_type_metrics_other(full_key, label):
+    metrics_list_key = f"{full_key}_list"
+    metrics_selected_key = f"{full_key}_selected"
+
+    utils.load_value(metrics_list_key, default=[])
+    utils.load_value(metrics_selected_key)
+
+    col1, col2, col3 = st.columns([3, 0.5, 1])
+    with col1:
+        st.text_input(
+            label or "Type",
+            key="_" + metrics_selected_key,
+            on_change=utils.store_value,
+            args=[metrics_selected_key],
+            placeholder="Enter metric name (e.g. Hausdorff)",
+        )
+    with col2:
+        st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
+        if st.button("➕", key=f"{full_key}_add_button"):
+            value = st.session_state.get(metrics_selected_key, "").strip()
+            if value and value not in st.session_state[metrics_list_key]:
+                st.session_state[metrics_list_key].append(value)
+                st.session_state[full_key] = st.session_state[metrics_list_key]
+        st.markdown("</div>", unsafe_allow_html=True)
+    with col3:
+        st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
+        if st.button("Clear", key=f"{full_key}_clear_button"):
+            st.session_state[metrics_list_key] = []
+            st.session_state[full_key] = []
+            st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # Show current values
+    entries = st.session_state[metrics_list_key]
+    if entries:
+        col1, col2 = st.columns([5, 1])
+        with col1:
+            tooltip_items = [
+                f"<span title='{html.escape(item)}' style='margin-right: 6px; font-weight: 500; color: #333;'>{html.escape(item)}</span>"
+                for item in entries
+            ]
+            st.markdown(", ".join(tooltip_items), unsafe_allow_html=True)
 
 
 def create_helpicon(label, description, field_format, example, required=False):
