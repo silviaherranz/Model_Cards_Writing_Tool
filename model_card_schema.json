@@ -3,7 +3,7 @@
     "card_creation_date": {
       "type": "String, Formatted text as YYYYMMDD",
       "label": "Creation Date",
-      "description": "Date of creation of the card. If different versions, this field should indicate the date of creation of the current version (see next field).",
+      "description": "Date of creation of the card. Ideally, this should match or closely follow the model's final release date. Creating the model card promptly after the model is finalized is good practice, as it helps ensure accurate and complete documentation. While it is possible to create model cards for already released models, this should be avoided or done carefully, as important information may be difficult to retrieve or lost over time. If different versions, this field should indicate the date of creation of the current version (see next field).",
       "required": true,
       "example": "20241001"
     },
@@ -19,12 +19,12 @@
       "label": "Version Changes",
       "description": "Describe the main changes or reason for upgrading the card with respect to the previous version. If this is the first version, indicate 'NA' (Not applicable).",
       "required": true,
-      "example": "New limitations of the model are found"
+      "example": "“New limitations of the model are found”, ”new evaluation on a different dataset is added”, etc."
     },
     "doi": {
       "type": "String, Free text format",
       "label": "DOI",
-      "description": "Unique Digital Object Identifier for the current version on the card. If your card has been uploaded to a repository that provides DOI (e..g Zenodo, HuggingFace), we encourage you to indicate the corresponding DOI.",
+      "description": "Unique Digital Object Identifier for the current version on the card. If your card has been uploaded to a repository that provides DOI (e.g. Zenodo, HuggingFace), we encourage you to indicate the corresponding DOI.",
       "required": false
     }
   },
@@ -56,7 +56,7 @@
       "label": "Version Changes",
       "description": "Description of the main changes with respect to the previous version. If this is the first version, please write 'NA' (Not applicable).",
       "required": true,
-      "example": "The loss function in version 1.0 was changed"
+      "example": "“The loss function in version 1.0 was changed”, “A new pre-processing step was added”, etc."
     },
     "doi": {
       "type": "String, Free text format",

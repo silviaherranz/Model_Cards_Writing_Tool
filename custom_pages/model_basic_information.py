@@ -32,12 +32,14 @@ def model_basic_information_render():
 
                 create_helpicon(label, description, field_type, example, required)
 
-                # Ensure value is initialized once
+                # Only load if a real stored value exists, not default today
                 if "creation_date_widget" not in st.session_state:
-                    utils.load_value("creation_date_widget")
+                    st.session_state["creation_date_widget"] = None
+
 
                 st.date_input(
-                    "Select a date",
+                    "Click and select a date",
+                    value=st.session_state["creation_date_widget"],
                     min_value=datetime(1900, 1, 1),
                     max_value=datetime.today(),
                     key="_creation_date_widget",

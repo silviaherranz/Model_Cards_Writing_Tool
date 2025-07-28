@@ -24,12 +24,13 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
 
         create_helpicon(label, description, field_type, example, required)
 
-        # Ensure value is initialized once
+        # Only load if a real stored value exists, not default today
         if "evaluation_date_widget" not in st.session_state:
-            utils.load_value("evaluation_date_widget")
+            st.session_state["evaluation_date_widget"] = None
 
         st.date_input(
-            "Select a date",
+            "Click and select a date",
+            value=st.session_state["evaluation_date_widget"],
             min_value=datetime(1900, 1, 1),
             max_value=datetime.today(),
             key="_evaluation_date_widget",

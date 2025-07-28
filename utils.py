@@ -2,6 +2,11 @@ import json
 import streamlit as st
 import re
 from datetime import datetime, date, timedelta
+import base64
+
+def get_base64_image(path):
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
 
 def generate_date_options(start_year=1970, end_year=None):
     if end_year is None:
@@ -105,7 +110,7 @@ def title(text, size="2rem", bottom_margin="0.1em", top_margin="0.4em"):
     )
 
 
-def subtitle(text, size="1rem", bottom_margin="0.8em", top_margin="0.2em"):
+def subtitle(text, size="1.05rem", bottom_margin="0.8em", top_margin="0.2em"):
     st.markdown(
         f"""
         <div style='

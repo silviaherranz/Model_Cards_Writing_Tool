@@ -18,27 +18,13 @@ def get_cached_data():
         index=license_df.Fullname,
     ).to_dict()
 
-
-# def task_selector_page():
-#     st.header("Select Model Task")
-#     st.radio(
-#         "Choose the model type:",
-#         ["Image-to-Image translation", "Segmentation", "Dose prediction"],
-#         key="task",
-#         index=0,
-#     )
-#     if st.button("Continue"):
-#         page_switcher(card_metadata_render)
-#         st.rerun()
-
-
 def task_selector_page():
     st.header("Select Model Task")
 
     if "task" not in st.session_state:
         # Show the radio input ONLY if task is not yet selected
         selected_task = st.radio(
-            "Choose the model type:",
+            "Select the task for your model card",
             ["Image-to-Image translation", "Segmentation", "Dose prediction", "Other"],
             key="task_temp",
         )
@@ -97,7 +83,7 @@ def main():
             "The file 'about.md' is missing. Please ensure it exists in the current working directory."
         )
 
-    if st.button("Create a Model Card 📝"):
+    if st.button("Create a Model Card"):
         page_switcher(task_selector_page)
         st.rerun()
 

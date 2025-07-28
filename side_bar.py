@@ -43,29 +43,29 @@ def sidebar_render():
     with st.sidebar:
         task = st.session_state.get("task", "Image-to-Image translation")
 
-        st.markdown("## 🔀 Navigate")
+        st.markdown("## Navigate")
 
-        if st.button("📝 Card Metadata"):
+        if st.button("Card Metadata"):
             st.session_state.runpage = card_metadata_render
             st.rerun()
         
-        if st.button("🧠 Model Basic Information"):
+        if st.button("Model Basic Information"):
             st.session_state.runpage = model_basic_information_render
             st.rerun()
         
-        if st.button("🔎 Technical Specifications"):
+        if st.button("Technical Specifications"):
             st.session_state.runpage = technical_specifications_render
             st.rerun()
 
-        if st.button("📊 Training Data Methodology, Results & Commissioning"):
+        if st.button("Training Data Methodology, Results & Commissioning"):
             st.session_state.runpage = training_data_render
             st.rerun()
         
-        if st.button("🔬 Evaluation Data Methodology, Results & Commissioning"):
+        if st.button("Evaluation Data Methodology, Results & Commissioning"):
             st.session_state.runpage = evaluation_data_mrc_render
             st.rerun()
         
-        if st.button("⚠️ Other Considerations"):
+        if st.button("Other Considerations"):
             st.session_state.runpage = other_considerations_render
             st.rerun()
 
@@ -75,7 +75,7 @@ def sidebar_render():
         )
 
         if missing_required:
-            if st.button("⚠️ Warnings"):
+            if st.button("Warnings"):
                 st.session_state.runpage = warnings_render
                 st.rerun()
             

@@ -422,67 +422,61 @@ def render_type_metrics_other(full_key, label):
 
 def create_helpicon(label, description, field_format, example, required=False):
     required_tag = (
-        "<span style='color: black; font-size: 1.2em; cursor: help;' title='Required field'>*</span>"
-        if required
-        else ""
+        "<span style='color: black; font-size: 1.2em;'>*</span>"
+        if required else ""
     )
 
-    st.markdown(
-        """
-    <style>
-    .tooltip-inline {
-        display: inline-block;
-        position: relative;
-        margin-left: 4px;
-        cursor: pointer;
-        font-size: 0.8em;
-        color: #999;
-    }
-    .tooltip-inline .tooltiptext {
-        visibility: hidden;
-        width: 260px;
-        background-color: #f9f9f9;
-        color: #333;
-        text-align: left;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        padding: 10px;
-        position: absolute;
-        bottom: 150%;
-        left: 0;
-        z-index: 10;
-        box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-        font-weight: normal;
-        font-size: 0.9em;
-        line-height: 1.4;
-    }
-    .tooltip-inline:hover .tooltiptext {
-        visibility: visible;
-    }
-    <style>
-    /* Align number_input and text_input visually */
-    div[data-testid="stNumberInput"] {
-        margin-top: -6px !important;
-    }
-    div[data-testid="stTextInput"] {
-        margin-top: 0px !important;
-    }
-    </style>
+    st.markdown("""
+        <style>
+        .tooltip-inline {
+            display: inline-block;
+            position: relative;
+            margin-left: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            color: #999;
+        }
 
-    </style>
-    """,
-        unsafe_allow_html=True,
-    )
+        .tooltip-inline .tooltiptext {
+            visibility: hidden;
+            width: 320px;
+            background-color: #f9f9f9;
+            color: #333;
+            text-align: left;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            position: absolute;
+            top: 125%;
+            left: 0;
+            z-index: 10;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            font-weight: normal;
+            font-size: 0.9em;
+            line-height: 1.4;
+            white-space: normal;
+            word-wrap: break-word;
+            display: inline-block;
+        }
+
+        .tooltip-inline:hover .tooltiptext {
+            visibility: visible;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     tooltip_html = f"""
     <div style='margin-bottom: 0px; font-weight: 500; font-size: 0.98em;'>
         {label} {required_tag}
         <span class="tooltip-inline">ⓘ
             <span class="tooltiptext">
-                <span style="font-weight: bold;">Description:</span> {description}<br><br>
-                <span style="font-weight: bold;">Format:</span> {field_format}<br><br>
-                <span style="font-weight: bold;">Example(s):</span> {example}
+                <strong>Description:</strong> {description}<br><br>
+                <strong>Format:</strong> {field_format}<br><br>
+                <strong>Example(s):</strong> {example}
             </span>
         </span>
     </div>
     """
     st.markdown(tooltip_html, unsafe_allow_html=True)
+
+
