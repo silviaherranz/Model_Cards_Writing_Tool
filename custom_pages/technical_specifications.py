@@ -103,7 +103,7 @@ def technical_specifications_render():
                     ]
                     for k in keys_to_remove:
                         del st.session_state[k]
-
+                    
                     # Shift all later forms down by 1 to fill the gap
                     for i in range(selected_index + 1, len(forms) + 1):
                         old_prefix = f"learning_architecture_{i}_"

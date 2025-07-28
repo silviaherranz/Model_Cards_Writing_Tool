@@ -84,7 +84,7 @@ def render_field(key, props, section_prefix):
                         col1, col2, col3 = st.columns([2, 2, 0.4])
                         with col1:
                             st.selectbox(
-                                label="",
+                                label=".",
                                 options=options,
                                 key="_" + type_key,
                                 on_change=utils.store_value,
@@ -94,7 +94,7 @@ def render_field(key, props, section_prefix):
                             )
                         with col2:
                             st.selectbox(
-                                label="",
+                                label=".",
                                 options=RTSTRUCT_SUBTYPES,
                                 key="_" + subtype_key,
                                 on_change=utils.store_value,
@@ -119,7 +119,7 @@ def render_field(key, props, section_prefix):
                         col1, col2 = st.columns([4, 0.5])
                         with col1:
                             st.selectbox(
-                                "Select content type",
+                                label="Select content type",
                                 options=options,
                                 key="_" + type_key,
                                 on_change=utils.store_value,
@@ -407,7 +407,7 @@ def render_type_metrics_other(full_key, label):
             st.session_state[full_key] = []
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
-        
+
     entries = st.session_state[metrics_list_key]
     if entries:
         col1, col2 = st.columns([5, 1])

@@ -94,99 +94,108 @@ def training_data_render():
     )
 
     tech_section_prefix = "training_data"
-    section = model_card_schema[
-        "training_data_methodology_results_commisioning"
-    ]  # ✅ this was missing
+    section = model_card_schema["training_data_methodology_results_commisioning"]
 
-    model_inputs = []
-    model_outputs = []
+    modality_entries = []
 
-    # ✅ Collect from all learning_architecture_X_input_content/output_content keys
+    # Collect all input/output entries with metadata
     for key, value in st.session_state.items():
-        if re.match(r"^learning_architecture_\d+_input_content$", key) and isinstance(
-            value, list
-        ):
-            model_inputs.extend(value)
-        if re.match(r"^learning_architecture_\d+_output_content$", key) and isinstance(
-            value, list
-        ):
-            model_outputs.extend(value)
+        match_input = re.match(r"^learning_architecture_(\d+)_input_content$", key)
+        match_output = re.match(r"^learning_architecture_(\d+)_output_content$", key)
 
-    # ✅ Deduplicate
-    model_inputs = list(set(model_inputs))
-    model_outputs = list(set(model_outputs))
+        if match_input and isinstance(value, list):
+            arch_num = match_input.group(1)
+            for item in value:
+                modality_entries.append({
+                    "modality": item,
+                    "source": "input",
+                    "architecture": f"learning_architecture_{arch_num}"
+                })
 
-    all_modalities = list(set(model_inputs + model_outputs))
+        elif match_output and isinstance(value, list):
+            arch_num = match_output.group(1)
+            for item in value:
+                modality_entries.append({
+                    "modality": item,
+                    "source": "output",
+                    "architecture": f"learning_architecture_{arch_num}"
+                })
 
-    if all_modalities:
-        tabs = st.tabs([utils.strip_brackets(mod) for mod in all_modalities])
-        for idx, modality in enumerate(all_modalities):
-            if not modality.strip():
-                continue
+    # ... your previous logic above ...
+
+    if modality_entries:
+        # Short tab labels: just the modality name
+        tabs = st.tabs([
+            utils.strip_brackets(m["modality"]) for m in modality_entries
+        ])
+
+        for idx, entry in enumerate(modality_entries):
+            modality = entry["modality"]
+            source = entry["source"]
+            arch_num = int(re.search(r"\d+", entry["architecture"]).group()) + 1  # Start at 1
 
             with tabs[idx]:
                 clean_modality = modality.strip().replace(" ", "_").lower()
-                utils.title_header(f"{utils.strip_brackets(modality)} Details", size="1rem")
+                utils.title_header(
+                    f"{utils.strip_brackets(modality)} — {source.upper()} from Learning Architecture {arch_num}",
+                    size="1rem"
+                )
 
-                # Campos con layout personalizado
+                # Field definitions
                 field_keys = {
                     "image_resolution": section["image_resolution"],
                     "patient_positioning": section["patient_positioning"],
                     "scanner_model": section["scanner_model"],
-                    "scan_acquisition_parameters": section[
-                        "scan_acquisition_parameters"
-                    ],
-                    "scan_reconstruction_parameters": section[
-                        "scan_reconstruction_parameters"
-                    ],
+                    "scan_acquisition_parameters": section["scan_acquisition_parameters"],
+                    "scan_reconstruction_parameters": section["scan_reconstruction_parameters"],
                     "fov": section["fov"],
                 }
 
-                # Forzar placeholders
                 for f in field_keys.values():
                     f["placeholder"] = f.get("placeholder", "NA if Not Applicable")
 
-                # First row: image_resolution + patient_positioning
                 col1, col2 = st.columns([1, 1])
                 with col1:
                     render_field(
-                        f"{tech_section_prefix}_{clean_modality}_image_resolution",
+                        f"{tech_section_prefix}_{clean_modality}_{source}_{arch_num}_image_resolution",
                         field_keys["image_resolution"],
                         "",
                     )
                 with col2:
                     render_field(
-                        f"{tech_section_prefix}_{clean_modality}_patient_positioning",
+                        f"{tech_section_prefix}_{clean_modality}_{source}_{arch_num}_patient_positioning",
                         field_keys["patient_positioning"],
                         "",
                     )
 
-                # Second row: scanner_model
                 render_field(
-                    f"{tech_section_prefix}_{clean_modality}_scanner_model",
+                    f"{tech_section_prefix}_{clean_modality}_{source}_{arch_num}_scanner_model",
                     field_keys["scanner_model"],
                     "",
                 )
 
-                # Third row: acquisition + reconstruction parameters
                 col1, col2 = st.columns([1, 1])
                 with col1:
                     render_field(
-                        f"{tech_section_prefix}_{clean_modality}_scan_acquisition_parameters",
+                        f"{tech_section_prefix}_{clean_modality}_{source}_{arch_num}_scan_acquisition_parameters",
                         field_keys["scan_acquisition_parameters"],
                         "",
                     )
                 with col2:
                     render_field(
-                        f"{tech_section_prefix}_{clean_modality}_scan_reconstruction_parameters",
+                        f"{tech_section_prefix}_{clean_modality}_{source}_{arch_num}_scan_reconstruction_parameters",
                         field_keys["scan_reconstruction_parameters"],
                         "",
                     )
 
-                # Fourth row: fov
                 render_field(
-                    f"{tech_section_prefix}_{clean_modality}_fov", field_keys["fov"], ""
+                    f"{tech_section_prefix}_{clean_modality}_{source}_{arch_num}_fov",
+                    field_keys["fov"],
+                    ""
                 )
+
+
+
 
     model_card_schema = utils.get_model_card_schema()
     section = model_card_schema["training_data_methodology_results_commisioning"]
