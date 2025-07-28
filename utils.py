@@ -79,7 +79,7 @@ def light_header_italics(text, size="16px", bottom_margin="1em"):
     )
 
 
-def title_header(text, size="1.1rem", bottom_margin="1em", top_margin="0.5em"):
+def title_header(text, size="1.2rem", bottom_margin="1em", top_margin="0.5em"):
     st.markdown(
         f"""
         <div style='

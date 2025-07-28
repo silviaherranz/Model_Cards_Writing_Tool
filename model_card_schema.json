@@ -96,7 +96,7 @@
     "clearance_approved_by_name": {
       "type": "String, Free text format",
       "label": "Name(s)",
-      "description": "Name of person(s) who approved the model or contact person on behalf of the team. If several, separate them by commas.",
+      "description": "Name of the person(s) who approved the model or contact person on behalf of the team. If several, separate them by commas.",
       "required": true,
       "example": "Maria Smith"
     },
@@ -142,7 +142,7 @@
     },
     "type_of_learning_architecture": {
       "type": "String, Free text format",
-      "label": "Learning Architecture",
+      "label": "Type of Learning Architecture",
       "description": "Type of architecture for the learning model, if several models are used (e.g. cascade, cycle, tree,...), indicate all different types.",
       "required": true,
       "example": "Random Forest, CNN, UNet, Transformers"
@@ -171,8 +171,7 @@
       "type": "String, Free text format",
       "label": "Conflict of Interest",
       "description": "Disclose potential conflicts of interest, including, whenever applicable and possible, funding bodies involved in the development of the model. Otherwise, indicate “NA” (Not Applicable)",
-      "required": true,
-      "example": "NA"
+      "required": true
     },
     "software_license": {
       "type": "String, Free text format",
@@ -296,7 +295,8 @@
         "AU (Audio)",
         "TXT (Text)",
         "OT (Other)"
-      ]
+      ],
+      "example": "CT, MR T1"
     },
     "input_content_rstruct_subtype": {
       "type": "select",
@@ -1807,7 +1807,8 @@
         "AU (Audio)",
         "TXT (Text)",
         "OT (Other)"
-      ]
+      ],
+      "example": "CT, MR T1"
     },
     "additional_information_output_content": {
       "type": "List of strings, same size as Output types",

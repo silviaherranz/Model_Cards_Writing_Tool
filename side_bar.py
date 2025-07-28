@@ -43,7 +43,7 @@ def sidebar_render():
     with st.sidebar:
         task = st.session_state.get("task", "Image-to-Image translation")
 
-        st.markdown("## Navigate")
+        st.markdown("## Menu")
 
         if st.button("Card Metadata"):
             st.session_state.runpage = card_metadata_render

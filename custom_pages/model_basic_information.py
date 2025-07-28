@@ -62,6 +62,9 @@ def model_basic_information_render():
 
     utils.section_divider()
     utils.title_header("Versioning")
+    utils.light_header_italics(
+        "Note that any change in an existing model is considered as a new version and thus a new model card associated with it should be filled in."
+    )
     if "version_number" in section and "version_changes" in section:
         col1, col2 = st.columns([1, 3])
         with col1:
@@ -115,7 +118,7 @@ def model_basic_information_render():
             "clearance_approved_by_contact_email",
         ]
     ):
-        utils.title_header("Approved by")
+        utils.title_header("Approved by", "1rem")
         col1, col2, col3 = st.columns([1, 1.5, 1.5])
         with col1:
             render_field(

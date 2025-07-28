@@ -13,7 +13,7 @@ def technical_specifications_render():
     if "learning_architecture_forms" not in st.session_state:
         st.session_state.learning_architecture_forms = {"Learning Architecture 1": {}}
 
-    utils.title_header("1. Model overview", size="1.2rem")
+    utils.title_header("1. Model overview", size="1.35rem")
     utils.title_header("Model pipeline")
     # render_schema_section(model_card_schema["technical_specifications"], section_prefix="technical_specifications")
     section = model_card_schema["technical_specifications"]
@@ -54,7 +54,7 @@ def technical_specifications_render():
         )
 
     utils.section_divider()
-    utils.title_header("2. Learning Architecture", size="1.2rem")
+    utils.title_header("2. Learning Architecture", size="1.35rem")
     utils.light_header_italics(
         "If several models are used (e.g. cascade, cycle, tree,...), repeat this section for each of them."
     )
@@ -163,17 +163,23 @@ def technical_specifications_render():
                     render_field("output_format", section["output_format"], prefix)
                 with col2:
                     render_field("output_size", section["output_size"], prefix)
+
+                col1, col2, col3 = st.columns([1, 1, 1])
+                with col1:
+                    render_field("loss_function", section["loss_function"], prefix)
+                with col2:
+                    render_field("batch_size", section["batch_size"], prefix)       
+                with col3:
+                    render_field("regularisation", section["regularisation"], prefix)
                 # You can continue rendering other fields similarly, skipping the ones you don't want
-                for field in [
-                        "loss_function",
-                    "batch_size", "regularisation", "architecture_figure",
+                for field in [ "architecture_figure",
                     "uncertainty_quantification_techniques", "explainability_techniques",
                     "additional_information_ts", "citation_details_ts"
                 ]:
                     if field in section:
                         render_field(field, section[field], prefix)
     utils.section_divider()
-    utils.title_header("3. Hardware & Software", size="1.2rem")
+    utils.title_header("3. Hardware & Software", size="1.35rem")
     # render_schema_section(model_card_schema["hw_and_sw"], section_prefix="hw_and_sw")
     section = model_card_schema["hw_and_sw"]
     # Row 1: Libraries and Dependencies (longer input, full width)

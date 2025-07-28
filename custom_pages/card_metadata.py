@@ -52,9 +52,6 @@ def card_metadata_render():
 
     utils.section_divider()
     utils.title_header("Versioning")
-    utils.light_header_italics(
-        "Note that any change in an existing model is considered as a new version and thus a new model card associated with it should be filled in."
-    )
 
     if all(k in section for k in ["version_number", "version_changes"]):
         col1, col2 = st.columns([1, 3])

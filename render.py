@@ -407,8 +407,7 @@ def render_type_metrics_other(full_key, label):
             st.session_state[full_key] = []
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
-
-    # Show current values
+        
     entries = st.session_state[metrics_list_key]
     if entries:
         col1, col2 = st.columns([5, 1])
