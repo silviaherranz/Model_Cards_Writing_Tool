@@ -29,14 +29,10 @@ def technical_specifications_render():
     )
 
     utils.section_divider()
-    # Row 1: model_inputs and model_outputs
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        render_field(
+    render_field(
             "model_inputs", section["model_inputs"], "technical_specifications"
         )
-    with col2:
-        render_field(
+    render_field(
             "model_outputs", section["model_outputs"], "technical_specifications"
         )
 

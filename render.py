@@ -70,7 +70,7 @@ def render_field(key, props, section_prefix):
             if not options:
                 st.warning(f"Field '{label}' is missing options for select dropdown.")
             else:
-                if key in ["input_content", "output_content", "treatment_modality_train", "treatment_modality_eval"]:
+                if key in ["input_content", "output_content", "model_inputs", "model_outputs"]:
                     content_list_key = f"{full_key}_list"
                     type_key = f"{full_key}_new_type"
                     subtype_key = f"{full_key}_new_subtype"
@@ -81,7 +81,7 @@ def render_field(key, props, section_prefix):
                     utils.load_value(subtype_key)
 
                     if st.session_state["_" + type_key] == "RTSTRUCT":
-                        col1, col2, col3 = st.columns([2, 2, 0.4])
+                        col1, col2, col3 = st.columns([2, 1, 0.4])
                         with col1:
                             st.selectbox(
                                 label=".",
@@ -116,7 +116,9 @@ def render_field(key, props, section_prefix):
                                 ]
                             st.markdown("</div>", unsafe_allow_html=True)
                     else:
-                        col1, col2 = st.columns([4, 0.5])
+                        col1, col2, col3 = st.columns([2, 1, 0.5])
+
+                        # Type selectbox
                         with col1:
                             st.selectbox(
                                 label=".",
@@ -124,25 +126,53 @@ def render_field(key, props, section_prefix):
                                 key="_" + type_key,
                                 on_change=utils.store_value,
                                 args=[type_key],
-                                label_visibility="hidden"
+                                label_visibility="hidden",
+                                placeholder="-Select an option-"
                             )
 
-                        add_clicked = False
+                        selected_type = st.session_state.get(type_key)
+                        custom_key = f"{full_key}_custom_text"
+                        utils.load_value(custom_key, default="")
+
+
                         with col2:
+                            st.markdown(
+                                "<div style='margin-top: 26px;'>",
+                                unsafe_allow_html=True,
+                            )
+                            if selected_type == "OT (Other)":
+                                st.text_input(
+                                    "Enter custom input",
+                                    value=st.session_state.get(custom_key, ""),
+                                    key=custom_key,
+                                    label_visibility="collapsed",
+                                    placeholder="Introduce custom value",
+                                )
+                                st.markdown("</div>", unsafe_allow_html=True)
+                            else:
+                                st.markdown("&nbsp;", unsafe_allow_html=True)
+
+                        # Add button
+                        with col3:
                             st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
                             add_clicked = st.button("➕", key=f"{full_key}_add_button")
                             st.markdown("</div>", unsafe_allow_html=True)
 
-                        # Handle "Add" logic safely
-                        raw_value = st.session_state.get(type_key)
                         if add_clicked:
-                            if raw_value in [None, "", DEFAULT_SELECT]:
+                            if selected_type in [None, "", DEFAULT_SELECT]:
                                 st.error("Please select an option before adding.")
+                            elif selected_type == "OT (Other)":
+                                custom_text = st.session_state.get(custom_key, "").strip()
+                                if not custom_text:
+                                    st.error("Please enter a custom name before adding.")
+                                else:
+                                    st.session_state[content_list_key].append(custom_text)
+                                    st.session_state[full_key] = st.session_state[content_list_key]
                             else:
-                                entry = utils.strip_brackets(raw_value)
+                                entry = utils.strip_brackets(selected_type)
                                 st.session_state[content_list_key].append(entry)
                                 st.session_state[full_key] = st.session_state[content_list_key]
-                            st.markdown("</div>", unsafe_allow_html=True)
+
                     entries = st.session_state[content_list_key]
                     if entries:
                         col1, col2 = st.columns([5, 1])
@@ -159,6 +189,60 @@ def render_field(key, props, section_prefix):
                                 st.session_state[full_key] = []
                                 st.rerun()
                     return
+                if key in ["treatment_modality_train", "treatment_modality_eval"]:
+                    content_list_key2 = f"{full_key}_modality_list"
+                    type_key2 = f"{full_key}_modality_type"
+
+                    # Initialize persistent values
+                    utils.load_value(content_list_key2, default=[])
+                    utils.load_value(type_key2)
+
+                    col1, col2 = st.columns([4, 0.5])
+
+                    with col1:
+                        st.selectbox(
+                            label=".",
+                            options=options,
+                            key="_" + type_key2,
+                            on_change=utils.store_value,
+                            args=[type_key2],
+                            label_visibility="hidden",
+                            placeholder="-Select an option-"
+                        )
+
+                    add_clicked = False
+                    with col2:
+                        st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
+                        add_clicked = st.button("➕", key=f"{full_key}_modality_add_button")
+                        st.markdown("</div>", unsafe_allow_html=True)
+
+                    raw_value2 = st.session_state.get(type_key2)
+                    if add_clicked:
+                        if raw_value2 in [None, "", DEFAULT_SELECT]:
+                            st.error("Please select an option before adding.")
+                        else:
+                            entry = utils.strip_brackets(raw_value2)
+                            st.session_state[content_list_key2].append(entry)
+                            st.session_state[full_key] = st.session_state[content_list_key2]
+
+                    entries = st.session_state[content_list_key2]
+                    if entries:
+                        col1, col2 = st.columns([5, 1])
+                        with col1:
+                            tooltip_items = [
+                                f"<span title='{html.escape(item)}' style='margin-right: 6px; font-weight: 500; color: #333;'>{html.escape(utils.strip_brackets(item))}</span>"
+                                for item in entries
+                            ]
+                            line = ", ".join(tooltip_items)
+                            st.markdown(f"<span>{line}</span>", unsafe_allow_html=True)
+                        with col2:
+                            if st.button("🧹 Clear", key=f"{full_key}_modality_clear_all"):
+                                st.session_state[content_list_key2] = []
+                                st.session_state[full_key] = []
+                                st.rerun()
+                    return
+
+
                 if key in ["type_ism", "type_gm_seg"]:
                     type_key = full_key + "_selected"
                     type_list_key = full_key + "_list"

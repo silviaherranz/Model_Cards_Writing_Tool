@@ -133,31 +133,98 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         )
     render_field("url_info", schema_section["url_info"], section_prefix)
     utils.section_divider()
+
     utils.title_header("2. Technical characteristics")
     utils.light_header_italics(
         "(i.e. image acquisition protocol, treatment details, …)"
     )
+    tech_section_prefix = section_prefix
+    section = schema_section
 
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        render_field(
-            "image_resolution", schema_section["image_resolution"], section_prefix
-        )
-    with col2:
-        render_field(
-            "patient_positioning", schema_section["patient_positioning"], section_prefix
-        )
-    render_fields(
-        [
-            "scanner_model",
-            "scan_acquisition_parameters",
-            "scan_reconstruction_parameters",
-            "fov",
-        ],
-        schema_section,
-        section_prefix,
-        current_task,
-    )
+    modality_entries = []
+
+    for key, value in st.session_state.items():
+        if key.endswith("model_inputs") and isinstance(value, list):
+            for item in value:
+                modality_entries.append({
+                    "modality": item,
+                    "source": "model_inputs"
+                })
+        elif key.endswith("model_outputs") and isinstance(value, list):
+            for item in value:
+                modality_entries.append({
+                    "modality": item,
+                    "source": "model_outputs"
+                })
+
+    if not modality_entries:
+        st.warning("Start by adding model inputs and outputs in the Technical Specifications section to enable technical details.")
+    else:
+        tabs = st.tabs([utils.strip_brackets(m["modality"]) for m in modality_entries])
+
+        for idx, entry in enumerate(modality_entries):
+            modality = entry["modality"]
+            source = entry["source"]
+
+            with tabs[idx]:
+                clean_modality = modality.strip().replace(" ", "_").lower()
+                utils.title_header(
+                    f"{utils.strip_brackets(modality)} — {source.replace('_', ' ').capitalize()}",
+                    size="1rem"
+                )
+
+                field_keys = {
+                    "image_resolution": section["image_resolution"],
+                    "patient_positioning": section["patient_positioning"],
+                    "scanner_model": section["scanner_model"],
+                    "scan_acquisition_parameters": section["scan_acquisition_parameters"],
+                    "scan_reconstruction_parameters": section["scan_reconstruction_parameters"],
+                    "fov": section["fov"],
+                }
+
+                for f in field_keys.values():
+                    f["placeholder"] = f.get("placeholder", "NA if Not Applicable")
+
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    render_field(
+                        f"{tech_section_prefix}_{clean_modality}_{source}_image_resolution",
+                        field_keys["image_resolution"],
+                        "",
+                    )
+                with col2:
+                    render_field(
+                        f"{tech_section_prefix}_{clean_modality}_{source}_patient_positioning",
+                        field_keys["patient_positioning"],
+                        "",
+                    )
+
+                render_field(
+                    f"{tech_section_prefix}_{clean_modality}_{source}_scanner_model",
+                    field_keys["scanner_model"],
+                    "",
+                )
+
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    render_field(
+                        f"{tech_section_prefix}_{clean_modality}_{source}_scan_acquisition_parameters",
+                        field_keys["scan_acquisition_parameters"],
+                        "",
+                    )
+                with col2:
+                    render_field(
+                        f"{tech_section_prefix}_{clean_modality}_{source}_scan_reconstruction_parameters",
+                        field_keys["scan_reconstruction_parameters"],
+                        "",
+                    )
+
+                render_field(
+                    f"{tech_section_prefix}_{clean_modality}_{source}_fov",
+                    field_keys["fov"],
+                    ""
+                )
+
     ####################################
     # EXCLUSIVE TO DOSE PREDICTION TASK
     ####################################
@@ -199,6 +266,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
     ########################################
     # END EXCLUSIVE TO DOSE PREDICTION TASK
     ########################################
+    utils.section_divider()
     render_fields(
         [
             "reference_standard",
@@ -847,8 +915,8 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
 
 def evaluation_data_mrc_render():
     from side_bar import sidebar_render
-
     sidebar_render()
+
     model_card_schema = utils.get_model_card_schema()
     utils.title("Evaluation data, methodology, and results / commissioning")
     utils.subtitle(
@@ -858,40 +926,58 @@ def evaluation_data_mrc_render():
     task = st.session_state.get("task", "Image-to-Image translation")
 
     if "evaluation_forms" not in st.session_state:
-        existing_keys = [
-            k for k in st.session_state.keys() if k.startswith("evaluation_")
-        ]
-        if existing_keys:
-            indices = set(
-                k.split("_")[1] for k in existing_keys if k.split("_")[1].isdigit()
-            )
-            st.session_state.evaluation_forms = [{} for _ in indices]
-        else:
-            st.session_state.evaluation_forms = [{}]
+        st.session_state.evaluation_forms = []
 
-    to_delete = None
-    for i, eval_data in enumerate(st.session_state.evaluation_forms):
-        with st.expander(f"Evaluation {i + 1}", expanded=False):
+    # Input for adding new evaluation form
+    with st.expander("➕ Add New Evaluation Form"):
+        new_form_name = st.text_input("Evaluation name", key="new_eval_name")
+        if st.button("Add Evaluation Form"):
+            if new_form_name:
+                if new_form_name not in st.session_state.evaluation_forms:
+                    st.session_state.evaluation_forms.append(new_form_name)
+                    st.success(f"Added evaluation form: {new_form_name}")
+                    st.rerun()
+                else:
+                    st.warning("An evaluation form with this name already exists.")
+            else:
+                st.warning("Please enter a name for the evaluation form.")
+
+    # Track if a form needs to be deleted
+    form_to_delete = None
+
+    # Render each evaluation form
+    for form_name in list(st.session_state.evaluation_forms):
+        with st.expander(f"{form_name}", expanded=False):
+            # Use form_name to namespace keys
+            section_prefix = f"evaluation_{form_name.replace(' ', '_')}"
             render_evaluation_section(
                 model_card_schema["evaluation_data_methodology_results_commisioning"],
-                section_prefix=f"evaluation_{i}",
+                section_prefix=section_prefix,
                 current_task=task,
             )
+
             col1, col2 = st.columns([0.2, 0.8])
             with col1:
-                if st.button("Delete", key=f"delete_eval_{i}"):
-                    to_delete = i
+                if st.button("Delete", key=f"delete_eval_{form_name}"):
+                    form_to_delete = form_name
 
-    if to_delete is not None:
-        del st.session_state.evaluation_forms[to_delete]
+    # Handle deletion
+    if form_to_delete:
+        st.session_state.evaluation_forms.remove(form_to_delete)
+        prefix = f"evaluation_{form_to_delete.replace(' ', '_')}_"
         for key in list(st.session_state.keys()):
-            if key.startswith(f"evaluation_{to_delete}_"):
+            if key.startswith(prefix):
                 del st.session_state[key]
         st.rerun()
 
-    if st.button("Add Another Evaluation"):
-        st.session_state.evaluation_forms.append({})
-        st.rerun()
+    with st.expander("🛠️ Debug: Session State", expanded=False):
+        st.subheader("evaluation_forms:")
+        st.write(st.session_state.get("evaluation_forms", {}))
+
+        st.subheader("All session_state keys:")
+        for key in sorted(st.session_state.keys()):
+            if key != "evaluation_forms":
+                st.write(f"{key}: {st.session_state[key]}")
 
     st.markdown("<br>", unsafe_allow_html=True)
     col1, col2, col3, col4, col5 = st.columns([1.5, 2, 4.3, 2, 1.1])
