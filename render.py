@@ -60,7 +60,7 @@ def render_field(key, props, section_prefix):
     placeholder = props.get("placeholder", "")
 
     create_helpicon(label, description, field_type, example, required)
-
+    
     try:
         safe_label = label.strip() or "Field"
         if key == "type_metrics_other":
@@ -70,7 +70,7 @@ def render_field(key, props, section_prefix):
             if not options:
                 st.warning(f"Field '{label}' is missing options for select dropdown.")
             else:
-                if key in ["input_content", "output_content"]:
+                if key in ["input_content", "output_content", "treatment_modality_train", "treatment_modality_eval"]:
                     content_list_key = f"{full_key}_list"
                     type_key = f"{full_key}_new_type"
                     subtype_key = f"{full_key}_new_subtype"
@@ -119,24 +119,29 @@ def render_field(key, props, section_prefix):
                         col1, col2 = st.columns([4, 0.5])
                         with col1:
                             st.selectbox(
-                                label="Select content type",
+                                label=".",
                                 options=options,
                                 key="_" + type_key,
                                 on_change=utils.store_value,
                                 args=[type_key],
+                                label_visibility="hidden"
                             )
+
+                        add_clicked = False
                         with col2:
-                            st.markdown(
-                                "<div style='margin-top: 26px;'>",
-                                unsafe_allow_html=True,
-                            )
-                            if st.button("➕", key=f"{full_key}_add_button"):
-                                raw_value = st.session_state.get(type_key, "")
+                            st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
+                            add_clicked = st.button("➕", key=f"{full_key}_add_button")
+                            st.markdown("</div>", unsafe_allow_html=True)
+
+                        # Handle "Add" logic safely
+                        raw_value = st.session_state.get(type_key)
+                        if add_clicked:
+                            if raw_value in [None, "", DEFAULT_SELECT]:
+                                st.error("Please select an option before adding.")
+                            else:
                                 entry = utils.strip_brackets(raw_value)
                                 st.session_state[content_list_key].append(entry)
-                                st.session_state[full_key] = st.session_state[
-                                    content_list_key
-                                ]
+                                st.session_state[full_key] = st.session_state[content_list_key]
                             st.markdown("</div>", unsafe_allow_html=True)
                     entries = st.session_state[content_list_key]
                     if entries:
@@ -364,7 +369,7 @@ def render_field(key, props, section_prefix):
 
         else:
             utils.load_value(full_key)
-            st.text_input(
+            raw_input=st.text_input(
                 safe_label,
                 key="_" + full_key,
                 on_change=utils.store_value,
@@ -372,6 +377,30 @@ def render_field(key, props, section_prefix):
                 label_visibility="hidden",
                 placeholder=placeholder,
             )
+
+            # Integer enforcement for specific keys
+            integer_keys = [
+                "number_of_inputs",
+                "number_of_outputs",
+                "total_number_trainable_parameters",
+                "batch_size",
+                "number_of_patients"
+            ]
+            # SAFELY check and validate
+            if key in integer_keys:
+                if raw_input:
+                    stripped = raw_input.strip()
+                    if stripped.isdigit():
+                        st.session_state[full_key] = stripped  # store as string
+                    else:
+                        st.error(f"'{label}' must be a valid integer.")
+                        if full_key in st.session_state:
+                            del st.session_state[full_key]
+                else:
+                    if full_key in st.session_state:
+                        del st.session_state[full_key]
+            else:
+                st.session_state[full_key] = raw_input.strip() if raw_input else ""
 
     except Exception as e:
         st.error(f"Error rendering field '{label}': {str(e)}")
@@ -383,23 +412,35 @@ def render_type_metrics_other(full_key, label):
     utils.load_value(metrics_list_key, default=[])
     utils.load_value(metrics_selected_key)
 
+    # Warning flag
+    show_warning = False
+
     col1, col2, col3 = st.columns([3, 0.5, 1])
     with col1:
         st.text_input(
-            label or "Type",
+            label=".",
             key="_" + metrics_selected_key,
             on_change=utils.store_value,
             args=[metrics_selected_key],
-            placeholder="Enter metric name (e.g. Hausdorff)",
+            placeholder="Enter metric name (e.g. MSE)",
+            label_visibility="hidden"
         )
+
     with col2:
         st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
         if st.button("➕", key=f"{full_key}_add_button"):
-            value = st.session_state.get(metrics_selected_key, "").strip()
-            if value and value not in st.session_state[metrics_list_key]:
-                st.session_state[metrics_list_key].append(value)
-                st.session_state[full_key] = st.session_state[metrics_list_key]
+            value = st.session_state.get(metrics_selected_key, "")
+            if value and value.strip():
+                value = value.strip()
+                if value not in st.session_state[metrics_list_key]:
+                    st.session_state[metrics_list_key].append(value)
+                    st.session_state[full_key] = st.session_state[metrics_list_key]
+                else:
+                    show_warning = True  # already exists
+            else:
+                show_warning = True  # empty input
         st.markdown("</div>", unsafe_allow_html=True)
+
     with col3:
         st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
         if st.button("Clear", key=f"{full_key}_clear_button"):
@@ -408,16 +449,9 @@ def render_type_metrics_other(full_key, label):
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
-    entries = st.session_state[metrics_list_key]
-    if entries:
-        col1, col2 = st.columns([5, 1])
-        with col1:
-            tooltip_items = [
-                f"<span title='{html.escape(item)}' style='margin-right: 6px; font-weight: 500; color: #333;'>{html.escape(item)}</span>"
-                for item in entries
-            ]
-            st.markdown(", ".join(tooltip_items), unsafe_allow_html=True)
-
+    # Warning shown below the row
+    if show_warning:
+        st.warning("Please enter a valid metric name before adding.")
 
 def create_helpicon(label, description, field_format, example, required=False):
     required_tag = (

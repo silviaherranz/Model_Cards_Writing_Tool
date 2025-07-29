@@ -1763,7 +1763,7 @@
       "example": "[string, float, float, bool, bool]"
     },
     "input_size": {
-      "type": "List of arrays",
+      "type": "list[float]",
       "label": "Input Size",
       "description": "Size of each input, separated by commas. If only one entry while the number of inputs> 1, all inputs have the same size. If the size of the learning model inputs is not known or may vary according to the input data (e.g. it is extracted after an AutoML pre-process like in nnUnet), indicate “NA” (not applicable)",
       "required": true,
@@ -1825,7 +1825,7 @@
       "example": "[float, float, bool, bool]"
     },
     "output_size": {
-      "type": "List of arrays",
+      "type": "list[float]",
       "label": "Output Size",
       "description": "Size of each output, separated by commas. If only one entry while the number of outputs > 1, all outputs have the same size.",
       "required": true,
@@ -1945,7 +1945,7 @@
     "total_size": {
       "label": "Total size",
       "description": "Number of total samples used for training -including validation -, including real and data augmented samples. If several folds have been trained with different training sizes, a list with as many entries as folds should be used. If the size is the same for all folds, a single entry can be used.",
-      "type": "List of integers",
+      "type": "list of Integers",
       "required": true,
       "example": "[80], [80, 82, 78]"
     },
@@ -1977,16 +1977,16 @@
       "required": true,
       "example": "Patients before 2015 were excluded because the delineation guidelines were different."
     },
-    "type_of_data_argumentation": {
+    "type_of_data_augmentation": {
       "type": "String, Free text format",
-      "label": "Type of Data Argumentation",
+      "label": "Type of Data Augmentation",
       "description": "Data augmentation operations performed (flipping, rotations, etc). Whenever relevant, please add both the type and the range/value of the operation (e.g. rotation ([-10º, +10º]). If none applied say “Not applicable”",
       "required": true,
       "example": "Flipping [left, right], rotation [-10º,+10º], …"
     },
-    "strategy_for_data_argumentation": {
+    "strategy_for_data_augmentation": {
       "type": "List of strings, Free text format",
-      "label": "Strategy for Data Argumentation",
+      "label": "Strategy for Data Augmentation",
       "description": "Strategy for data augmentation. Whenever possible and relevant, report the number of augmented samples per real ones. If none applied say “Not applicable”",
       "required": true,
       "example": "[random, on-the-fly during training, all], [prior-to-training, 5 augmented per real image]"
@@ -1998,46 +1998,46 @@
       "required": false
     },
     "image_resolution": {
-      "type": "Array of floats",
+      "type": "list[float]",
       "label": "Image resolution",
-      "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Use a list of arrays, one for each image type defined in both “input content” and “output content” fields. Remember that this field refers to images before pre-processing steps.",
+      "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Provide the values that correspond to the specific image you are currently filling in. Remember that this field refers to images before pre-processing steps.",
       "required": true,
       "example": "[1.0, 1.0, 2.0]"
     },
     "patient_positioning": {
-      "type": "List of strings, one for each input modality, Free text format",
+      "type": "String, Free text format",
       "label": "Patient positioning",
       "description": "Patient positioning during image acquisition or treatment delivery.",
       "required": true,
       "example": "[Supine, arms above head, flat couch]"
     },
     "scanner_model": {
-      "type": "List of strings, Free text format",
+      "type": "String, Free text format",
       "label": "Scan(s) manufacturer and model",
-      "description": "Manufacturer and model name of the image acquisition system. Use a list of strings, one for each image type defined in both 'model input' and 'model output' fields. If the model has been trained with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant.",
+      "description": "Manufacturer and model name of the image acquisition system. If the model has been trained with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant.",
       "required": true,
       "example": "[Varian ETHOS hypersight, Siemens Somatom]"
     },
     "scan_acquisition_parameters": {
-      "type": "List of strings, Free text format",
+      "type": "String, Free text format",
       "label": "Scan(s) acquisition parameters",
-      "description": "Acquisition parameters of the image acquisition system(s). Use a list of strings, one for each image type defined in both 'model input' and 'model output' fields. If the model has been trained with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant. For MR: Magnetic Field (T), Repetition Time (ms), and Echo Time (ms) must be disclosed. For CT: Voltage (kV) must be disclosed.",
+      "description": "Acquisition parameters of the image acquisition system(s). If the model has been trained with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant. For MR: Magnetic Field (T), Repetition Time (ms), and Echo Time (ms) must be disclosed. For CT: Voltage (kV) must be disclosed.",
       "required": true,
       "example": "[MR: 1.5T, TR 2000ms, TE 80ms, CT: 120kV]"
     },
     "scan_reconstruction_parameters": {
-      "type": "List of strings, Free text format",
+      "type": "String, Free text format",
       "label": "Scan(s) reconstruction parameters",
-      "description": "Algorithm and reconstruction parameters of the image acquisition system(s). Use a list of strings, one for each image type defined in both 'model input' and 'model output' fields. If the model has been trained with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant. For CT: Algorithm and kernel must be disclosed.",
+      "description": "Algorithm and reconstruction parameters of the image acquisition system(s). If the model has been trained with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant. For CT: Algorithm and kernel must be disclosed.",
       "required": true
     },
     "fov": {
       "type": "list[float]",
       "label": "Field of View (FOV)",
-      "description": "Field-Of-View in mm of the acquired images. [left to right, posterior to anterior, inferior to superior].Use a list of strings, one for each image type defined in both “model input” and “model output” fields. If the model has been trained with images acquired with different FOV, include the median and range of them. Indicate “NA” (Not Applicable) whenever not relevant.",
+      "description": "Field-Of-View in mm of the acquired images. [left to right, posterior to anterior, inferior to superior]. If the model has been trained with images acquired with different FOV, include the median and range of them. Indicate “NA” (Not Applicable) whenever not relevant.",
       "example": "[409.6, 409.6, 276.7]"
     },
-    "treatment_modality": {
+    "treatment_modality_train": {
       "type": "select",
       "label": "Treatment modality",
       "description": "List of radiotherapy treatment techniques for which the model has been trained for. If only one modality, then the list will have only one entry",
@@ -2127,7 +2127,7 @@
       "example": "Use of paired data or not; if any QA of the machine has been done (es. magnetic field homogeneity and the spatial integrity); TG263 compliance to output format (e.g. tags for AI generated structures)"
     },
     "icd10_11": {
-      "type": "List of strings",
+      "type": "List of strings, Free text format",
       "label": "ICD10/11",
       "description": "ICD10/11 codes for the tumour location of the patients in the dataset.",
       "required": false
@@ -2198,9 +2198,9 @@
       "example": "Uniform, Kaiming"
     },
     "epochs": {
-      "type": "List of integers",
+      "type": "list of Integers",
       "label": "Epochs",
-      "description": "Number of epochs the model has been trained for, and for which the provided weights correspond. If multiple folds are trained, use a list of integers with each entry corresponding to one fold. If you have trained for longer but used early stopping to choose your model, please add the epochs at the moment of the early stopping and specify the 'model choice criteria' in the corresponding field",
+      "description": "Number of epochs the model has been trained for, and for which the provided weights correspond. If multiple folds are trained, use a list of Integers with each entry corresponding to one fold. If you have trained for longer but used early stopping to choose your model, please add the epochs at the moment of the early stopping and specify the 'model choice criteria' in the corresponding field",
       "example": "[200, 180, 189, 201, 199]",
       "required": false
     },
@@ -2285,15 +2285,15 @@
     },
     "total_size": {
       "label": "Total size",
-      "description": "Number of total samples used for training -including validation -, including real and data augmented samples. If several folds have been trained with different training sizes, a list with as many entries as folds should be used. If the size is the same for all folds, a single entry can be used.",
-      "type": "List of integers",
+      "description": "Number of total samples used for evaluation-including validation -, including real and data augmented samples. If several folds have been evaluated with different evaluation sizes, a list with as many entries as folds should be used. If the size is the same for all folds, a single entry can be used.",
+      "type": "list of Integers",
       "required": true,
       "example": "[80], [80, 82, 78]"
     },
     "number_of_patients": {
       "type": "Integer",
       "label": "Number of patients",
-      "description": "Number of different patients where the training samples are coming from. It can be equal or smaller (e.g. using repeated CT for the same patient, or having a 2D model) than the training size.",
+      "description": "Number of different patients used in the evaluation set. It can be equal or smaller (e.g. using repeated CT for the same patient, or having a 2D model) than the evaluation size.",
       "required": true,
       "example": "40"
     },
@@ -2325,7 +2325,7 @@
       "required": false
     },
     "image_resolution": {
-      "type": "Array of floats",
+      "type": "list[float]",
       "label": "Image resolution",
       "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Use a list of arrays, one for each image type defined in both “input content” and “output content” fields. Remember that this field refers to images before pre-processing steps.",
       "required": true,
@@ -2364,10 +2364,10 @@
       "description": "Field-Of-View in mm of the acquired images. [left to right, posterior to anterior, inferior to superior].Use a list of strings, one for each image type defined in both “model input” and “model output” fields. If the model has been trained with images acquired with different FOV, include the median and range of them. Indicate “NA” (Not Applicable) whenever not relevant.",
       "example": "[409.6, 409.6, 276.7]"
     },
-    "treatment_modality": {
+    "treatment_modality_eval": {
       "type": "select",
       "label": "Treatment modality",
-      "description": "List of radiotherapy treatment techniques for which the model has been trained for. If only one modality, then the list will have only one entry",
+      "description": "List of radiotherapy treatment techniques for which the model has been evaluated on. If only one modality, then the list will have only one entry",
       "required": true,
       "model_types": [
         "Dose prediction"
@@ -3271,18 +3271,14 @@
       "required": false
     },
     "mean_data_ism": {
-      "type": "array",
+      "type": "list[float], size=4, [mean, min, max, SD]",
       "label": "Mean Data",
       "description": "Mean, range, and standard deviation for the entire evaluation dataset.",
+      "placeholder": "[mean, min, max, SD]",
       "model_types": [
         "Image-to-Image translation"
       ],
-      "items": {
-        "type": "number"
-      },
       "required": true,
-      "minItems": 4,
-      "maxItems": 4,
       "example": [
         128.56,
         87.12,
@@ -4102,12 +4098,7 @@
       "example": "Monte Carlo"
     },
     "dose_grid_resolution_dm": {
-      "type": "array",
-      "items": {
-        "type": "number"
-      },
-      "minItems": 3,
-      "maxItems": 3,
+      "type": "list[float]",
       "label": "Dose Grid Resolution",
       "model_types": [
         "Image-to-Image translation"
@@ -4131,7 +4122,7 @@
       "required": false
     },
     "sample_data_dm": {
-      "type": "list[float] or list[list[float]]. Array of floats, same size as the evaluation dataset",
+      "type": "list[float]. Array of floats, same size as the evaluation dataset",
       "label": "Sample Data",
       "model_types": [
         "Image-to-Image translation"
@@ -4140,18 +4131,14 @@
       "example": "[124.54, 132.27, ….]"
     },
     "mean_data_dm": {
-      "type": "array",
+      "type": "list[float], size=4, [mean, min, max, SD]",
       "label": "Mean Data",
       "description": "Mean, range, and standard deviation for the entire evaluation dataset.",
+      "placeholder": "[mean, min, max, SD]",
+      "required": true,
       "model_types": [
         "Image-to-Image translation"
       ],
-      "items": {
-        "type": "number"
-      },
-      "required": true,
-      "minItems": 4,
-      "maxItems": 4,
       "example": [
         128.56,
         87.12,
@@ -4918,7 +4905,7 @@
       "required": true
     },
     "sample_data_gm_seg": {
-      "type": "list[float] or list[list[float]]. Array of floats, same size as the evaluation dataset",
+      "type": "list[float]. Array of floats, same size as the evaluation dataset",
       "label": "Sample Data",
       "model_types": [
         "Segmentation"
@@ -4927,18 +4914,14 @@
       "example": "[124.54, 132.27, ….]"
     },
     "mean_data_gm_seg": {
-      "type": "array",
+      "type": "list[float], size=4, [mean, min, max, SD]",
       "label": "Mean Data",
       "description": "Mean, range, and standard deviation for the entire evaluation dataset.",
+      "placeholder": "[mean, min, max, SD]",
       "model_types": [
         "Segmentation"
       ],
-      "items": {
-        "type": "number"
-      },
       "required": true,
-      "minItems": 4,
-      "maxItems": 4,
       "example": [
         128.56,
         87.12,
@@ -5744,12 +5727,7 @@
       "example": "Monte Carlo"
     },
     "dose_grid_resolution_dm_seg": {
-      "type": "array",
-      "items": {
-        "type": "number"
-      },
-      "minItems": 3,
-      "maxItems": 3,
+      "type": "list[float]",
       "label": "Dose Grid Resolution",
       "model_types": [
         "Segmentation"
@@ -5773,7 +5751,7 @@
       "required": false
     },
     "sample_data_dm_seg": {
-      "type": "list[float] or list[list[float]]. Array of floats, same size as the evaluation dataset",
+      "type": "list[float]. Array of floats, same size as the evaluation dataset",
       "label": "Sample Data",
       "model_types": [
         "Segmentation"
@@ -5782,18 +5760,14 @@
       "example": "[124.54, 132.27, ….]"
     },
     "mean_data_dm_seg": {
-      "type": "array",
+      "type": "list[float], size=4, [mean, min, max, SD]",
       "label": "Mean Data",
       "description": "Mean, range, and standard deviation for the entire evaluation dataset.",
+      "placeholder": "[mean, min, max, SD]",
       "model_types": [
         "Segmentation"
       ],
-      "items": {
-        "type": "number"
-      },
       "required": true,
-      "minItems": 4,
-      "maxItems": 4,
       "example": [
         128.56,
         87.12,
@@ -5847,7 +5821,7 @@
       "required": false
     },
     "sample_data_other": {
-      "type": "list[float] or list[list[float]]. Array of floats, same size as the evaluation dataset",
+      "type": "list[float]. Array of floats, same size as the evaluation dataset",
       "label": "Sample Data",
       "model_types": [
         "Other"
@@ -5856,18 +5830,14 @@
       "example": "[124.54, 132.27, ….]"
     },
     "mean_data_other": {
-      "type": "array",
+      "type": "list[float], size=4, [mean, min, max, SD]",
       "label": "Mean Data",
       "description": "Mean, range, and standard deviation for the entire evaluation dataset.",
+      "placeholder": "[mean, min, max, SD]",
       "model_types": [
         "Other"
       ],
-      "items": {
-        "type": "number"
-      },
       "required": true,
-      "minItems": 4,
-      "maxItems": 4,
       "example": [
         128.56,
         87.12,
@@ -6634,12 +6604,7 @@
       "required": true
     },
     "dose_grid_resolution_dm_dp": {
-      "type": "array",
-      "items": {
-        "type": "number"
-      },
-      "minItems": 3,
-      "maxItems": 3,
+      "type": "list[float]",
       "label": "Dose Grid Resolution",
       "model_types": [
         "Dose prediction"
@@ -6653,7 +6618,7 @@
       ]
     },
     "sample_data_dm_dp": {
-      "type": "list[float] or list[list[float]]. Array of floats, same size as the evaluation dataset",
+      "type": "list[float]. Array of floats, same size as the evaluation dataset",
       "label": "Sample Data",
       "model_types": [
         "Dose prediction"
@@ -6662,18 +6627,14 @@
       "example": "[124.54, 132.27, ….]"
     },
     "mean_data_dm_dp": {
-      "type": "array",
+      "type": "list[float], size=4, [mean, min, max, SD]",
       "label": "Mean Data",
       "description": "Mean, range, and standard deviation for the entire evaluation dataset.",
+      "placeholder": "[mean, min, max, SD]",
       "model_types": [
         "Dose prediction"
       ],
-      "items": {
-        "type": "number"
-      },
       "required": true,
-      "minItems": 4,
-      "maxItems": 4,
       "example": [
         128.56,
         87.12,

@@ -24,22 +24,22 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
 
         create_helpicon(label, description, field_type, example, required)
 
-        # Only load if a real stored value exists, not default today
-        if "evaluation_date_widget" not in st.session_state:
-            st.session_state["evaluation_date_widget"] = None
+        date_widget_key = f"{section_prefix}_date_widget"
+
+        if date_widget_key not in st.session_state:
+            st.session_state[date_widget_key] = None
 
         st.date_input(
             "Click and select a date",
-            value=st.session_state["evaluation_date_widget"],
+            value=st.session_state[date_widget_key],
             min_value=datetime(1900, 1, 1),
             max_value=datetime.today(),
-            key="_evaluation_date_widget",
+            key=f"_{date_widget_key}",
             on_change=utils.store_value,
-            args=["evaluation_date_widget"],
+            args=[date_widget_key],
         )
-
-        # Check if user actually interacted with the input
-        user_date = st.session_state.get("_evaluation_date_widget")
+        
+        user_date = st.session_state.get(f"_{date_widget_key}")
 
         if user_date:
             formatted = user_date.strftime("%Y%m%d")
@@ -162,9 +162,9 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
     # EXCLUSIVE TO DOSE PREDICTION TASK
     ####################################
     task = st.session_state.get("task").strip().lower()
-    if should_render(schema_section["treatment_modality"], task):
+    if should_render(schema_section["treatment_modality_eval"], task):
         render_field(
-            "treatment_modality", schema_section["treatment_modality"], section_prefix
+            "treatment_modality_eval", schema_section["treatment_modality_eval"], section_prefix
         )
     col1, col2 = st.columns([1, 1])
     with col1:
@@ -209,8 +209,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         section_prefix,
         current_task,
     )
-
-    utils.section_divider()
 
     utils.title_header("3. Patient Demographics and Clinical Characteristics")
     col1, col2 = st.columns([1, 1])
@@ -257,13 +255,11 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         schema_section["additional_patient_info_ev"],
         section_prefix,
     )
-    # utils.section_divider()
-    # utils.title_header("Quantitative Evaluation")
+    utils.section_divider()
     quant_qual_tabs = st.tabs(["Quantitative Evaluation", "Qualitative Evaluation"])
 
     with quant_qual_tabs[0]:
-        utils.section_divider()
-        utils.title_header("Quantitative Evaluation")
+        utils.title_header_grey("Quantitative Evaluation")
 
         ism_fields = [
             "on_volume_ism",
@@ -325,7 +321,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         render_field(
                             "figure_ism", schema_section["figure_ism"], sub_prefix
                         )
-        utils.section_divider()
 
         dm_base_fields = [
             "metric_specifications_dm",
@@ -342,6 +337,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
 
         task = st.session_state.get("task").strip().lower()
         if should_render(schema_section["type_dose_dm"], task):
+            utils.section_divider()
             utils.title_header("Dose Metrics")
             render_field(
                 "type_dose_dm",
@@ -431,8 +427,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                             "figure_dm", schema_section["figure_dm"], sub_prefix
                         )
 
-                    utils.section_divider()
-
         ##################################################
         # END EXCLUSIVE TO IMAGE-TO-IMAGE TRANSLATION TASK
         ##################################################
@@ -498,8 +492,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         "figure_gm_seg", schema_section["figure_gm_seg"], sub_prefix
                     )
 
-        utils.section_divider()
-
         dose_dm_seg_fields = [
             "metric_specifications_dm_seg",
             "on_volume_dm_seg",
@@ -515,6 +507,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         task = st.session_state.get("task").strip().lower()
 
         if should_render(schema_section["type_dose_dm_seg"], task):
+            utils.section_divider()
             utils.title_header("Dose Metrics for Segmentation")
             render_field(
                 "type_dose_dm_seg",
@@ -606,10 +599,10 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         )
 
         task = st.session_state.get("task").strip().lower()
-        utils.section_divider()
         if should_render(schema_section["iov_method_seg"], task) or should_render(
             schema_section["iov_results_seg"], task
         ):
+            utils.section_divider()
             utils.title_header("IOV (Inter-Observer Variability)")
 
         col1, col2 = st.columns([1, 1])
@@ -746,7 +739,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         # END EXCLUSIVE TO OTHER TASK
         #############################
 
-        # Uncertainty Metrics Section
+        utils.section_divider()
         utils.title_header("Uncertainty Metrics")
         col1, col2 = st.columns([1, 1])
         with col1:
@@ -763,8 +756,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
             )
 
         utils.section_divider()
-        # Other Evaluation Section
-        utils.title_header("Other Evaluation")
+        utils.title_header("Other")
         col1, col2 = st.columns([1, 1])
         with col1:
             render_field("other_method", schema_section["other_method"], section_prefix)
@@ -778,9 +770,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         if "qualitative_evaluation" in model_card_schema:
             qeval = model_card_schema["qualitative_evaluation"]
             section_prefix = "qualitative_evaluation"
-
-            utils.section_divider()
-            utils.title_header("Qualitative Evaluation")
+            utils.title_header_grey("Qualitative Evaluation")
 
             render_field(
                 "evaluators_informations",
@@ -789,17 +779,9 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
             )
             utils.section_divider()
 
-            def render_method_result_row(method_key, result_key, label: str):
-                utils.title_header(label)
-                col1, col2 = st.columns([1, 1])
-                with col1:
-                    render_field(method_key, qeval[method_key], section_prefix)
-                with col2:
-                    render_field(result_key, qeval[result_key], section_prefix)
-
             tabs = st.tabs(["Likert Scoring", "Turing Test", "Time Saving", "Other"])
 
-            with tabs[0]:  # Likert
+            with tabs[0]:  
                 utils.title_header("Likert Scoring")
                 col1, col2 = st.columns([1, 1])
                 with col1:
@@ -815,7 +797,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         section_prefix,
                     )
 
-            with tabs[1]:  # Turing Test
+            with tabs[1]:  
                 utils.title_header("Turing Test")
                 col1, col2 = st.columns([1, 1])
                 with col1:
@@ -831,7 +813,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         section_prefix,
                     )
 
-            with tabs[2]:  # Time Saving
+            with tabs[2]:  
                 utils.title_header("Time Saving")
                 col1, col2 = st.columns([1, 1])
                 with col1:
@@ -847,7 +829,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         section_prefix,
                     )
 
-            with tabs[3]:  # Other
+            with tabs[3]:  
                 utils.title_header("Other Evaluation")
                 col1, col2 = st.columns([1, 1])
                 with col1:

@@ -93,6 +93,21 @@ def title_header(text, size="1.2rem", bottom_margin="1em", top_margin="0.5em"):
         unsafe_allow_html=True,
     )
 
+def title_header_grey(text, size="1.3rem", bottom_margin="0.2em", top_margin="0.5em"):
+    st.markdown(
+        f"""
+        <div style='
+            font-size: {size};
+            font-weight: 600;
+            color: #6c757d;
+            margin-top: {top_margin};
+            margin-bottom: {bottom_margin};
+        '>{text}</div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 
 def title(text, size="2rem", bottom_margin="0.1em", top_margin="0.4em"):
     st.markdown(

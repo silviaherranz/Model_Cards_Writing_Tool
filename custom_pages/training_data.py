@@ -19,7 +19,8 @@ def training_data_render():
     utils.subtitle(
         "containing all information about training and validation data (in case of a fine-tuned model, this section contains information about the tuning dataset)"
     )
-    utils.title_header("Fine tuned form")
+    utils.title_header("Fine tuned from")
+    utils.light_header_italics("These fields are only relevant for fine-tuned models. For tuned models, the training data will contain the tuning data information. Indicate NA if not applicable.")
     col1, col2, col3 = st.columns([1, 1.5, 1.5])
     with col1:
         render_field(
@@ -43,6 +44,7 @@ def training_data_render():
     utils.section_divider()
 
     utils.title_header("Training Dataset", size="1.2rem")
+    utils.light_header_italics("Note that all fields refer to the raw training data used in 'Model inputs' (i.e. before pre-processing steps).")
     utils.title_header("1. General information")
 
     col1, col2 = st.columns([1,1])
@@ -78,8 +80,8 @@ def training_data_render():
             "training_data",
         )
     for field in [
-        "type_of_data_argumentation",
-        "strategy_for_data_argumentation",
+        "type_of_data_augmentation",
+        "strategy_for_data_augmentation",
         "url_info",
     ]:
         render_field(
@@ -122,8 +124,10 @@ def training_data_render():
                 })
 
     # ... your previous logic above ...
-
-    if modality_entries:
+# Show warning if no modalities have been added
+    if not modality_entries:
+        st.warning("Start by adding input and output content in the previous section to enable technical details.")
+    else:
         # Short tab labels: just the modality name
         tabs = st.tabs([
             utils.strip_brackets(m["modality"]) for m in modality_entries
@@ -201,11 +205,10 @@ def training_data_render():
     section = model_card_schema["training_data_methodology_results_commisioning"]
     task = st.session_state.get("task").strip().lower()
 
-    utils.section_divider()
     # st.write("Current task:", task)
-    if should_render(section["treatment_modality"], task):
+    if should_render(section["treatment_modality_train"], task):
         render_field(
-            "treatment_modality", section["treatment_modality"], "training_data"
+            "treatment_modality_train", section["treatment_modality_train"], "training_data"
         )
 
     col1, col2 = st.columns([2, 1.1])
