@@ -1,8 +1,8 @@
 from pathlib import Path
-
 import pandas as pd
 import streamlit as st
-from side_bar import sidebar_render
+
+
 
 def get_state(key, default=None):
     return st.session_state.get(key, default)
@@ -22,7 +22,6 @@ def task_selector_page():
     st.header("Select Model Task")
 
     if "task" not in st.session_state:
-        # Show the radio input ONLY if task is not yet selected
         selected_task = st.radio(
             "Select the task for your model card",
             ["Image-to-Image translation", "Segmentation", "Dose prediction", "Other"],
@@ -36,9 +35,25 @@ def task_selector_page():
             st.session_state.runpage = card_metadata_render
             st.rerun()
     else:
-        # Task already selected — inform user
-        st.success(f"✅ Task already selected: **{st.session_state['task']}**")
+        st.success(f"Task already selected: **{st.session_state['task']}**")
 
+#IDEA: max_archs = len(st.session_state.get("learning_architecture_forms", {})) guardar dinámicamente el número de Learning architectures que hay
+
+def extract_learning_architectures_from_state(max_archs=100):
+    learning_architectures = []
+
+    for i in range(max_archs):
+        prefix = f"learning_architecture_{i}_"
+        entry = {}
+        for key, value in st.session_state.items():
+            if key.startswith(prefix):
+                field = key[len(prefix):]
+                entry[field] = value
+        if entry:
+            entry["id"] = i
+            learning_architectures.append(entry)
+
+    return learning_architectures
 
 def extract_evaluations_from_state():
     evaluations = []
@@ -54,6 +69,7 @@ def extract_evaluations_from_state():
 
 
 def main_page():
+    from side_bar import sidebar_render
     sidebar_render()
 
     get_cached_data()

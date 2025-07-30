@@ -4,8 +4,9 @@ import tempfile
 from pathlib import Path
 import json
 from custom_pages.other_considerations import other_considerations_render
+from template_base import SCHEMA
 import utils
-from middleMan import parse_into_jinja_markdown, parse_into_json
+from middleMan import parse_into_json
 from custom_pages.card_metadata import card_metadata_render
 from custom_pages.model_basic_information import model_basic_information_render
 from custom_pages.technical_specifications import technical_specifications_render
@@ -240,7 +241,7 @@ def sidebar_render():
 
         # Trigger download immediately if validation passed
         if st.session_state.get("download_ready"):
-            card_content = parse_into_json()
+            card_content = parse_into_json(SCHEMA)
             st.download_button(
                 "📥 Your download is ready — click here",
                 data=card_content,

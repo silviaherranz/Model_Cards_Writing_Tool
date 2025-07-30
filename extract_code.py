@@ -311,7 +311,7 @@ model.${speechbrainMethod}("file.wav")`;
 const transformers = (model: ModelData) => {
 	const info = model.transformersInfo;
 	if (!info) {
-		return `# ⚠️ Type of model unknown`;
+		return `#Type of model unknown`;
 	}
 	if (info.processor) {
 		const varName = info.processor === "AutoTokenizer" ? "tokenizer"
