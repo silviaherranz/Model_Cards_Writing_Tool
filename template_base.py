@@ -50,3 +50,31 @@ SCHEMA = {
     ]
     
 }
+
+LEARNING_ARCHITECTURE = {
+    "input_size": "",
+    "output_size": "",
+    "input_format": "",
+    "output_format": "",
+    "input_content_list": [],
+    "input_content_custom_text": "",
+    "input_content_new_type": None,
+    "input_content_new_subtype": None,
+    "output_content_list": [],
+    "output_content_custom_text": "",
+    "output_content_new_type": None,
+    "output_content_new_subtype": None,
+    "loss_function": "",
+    "regularisation": "",
+    "uncertainty_quantification_techniques": "",
+    "explainability_techniques": "",
+    "citation_details_ts": "",
+    "architecture_figure": None,
+    "architecture_figure_appendix_note": "",
+    "additional_information_input_content": "",
+    "additional_information_output_content": "",
+    "additional_information_ts": "",
+    "total_number_trainable_parameters": "",
+    "number_of_inputs": ""
+}
+

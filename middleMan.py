@@ -1,6 +1,8 @@
 import streamlit as st
 import json
 from main import extract_learning_architectures_from_state
+from template_base import LEARNING_ARCHITECTURE
+from copy import deepcopy
 
 
 
@@ -27,29 +29,35 @@ def parse_into_json():
     json_string = json.dumps(serializable_state)
     return json_string 
 """
+
 def parse_into_json(schema):
     structured_data = {}
 
+    # 1. Procesar SCHEMA por secciones
     for section, keys in schema.items():
         structured_data[section] = {}
-        for key in keys:
-            value = st.session_state.get(key)
-            if value is not None:
-                structured_data[section][key] = value
+        for full_key in keys:
+            # extraer la clave interna: "card_metadata_doi" → "doi"
+            prefix = section + "_"
+            subkey = full_key[len(prefix):] if full_key.startswith(prefix) else full_key
+            structured_data[section][subkey] = st.session_state.get(full_key, "")
 
-    # 👇 Añadir learning_architectures SIN sobrescribir lo que ya haya
-    learning_architectures = extract_learning_architectures_from_state()
+    # 2. Añadir learning_architectures como sección independiente
+    forms = st.session_state.get("learning_architecture_forms", {})
+    learning_architectures = []
 
-    if learning_architectures:
-        if "technical_specifications" not in structured_data:
-            structured_data["technical_specifications"] = {}
+    for i in range(len(forms)):
+        prefix = f"learning_architecture_{i}_"
+        arch = deepcopy(LEARNING_ARCHITECTURE)
+        for field in arch.keys():
+            session_key = f"{prefix}{field}"
+            arch[field] = st.session_state.get(session_key, arch[field])
+        arch["id"] = i
+        learning_architectures.append(arch)
 
-        structured_data["technical_specifications"]["learning_architectures"] = learning_architectures
+    structured_data["learning_architectures"] = learning_architectures
 
     return json.dumps(structured_data, indent=2)
 
-
-
-    return json.dumps(structured_data, indent=2)
 
 
