@@ -2381,41 +2381,41 @@
     "image_resolution": {
       "type": "list[float]",
       "label": "Image resolution",
-      "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Use a list of arrays, one for each image type defined in both “input content” and “output content” fields. Remember that this field refers to images before pre-processing steps.",
+      "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Remember that this field refers to images before pre-processing steps.",
       "required": true,
       "example": "[1.0, 1.0, 2.0]"
     },
     "patient_positioning": {
-      "type": "List of strings, one for each input modality, Free text format",
+      "type": "String, Free text format",
       "label": "Patient positioning",
-      "description": "Patient positioning during image acquisition or treatment delivery.",
+      "description": "Patient positioning during image acquisition or treatment delivery. Indicate 'NA' whenever not relevant nor applicable.",
       "required": true,
       "example": "[Supine, arms above head, flat couch]"
     },
     "scanner_model": {
-      "type": "List of strings, Free text format",
+      "type": "String, Free text format",
       "label": "Scan(s) manufacturer and model",
-      "description": "Manufacturer and model name of the image acquisition system. Use a list of strings, one for each image type defined in both 'model input' and 'model output' fields. If the model has been trained with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant.",
+      "description": "Manufacturer and model name of the image acquisition system. If the model has been evaluated with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant.",
       "required": true,
       "example": "[Varian ETHOS hypersight, Siemens Somatom]"
     },
     "scan_acquisition_parameters": {
-      "type": "List of strings, Free text format",
+      "type": "String, Free text format",
       "label": "Scan(s) acquisition parameters",
-      "description": "Acquisition parameters of the image acquisition system(s). Use a list of strings, one for each image type defined in both 'model input' and 'model output' fields. If the model has been trained with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant. For MR: Magnetic Field (T), Repetition Time (ms), and Echo Time (ms) must be disclosed. For CT: Voltage (kV) must be disclosed.",
+      "description": "Acquisition parameters of the image acquisition system(s). If the model has been evaluated with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant. For MR: Magnetic Field (T), Repetition Time (ms), and Echo Time (ms) must be disclosed. For CT: Voltage (kV) must be disclosed.",
       "required": true,
       "example": "[MR: 1.5T, TR 2000ms, TE 80ms, CT: 120kV]"
     },
     "scan_reconstruction_parameters": {
-      "type": "List of strings, Free text format",
+      "type": "String, Free text format",
       "label": "Scan(s) reconstruction parameters",
-      "description": "Algorithm and reconstruction parameters of the image acquisition system(s). Use a list of strings, one for each image type defined in both 'model input' and 'model output' fields. If the model has been trained with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant. For CT: Algorithm and kernel must be disclosed.",
+      "description": "Algorithm and reconstruction parameters of the image acquisition system(s). If the model has been evaluated with images acquired with different machines, include the information of each machine separated by commas. Indicate 'NA' whenever not relevant. For CT: Algorithm and kernel must be disclosed.",
       "required": true
     },
     "fov": {
       "type": "list[float]",
       "label": "Field of View (FOV)",
-      "description": "Field-Of-View in mm of the acquired images. [left to right, posterior to anterior, inferior to superior].Use a list of strings, one for each image type defined in both “model input” and “model output” fields. If the model has been trained with images acquired with different FOV, include the median and range of them. Indicate “NA” (Not Applicable) whenever not relevant.",
+      "description": "Field-Of-View in mm of the acquired images. [left to right, posterior to anterior, inferior to superior]. If the model has been trained with images acquired with different FOV, include the median and range of them. Indicate “NA” (Not Applicable) whenever not relevant.",
       "example": "[409.6, 409.6, 276.7]"
     },
     "treatment_modality_eval": {
@@ -2444,7 +2444,7 @@
     "beam_configuration_energy": {
       "type": "String, Free text format",
       "label": "Beam Configuration and Energy",
-      "description": "Details of the beam configuration in the treatment plans used to train the model.",
+      "description": "Details of the beam configuration in the treatment plans used to evaluate the model.",
       "required": true,
       "model_types": [
         "Dose prediction"
@@ -2458,7 +2458,7 @@
         "Dose prediction"
       ],
       "required": true,
-      "description": "Dose engine used to plan on the training dataset.",
+      "description": "Dose engine used to plan on the evaluation dataset.",
       "options": [
         "Monte Carlo",
         "Pencil beam",
@@ -2496,7 +2496,7 @@
     "reference_standard_qa": {
       "type": "String, Free text format",
       "label": "Reference Standard QA",
-      "description": "Describe the quality assurance (QA) methods to ensure a high quality reference standard. For instance, how inter-observer variability in the annotations was dealt with when generating the training data. If no QA has been applied, disclose “NA” (Not Applicable)",
+      "description": "Describe the quality assurance (QA) methods to ensure a high quality reference standard. For instance, how inter-observer variability in the annotations was dealt with when generating the evaluation data. If no QA has been applied, disclose “NA” (Not Applicable)",
       "required": true,
       "example": "delineations checked and corrected by 2 radiation oncologists according to delineation guidelines"
     },

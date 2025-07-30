@@ -418,7 +418,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         if dm_entries and has_renderable_fields(
             dm_base_fields, schema_section, current_task
         ):
-            utils.title_header("Dose Metric Specifications", size="1rem")
             tabs = st.tabs([str(entry) for entry in dm_entries if entry])
             for tab, dm_name in zip(tabs, dm_entries):
                 with tab:
@@ -523,7 +522,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         seg_entries = st.session_state.get(f"{section_prefix}_type_gm_seg_list", [])
 
         if seg_entries and has_renderable_fields(dose_seg_fields, schema_section, task):
-            utils.title_header("Geometric Metric Specifications")
             tabs = st.tabs([str(entry) for entry in seg_entries if entry])
 
             for tab, seg_name in zip(tabs, seg_entries):
@@ -576,7 +574,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
 
         if should_render(schema_section["type_dose_dm_seg"], task):
             utils.section_divider()
-            utils.title_header("Dose Metrics for Segmentation")
+            utils.title_header("Dose Metrics")
             render_field(
                 "type_dose_dm_seg",
                 schema_section["type_dose_dm_seg"],
@@ -590,7 +588,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         if dm_seg_entries and has_renderable_fields(
             dose_dm_seg_fields, schema_section, task
         ):
-            utils.title_header("Dose Metric Specifications (Segmentation)", size="1rem")
             tabs = st.tabs([str(entry) for entry in dm_seg_entries if entry])
             for tab, seg_name in zip(tabs, dm_seg_entries):
                 with tab:
@@ -702,7 +699,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         task = st.session_state.get("task").strip().lower()
 
         if should_render(schema_section["type_dose_dm_dp"], task):
-            utils.title_header("Dose Metrics for Dose Prediction")
+            utils.title_header("Dose Metrics")
             render_field(
                 "type_dose_dm_dp",
                 schema_section["type_dose_dm_dp"],
@@ -716,9 +713,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         if dm_dp_entries and has_renderable_fields(
             dose_seg_fields, schema_section, task
         ):
-            utils.title_header(
-                "Dose Metric Specifications (Dose Prediction)", size="1rem"
-            )
             tabs = st.tabs([str(entry) for entry in dm_dp_entries if entry])
 
             for tab, dp_name in zip(tabs, dm_dp_entries):
@@ -759,8 +753,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         render_field(
                             "figure_dm_dp", schema_section["figure_dm_dp"], sub_prefix
                         )
-
-                    utils.section_divider()
 
         #######################################
         # END EXCLUSIVE TO DOSE PREDICTION TASK
@@ -929,7 +921,7 @@ def evaluation_data_mrc_render():
         st.session_state.evaluation_forms = []
 
     # Input for adding new evaluation form
-    with st.expander("➕ Add New Evaluation Form"):
+    with st.expander("Add New Evaluation Form"):
         new_form_name = st.text_input("Evaluation name", key="new_eval_name")
         if st.button("Add Evaluation Form"):
             if new_form_name:
@@ -970,14 +962,14 @@ def evaluation_data_mrc_render():
                 del st.session_state[key]
         st.rerun()
 
-    with st.expander("🛠️ Debug: Session State", expanded=False):
-        st.subheader("evaluation_forms:")
-        st.write(st.session_state.get("evaluation_forms", {}))
+    # with st.expander("🛠️ Debug: Session State", expanded=False):
+    #     st.subheader("evaluation_forms:")
+    #     st.write(st.session_state.get("evaluation_forms", {}))
 
-        st.subheader("All session_state keys:")
-        for key in sorted(st.session_state.keys()):
-            if key != "evaluation_forms":
-                st.write(f"{key}: {st.session_state[key]}")
+    #     st.subheader("All session_state keys:")
+    #     for key in sorted(st.session_state.keys()):
+    #         if key != "evaluation_forms":
+    #             st.write(f"{key}: {st.session_state[key]}")
 
     st.markdown("<br>", unsafe_allow_html=True)
     col1, col2, col3, col4, col5 = st.columns([1.5, 2, 4.3, 2, 1.1])
