@@ -12,6 +12,7 @@ from custom_pages.technical_specifications import technical_specifications_rende
 from custom_pages.training_data import training_data_render
 from custom_pages.evaluation_data_mrc import evaluation_data_mrc_render
 from custom_pages.warnings import warnings_render
+from custom_pages.appendix import appendix_render
 
 model_card_schema = utils.get_model_card_schema()
 
@@ -41,9 +42,30 @@ def save_uploadedfile(uploadedfile):
 
 def sidebar_render():
     with st.sidebar:
-        task = st.session_state.get("task", "Image-to-Image translation")
+        # Apply CSS for all buttons inside the sidebar container
+        st.markdown("""
+        <style>
+        /* Style Streamlit buttons inside sidebar */
+        section[data-testid="stSidebar"] button {
+            width: 100% !important;
+            text-align: left !important;
+            padding: 0.5rem 1rem !important;
+            border: 1px solid #ccc !important;
+            border-radius: 6px !important;
+            background-color: #ffffff !important;
+            color: #000 !important;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 500;
+        }
 
-        st.markdown("## Menu")
+        section[data-testid="stSidebar"] button:hover {
+            background-color: #e0f0ff !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+        st.markdown("##  Menu")
 
         if st.button("Card Metadata"):
             st.session_state.runpage = card_metadata_render
@@ -69,15 +91,58 @@ def sidebar_render():
             st.session_state.runpage = other_considerations_render
             st.rerun()
 
+        if st.button("Appendix"):
+            st.session_state.runpage = appendix_render
+            st.rerun()
 
-        missing_required = utils.validate_required_fields(
-            model_card_schema, st.session_state, current_task=task
-        )
-
-        if missing_required:
+        task = st.session_state.get("task", "Image-to-Image translation")
+        if utils.validate_required_fields(model_card_schema, st.session_state, current_task=task):
             if st.button("Warnings"):
                 st.session_state.runpage = warnings_render
                 st.rerun()
+
+    # with st.sidebar:
+    #     task = st.session_state.get("task", "Image-to-Image translation")
+
+    #     st.markdown("## Menu")
+
+    #     if st.button("Card Metadata"):
+    #         st.session_state.runpage = card_metadata_render
+    #         st.rerun()
+        
+    #     if st.button("Model Basic Information"):
+    #         st.session_state.runpage = model_basic_information_render
+    #         st.rerun()
+        
+    #     if st.button("Technical Specifications"):
+    #         st.session_state.runpage = technical_specifications_render
+    #         st.rerun()
+
+    #     if st.button("Training Data Methodology, Results & Commissioning"):
+    #         st.session_state.runpage = training_data_render
+    #         st.rerun()
+        
+    #     if st.button("Evaluation Data Methodology, Results & Commissioning"):
+    #         st.session_state.runpage = evaluation_data_mrc_render
+    #         st.rerun()
+        
+    #     if st.button("Other Considerations"):
+    #         st.session_state.runpage = other_considerations_render
+    #         st.rerun()
+
+    #     if st.button("Appendix"):
+    #         st.session_state.runpage = appendix_render
+    #         st.rerun()
+
+
+    #     missing_required = utils.validate_required_fields(
+    #         model_card_schema, st.session_state, current_task=task
+    #     )
+
+    #     if missing_required:
+    #         if st.button("Warnings"):
+    #             st.session_state.runpage = warnings_render
+    #             st.rerun()
             
 
         st.markdown("## Upload Model Card")

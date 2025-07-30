@@ -2564,9 +2564,9 @@
       ],
       "example": "MAE",
       "options": [
-        "MAE",
-        "SSIM",
-        "PSNR"
+        "MAE (Mean Absolute Error)",
+        "SSIM (Structural Similarity Index)",
+        "PSNR (Peak Signal-to-Noise Ratio)"
       ],
       "required": true
     },
@@ -3351,7 +3351,7 @@
     },
     "type_dose_dm": {
       "type": "select",
-      "options": ["GPR", "MAE", "MSE", "D", "V", "Other"],
+      "options": ["GPR (Gamma Passing Rate)", "MAE (Mean Absolute Error)", "MSE (Mean Squared Error)", "D", "V", "Other"],
       "label": "Type",
       "model_types": [
         "Image-to-Image translation"
@@ -4212,7 +4212,7 @@
     "type_gm_seg": {
       "type": "select",
       "label": "Type",
-      "options": ["DSC", "Surface DSC", "DTA", "HD", "HD95", "APL"],
+      "options": ["DSC (Dice Similarity Coefficient)", "Surface DSC", "DTA (Distance to Agreement)", "HD (Hausdorff Distance)", "HD95 (95th Percentile Hausdorff Distance)", "APL (Average Precision Level)"],
       "model_types": [
         "Segmentation"
       ],
@@ -4995,7 +4995,7 @@
     },
     "type_dose_dm_seg": {
       "type": "select",
-      "options": ["GPR", "MAE", "MSE", "D", "V", "Other"],
+      "options": ["GPR (Gamma Passing Rate)", "MAE (Mean Absolute Error)", "MSE (Mean Squared Error)", "D", "V", "Other"],
       "label": "Type",
       "model_types": [
         "Segmentation"
@@ -5910,7 +5910,7 @@
     },
     "type_dose_dm_dp":{
       "type": "select",
-      "options": ["GPR", "MAE", "MSE", "D", "V", "Other"],
+      "options": ["GPR (Gamma Passing Rate)", "MAE (Mean Absolute Error)", "MSE (Mean Squared Error)", "D", "V", "Other"],
       "label": "Type",
       "model_types": [
         "Dose prediction"

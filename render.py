@@ -236,7 +236,7 @@ def render_field(key, props, section_prefix):
                             line = ", ".join(tooltip_items)
                             st.markdown(f"<span>{line}</span>", unsafe_allow_html=True)
                         with col2:
-                            if st.button("🧹 Clear", key=f"{full_key}_modality_clear_all"):
+                            if st.button("Clear", key=f"{full_key}_modality_clear_all"):
                                 st.session_state[content_list_key2] = []
                                 st.session_state[full_key] = []
                                 st.rerun()
@@ -298,7 +298,7 @@ def render_field(key, props, section_prefix):
                     return
                 
                 if key in ["type_dose_dm", "type_dose_dm_seg", "type_dose_dm_dp"]:
-                    static_options = ["GPR", "MAE", "MSE", "Other"]
+                    static_options = ["GPR (Gamma Passing Rate)", "MAE (Mean Absolute Error)", "MSE (Mean Squared Error)", "Other"]
                     parametric_options = ["D", "V"]
 
                     dm_key = full_key
