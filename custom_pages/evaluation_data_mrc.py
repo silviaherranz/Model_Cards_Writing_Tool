@@ -40,16 +40,17 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         )
         
         user_date = st.session_state.get(f"_{date_widget_key}")
+        creation_key = f"{section_prefix}_creation_date"
 
         if user_date:
             formatted = user_date.strftime("%Y%m%d")
-            st.session_state["evaluation_creation_date"] = formatted
+            st.session_state[creation_key] = formatted
         elif required and user_date is not None:
-            # Only show error if field exists but is empty (not on initial load)
-            st.session_state["evaluation_creation_date"] = None
+            st.session_state[creation_key] = None
             st.error("Date of evaluation is required. Please select a valid date.")
         else:
-            st.session_state["evaluation_creation_date"] = None
+            st.session_state[creation_key] = None
+
 
     utils.section_divider()
 

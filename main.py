@@ -1,7 +1,7 @@
 from pathlib import Path
 import pandas as pd
 import streamlit as st
-
+from template_base import SCHEMA, DATA_INPUT_OUTPUT_TS
 
 
 def get_state(key, default=None):
@@ -57,14 +57,45 @@ def extract_learning_architectures_from_state(max_archs=100):
 
 def extract_evaluations_from_state():
     evaluations = []
-    for i in range(len(st.session_state.evaluation_forms)):
-        prefix = f"evaluation_{i}_"
-        entry = {}
+    eval_forms = st.session_state.get("evaluation_forms", [])
+
+    for name in eval_forms:
+        slug = name.replace(" ", "_")  # normalization
+        prefix = f"evaluation_{slug}_"
+        evaluation = {"name": name}
+
+        # 1. Campos generales de evaluación
+        for field in SCHEMA.get("evaluation_data", []):
+            key = prefix + field
+            evaluation[field] = st.session_state.get(key, "")
+
+        # 2. Inputs/outputs: copiar lógica de training_data
+        modality_entries = []
         for key, value in st.session_state.items():
-            if key.startswith(prefix):
-                field = key[len(prefix) :]
-                entry[field] = value
-        evaluations.append(entry)
+            if key.endswith("model_inputs") and isinstance(value, list):
+                for item in value:
+                    modality_entries.append({"modality": item, "source": "model_inputs"})
+            elif key.endswith("model_outputs") and isinstance(value, list):
+                for item in value:
+                    modality_entries.append({"modality": item, "source": "model_outputs"})
+
+        io_details = []
+        for entry in modality_entries:
+            clean = entry["modality"].strip().replace(" ", "_").lower()
+            source = entry["source"]
+            detail = {
+                "input_content": entry["modality"],
+                "source": source
+            }
+            for field in DATA_INPUT_OUTPUT_TS:
+                key = f"{prefix}{clean}_{source}_{field}"
+                val = st.session_state.get(key) or st.session_state.get(f"_{key}") or st.session_state.get(f"__{key}")
+                detail[field] = val or ""
+            io_details.append(detail)
+
+        evaluation["inputs_outputs_technical_specifications"] = io_details
+        evaluations.append(evaluation)
+
     return evaluations
 
 
