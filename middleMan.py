@@ -51,8 +51,8 @@ def parse_into_json(schema):
         elif isinstance(fields, dict):
             for key, props in fields.items():
                 allowed_tasks = props.get("model_types")
-                if allowed_tasks and current_task not in allowed_tasks:
-                    continue  # saltar si no aplica a esta tarea
+                if allowed_tasks is not None and current_task not in allowed_tasks:
+                    continue
                 full_key = f"{section}_{key}"
                 raw_data[section][key] = st.session_state.get(full_key, "")
 
