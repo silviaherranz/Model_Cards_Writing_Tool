@@ -25,6 +25,7 @@ from copy import deepcopy
     return json_string
  """
 """
+VOLCADO DEL SESSIO STATE A UN JSON UTIL PARA VER CON QUÉ NOMBRE SE GUARDA CADA CAMPO
 def parse_into_json():
     serializable_state = {key: st.session_state[key] for key in st.session_state if isinstance(st.session_state[key], (str, int, float, bool, list, dict, type(None)))}
     json_string = json.dumps(serializable_state)
@@ -59,7 +60,7 @@ def parse_into_json(schema):
     # 3. Reordenar secciones como quieras
     structured_data = OrderedDict()
 
-    for section in ["card_metadata", "model_basic_information", "technical_specifications", "training_data"]:
+    for section in ["card_metadata", "model_basic_information", "technical_specifications"]:
         if section in raw_data:
             structured_data[section] = raw_data[section]
 
@@ -69,6 +70,9 @@ def parse_into_json(schema):
     # Luego el resto (hw_and_sw)
     if "hw_and_sw" in raw_data:
         structured_data["hw_and_sw"] = raw_data["hw_and_sw"]
+
+    if "training_data" in raw_data:
+        structured_data["training_data"] = raw_data["training_data"]
 
     # Recolectar entradas model_inputs y model_outputs
     modality_entries = []
@@ -80,7 +84,7 @@ def parse_into_json(schema):
             for item in value:
                 modality_entries.append({"modality": item, "source": "model_outputs"})
 
-    inputs = []
+    model_inputs_outputs_ts = []
     for entry in modality_entries:
         clean_modality = entry["modality"].strip().replace(" ", "_").lower()
         source = entry["source"]
@@ -90,15 +94,22 @@ def parse_into_json(schema):
         }
         for field in TRAINING_DATA_INPUT_OUTPUT_TS:
             key = f"training_data_{clean_modality}_{source}_{field}"
-            modality_obj[field] = st.session_state.get(key, "")
-        inputs.append(modality_obj)
+
+            value = st.session_state.get(key)
+            if value is None:
+                value = st.session_state.get(f"_{key}")
+            if value is None:
+                value = st.session_state.get(f"__{key}")
+            modality_obj[field] = value if value is not None else ""
+
+        model_inputs_outputs_ts.append(modality_obj)
 
     if "training_data" not in raw_data:
         raw_data["training_data"] = {}
 
-    raw_data["training_data"]["inputs"] = inputs
+    raw_data["training_data"]["inputs_outputs_technical_specifications"] = model_inputs_outputs_ts
 
-    structured_data["training_data"]["inputs"] = inputs
+    structured_data["training_data"]["inputs_outputs_technical_specifications"] = model_inputs_outputs_ts
 
     return json.dumps(structured_data, indent=2)
 
