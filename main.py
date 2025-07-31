@@ -1,7 +1,7 @@
 from pathlib import Path
 import pandas as pd
 import streamlit as st
-from template_base import SCHEMA, DATA_INPUT_OUTPUT_TS
+from template_base import SCHEMA, DATA_INPUT_OUTPUT_TS, TASK_METRIC_MAP, EVALUATION_METRIC_FIELDS
 
 
 def get_state(key, default=None):
@@ -58,18 +58,20 @@ def extract_learning_architectures_from_state(max_archs=100):
 def extract_evaluations_from_state():
     evaluations = []
     eval_forms = st.session_state.get("evaluation_forms", [])
+    task = st.session_state.get("task", "Other")
 
     for name in eval_forms:
-        slug = name.replace(" ", "_")  # normalization
+        slug = name.replace(" ", "_")
         prefix = f"evaluation_{slug}_"
+        nested_prefix = f"evaluation_{slug}."
         evaluation = {"name": name}
 
-        # 1. Campos generales de evaluación
+        # General evaluation fields
         for field in SCHEMA.get("evaluation_data", []):
             key = prefix + field
             evaluation[field] = st.session_state.get(key, "")
 
-        # 2. Inputs/outputs: copiar lógica de training_data
+        # Inputs/outputs technical characteristics
         modality_entries = []
         for key, value in st.session_state.items():
             if key.endswith("model_inputs") and isinstance(value, list):
@@ -89,14 +91,34 @@ def extract_evaluations_from_state():
             }
             for field in DATA_INPUT_OUTPUT_TS:
                 key = f"{prefix}{clean}_{source}_{field}"
-                val = st.session_state.get(key) or st.session_state.get(f"_{key}") or st.session_state.get(f"__{key}")
-                detail[field] = val or ""
+                val = (
+                    st.session_state.get(key)
+                    or st.session_state.get(f"_{key}")
+                    or st.session_state.get(f"__{key}")
+                    or ""
+                )
+                detail[field] = val
             io_details.append(detail)
 
         evaluation["inputs_outputs_technical_specifications"] = io_details
+
+        # Metrics per task
+        for metric_key in TASK_METRIC_MAP.get(task, []):
+            type_list_key = f"{prefix}{metric_key}_list"
+            metric_entries = st.session_state.get(type_list_key, [])
+            evaluation[metric_key] = []
+
+            for metric_name in metric_entries:
+                entry = {"name": metric_name}
+                for field in EVALUATION_METRIC_FIELDS[metric_key]:
+                    full_key = f"{nested_prefix}{metric_name}_{field}"
+                    entry[field] = st.session_state.get(full_key, "")
+                evaluation[metric_key].append(entry)
+
         evaluations.append(evaluation)
 
     return evaluations
+
 
 
 def main_page():
