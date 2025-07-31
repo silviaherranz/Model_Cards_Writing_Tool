@@ -3,8 +3,7 @@ SCHEMA = {
         "card_metadata_creation_date",
         "card_metadata_version_number",
         "card_metadata_version_changes",
-        "card_metadata_doi"
-        
+        "card_metadata_doi",
     ],
     "model_basic_information": [
         "model_basic_information_name",
@@ -31,7 +30,7 @@ SCHEMA = {
         "model_basic_information_code_source",
         "model_basic_information_model_source",
         "model_basic_information_citation_details",
-        "model_basic_information_url_info" 
+        "model_basic_information_url_info",
     ],
     "technical_specifications": [
         "technical_specifications_model_pipeline_summary",
@@ -41,40 +40,88 @@ SCHEMA = {
         "technical_specifications_pre-processing",
         "technical_specifications_post-processing",
     ],
-    "hw_and_sw":[
+    "hw_and_sw": [
         "hw_and_sw_libraries_and_dependencies",
         "hw_and_sw_hardware_recommended",
         "hw_and_sw_inference_time_for_recommended_hw",
         "hw_and_sw_installation_getting_started",
-        "hw_and_sw_environmental_impact"
+        "hw_and_sw_environmental_impact",
+    ],
+    "training_data": [
+        "training_data_model_name",
+        "training_data_url_doi_to_model_card",
+        "training_data_tuning_technique",
+        "training_data_total_size",
+        "training_data_number_of_patients",
+        "training_data_source",
+        "training_data_acquisition_period",
+        "training_data_inclusion_exclusion_criteria",
+        "training_data_type_of_data_augmentation",
+        "training_data_strategy_for_data_augmentation",
+        "training_data_url_info",
+        "training_data_treatment_modality_train",
+        "training_data_beam_configuration_energy",
+        "training_data_dose_engine",
+        "training_data_target_volumes_and_prescription",
+        "training_data_number_of_fractions",
+        "training_data_reference_standard",
+        "training_data_reference_standard_qa",
+        "training_data_reference_standard_qa_additional_information",
+        "training_data_icd10_11",
+        "training_data_tnm_staging",
+        "training_data_age",
+        "training_data_sex",
+        "training_data_target_volume_cm3"
+        "training_data_bmi",
+        "training_data_additional_patient_info",
+        "training_data_validation_strategy",
+        "training_data_validation_data_partition",
+        "training_data_weights_initialization",
+        "training_data_epochs",
+        "training_data_optimiser",
+        "training_data_learning_rate",
+        "training_data_train_and_validation_loss_curves",
+        "training_data_model_choice_criteria",
+        "training_data_inference_method",
     ]
-    
 }
 
 LEARNING_ARCHITECTURE = {
-    "input_size": "",
-    "output_size": "",
-    "input_format": "",
-    "output_format": "",
+    "total_number_trainable_parameters": "",
+    "number_of_inputs": "",
     "input_content_list": [],
-    "input_content_custom_text": "",
-    "input_content_new_type": None,
-    "input_content_new_subtype": None,
+    # No hace falta mostrarlos pues se agrupan y se muestran en input_content_list
+    # "input_content_custom_text":"",
+    # "input_content_new_type":None,
+    # "input_content_new_subtype":None,
+    "additional_information_input_content": "",
+    "input_format": "",
+    "input_size": "",
+    "number_of_outputs": "",
     "output_content_list": [],
-    "output_content_custom_text": "",
-    "output_content_new_type": None,
-    "output_content_new_subtype": None,
+    # No hace falta mostrarlos pues se agrupan y se muestran en output_content_list
+    # "output_content_custom_text":"",
+    # "output_content_new_type":None,
+    # "output_content_new_subtype":None,
+    "additional_information_output_content": "",
+    "output_format": "",
+    "output_size": "",
     "loss_function": "",
+    "batch_size": "",
     "regularisation": "",
-    "uncertainty_quantification_techniques": "",
-    "explainability_techniques": "",
-    "citation_details_ts": "",
     "architecture_figure": None,
     "architecture_figure_appendix_note": "",
-    "additional_information_input_content": "",
-    "additional_information_output_content": "",
+    "uncertainty_quantification_techniques": "",
+    "explainability_techniques": "",
     "additional_information_ts": "",
-    "total_number_trainable_parameters": "",
-    "number_of_inputs": ""
+    "citation_details_ts": "",
 }
 
+TRAINING_DATA_INPUT_OUTPUT_TS = {
+    "image_resolution": "",
+    "patient_positioning": "",
+    "scanner_model": "",
+    "scan_acquisition_parameters": "",
+    "scan_reconstruction_parameters": "",
+    "fov": "",
+    }
