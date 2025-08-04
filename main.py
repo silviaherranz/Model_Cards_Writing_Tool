@@ -4,7 +4,7 @@ import streamlit as st
 from template_base import SCHEMA, DATA_INPUT_OUTPUT_TS, TASK_METRIC_MAP, EVALUATION_METRIC_FIELDS
 import utils
 import json
-import markdown as md
+
 
 def get_state(key, default=None):
     return st.session_state.get(key, default)
@@ -167,23 +167,19 @@ def page_switcher(page):
 
 def main():
     st.header("About Model Cards")
-    about_path = Path("about.md")
-    if about_path.exists():
-        raw_md = about_path.read_text()
-        
-        # Convertimos Markdown a HTML
-        html_body = md.markdown(raw_md)
-
-        # Lo envolvemos en un div con justificación
-        justified_html = f'<div style="text-align: justify;">{html_body}</div>'
-
-        # Mostramos en Streamlit
-        st.markdown(justified_html, unsafe_allow_html=True)
-    else:
-        st.error(
-            "The file 'about.md' is missing. Please ensure it exists in the current working directory."
-        )
-    #st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("""
+    <div style='text-align: justify; font-size: 16px;'>
+    This is a tool to generate Model Cards. It aims to provide a simple interface to build from scratch a new model card or to edit an existing one. The generated model card can be downloaded or directly pushed to your model hosted on the Hub. 
+    Please use <a href='https://huggingface.co/spaces/huggingface/Model_Cards_Writing_Tool/discussions' target='_blank'>the Community tab</a> to give us some feedback.
+    </div>
+    """, unsafe_allow_html=True)
+    # about_path = Path("about.md")
+    # if about_path.exists():
+    #     st.markdown(about_path.read_text(), unsafe_allow_html=True)
+    # else:
+    #     st.error(
+    #         "The file 'about.md' is missing. Please ensure it exists in the current working directory."
+    #     )
     col1, col2 = st.columns([3.4, 1])
     with col1:
         if st.button("Create a Model Card"):
