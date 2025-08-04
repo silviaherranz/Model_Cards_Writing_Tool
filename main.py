@@ -41,24 +41,37 @@ def task_selector_page():
 
 def load_model_card_page():
     st.header("Load a Model Card")
+
     st.markdown(
-    "<p style='font-size:18px; font-weight:450;'>Upload a <code>.json</code> model card</p>",
-    unsafe_allow_html=True
+        "<p style='font-size:18px; font-weight:450;'>Upload a <code>.json</code> model card</p>",
+        unsafe_allow_html=True
     )
-    uploaded_file = st.file_uploader(".", type=["json"], label_visibility="hidden")
-    #uploaded_file = st.file_uploader("Upload a `.json` model card", type=["json"])
+
+    uploaded_file = st.file_uploader(
+        "Upload your model card (.json)",
+        type=["json"],
+        label_visibility="collapsed"
+    )
+
     st.info("Only `.json` files are supported. Please ensure your file is in the correct format.")
+
     if uploaded_file:
-        try:
-            json_data = json.load(uploaded_file)
-            utils.populate_session_state_from_json(json_data)
-            st.success("Model card loaded successfully!")
-            # Redirigir a la primera sección
-            from custom_pages.card_metadata import card_metadata_render
-            st.session_state.runpage = card_metadata_render
-            st.rerun()
-        except Exception as e:
-            st.error(f"Error loading file: {e}")
+        st.success("File uploaded. Click the button below to load it.")
+
+        if st.button("Load Model Card"):
+            with st.spinner("Parsing and loading model card..."):
+                try:
+                    content = uploaded_file.read().decode("utf-8")
+                    json_data = json.loads(content)
+                    utils.populate_session_state_from_json(json_data)
+                    from custom_pages.card_metadata import card_metadata_render
+                    st.session_state.runpage = card_metadata_render
+                    st.success("Model card loaded successfully!")
+                    st.rerun()
+
+                except Exception as e:
+                    st.error(f"Error loading file: {e}")
+
 
 #IDEA: max_archs = len(st.session_state.get("learning_architecture_forms", {})) guardar dinámicamente el número de Learning architectures que hay
 
@@ -167,20 +180,13 @@ def page_switcher(page):
 
 def main():
     st.header("About Model Cards")
-    st.markdown("""
-    <div style='text-align: justify; font-size: 16px;'>
-    This is a tool to generate Model Cards. It aims to provide a simple interface to build from scratch a new model card or to edit an existing one. The generated model card can be downloaded or directly pushed to your model hosted on the Hub. 
-    Please use <a href='https://huggingface.co/spaces/huggingface/Model_Cards_Writing_Tool/discussions' target='_blank'>the Community tab</a> to give us some feedback.
-    </div>
-    """, unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
-    # about_path = Path("about.md")
-    # if about_path.exists():
-    #     st.markdown(about_path.read_text(), unsafe_allow_html=True)
-    # else:
-    #     st.error(
-    #         "The file 'about.md' is missing. Please ensure it exists in the current working directory."
-    #     )
+    about_path = Path("about.md")
+    if about_path.exists():
+        st.markdown(about_path.read_text(), unsafe_allow_html=True)
+    else:
+        st.error(
+            "The file 'about.md' is missing. Please ensure it exists in the current working directory."
+        )
     col1, col2 = st.columns([3.4, 1])
     with col1:
         if st.button("Create a Model Card"):

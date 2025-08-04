@@ -960,15 +960,6 @@ def evaluation_data_mrc_render():
                 del st.session_state[key]
         st.rerun()
 
-    # with st.expander("🛠️ Debug: Session State", expanded=False):
-    #     st.subheader("evaluation_forms:")
-    #     st.write(st.session_state.get("evaluation_forms", {}))
-
-    #     st.subheader("All session_state keys:")
-    #     for key in sorted(st.session_state.keys()):
-    #         if key != "evaluation_forms":
-    #             st.write(f"{key}: {st.session_state[key]}")
-
     st.markdown("<br>", unsafe_allow_html=True)
     col1, col2, col3, col4, col5 = st.columns([1.5, 2, 4.3, 2, 1.1])
 
