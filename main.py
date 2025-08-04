@@ -173,6 +173,7 @@ def main():
     Please use <a href='https://huggingface.co/spaces/huggingface/Model_Cards_Writing_Tool/discussions' target='_blank'>the Community tab</a> to give us some feedback.
     </div>
     """, unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
     # about_path = Path("about.md")
     # if about_path.exists():
     #     st.markdown(about_path.read_text(), unsafe_allow_html=True)
