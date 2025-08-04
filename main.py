@@ -2,6 +2,8 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 from template_base import SCHEMA, DATA_INPUT_OUTPUT_TS, TASK_METRIC_MAP, EVALUATION_METRIC_FIELDS
+import utils
+import json
 
 
 def get_state(key, default=None):
@@ -156,6 +158,24 @@ def main():
         page_switcher(task_selector_page)
         st.rerun()
 
+        # Separador visual
+    st.markdown("---")
+
+    # Opción 2: cargar una card previa
+    st.subheader("📂 Auto-fill from a Previous Model Card")
+    uploaded_file = st.file_uploader("Upload a `.json` model card", type=["json"])
+
+    if uploaded_file:
+        try:
+            json_data = json.load(uploaded_file)
+            utils.populate_session_state_from_json(json_data)
+            st.success("✅ Model card loaded successfully!")
+            # Redirigir a la primera sección
+            from custom_pages.card_metadata import card_metadata_render
+            st.session_state.runpage = card_metadata_render
+            st.rerun()
+        except Exception as e:
+            st.error(f"❌ Error loading file: {e}")
 
 if __name__ == "__main__":
     if "runpage" not in st.session_state:

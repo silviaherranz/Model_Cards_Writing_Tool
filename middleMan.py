@@ -72,6 +72,9 @@ def parse_into_json(schema):
 
     # 3. Reordenar secciones como quieras
     structured_data = OrderedDict()
+    task = st.session_state.get("task")
+    if task:
+        structured_data["task"] = task
 
     for section in ["card_metadata", "model_basic_information", "technical_specifications"]:
         if section in raw_data:

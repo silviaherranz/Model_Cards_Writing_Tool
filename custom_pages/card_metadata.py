@@ -24,31 +24,27 @@ def card_metadata_render():
         create_helpicon(label, description, field_type, example, required)
 
         # Only load if a real stored value exists, not default today
-        if "card_creation_date_widget" not in st.session_state:
-            st.session_state["card_creation_date_widget"] = None
-
-
+        if "card_metadata_card_creation_date" not in st.session_state:
+            st.session_state["card_metadata_card_creation_date"] = None
 
         st.date_input(
             "Click and select a date",
-            value=st.session_state["card_creation_date_widget"],
+            value=st.session_state["card_metadata_card_creation_date"],
             min_value=datetime(1900, 1, 1),
             max_value=datetime.today(),
-            key="_card_creation_date_widget",
-            on_change=utils.store_value,
-            args=["card_creation_date_widget"],
+            key="_card_metadata_card_creation_date",
         )
 
-        user_date = st.session_state.get("_card_creation_date_widget")
+        user_date = st.session_state.get("_card_metadata_card_creation_date")
 
         if user_date:
             formatted = user_date.strftime("%Y%m%d")
-            st.session_state["card_metadata_creation_date"] = formatted
+            st.session_state["card_metadata_card_creation_date"] = formatted
         elif required and user_date is not None:
-            st.session_state["card_metadata_creation_date"] = None
+            st.session_state["card_metadata_card_creation_date"] = None
             st.error("Creation date is required. Please select a valid date.")
         else:
-            st.session_state["card_metadata_creation_date"] = None
+            st.session_state["card_metadata_card_creation_date"] = None
 
     utils.section_divider()
     utils.title_header("Versioning")

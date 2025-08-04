@@ -1,6 +1,6 @@
 SCHEMA = {
     "card_metadata": {
-        "creation_date": {},
+        "card_creation_date": {},
         "version_number":{},
         "version_changes": {},
         "doi": {},
@@ -85,7 +85,7 @@ SCHEMA = {
         "inference_method": {},
     },
     "evaluation_data": {
-        "creation_date": {},
+        "evaluation_date": {},
         "evaluated_same_as_approved": {},
         "evaluated_by_name": {},
         "evaluated_by_institution": {},
