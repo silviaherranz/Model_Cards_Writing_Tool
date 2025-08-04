@@ -4,7 +4,7 @@ import streamlit as st
 from template_base import SCHEMA, DATA_INPUT_OUTPUT_TS, TASK_METRIC_MAP, EVALUATION_METRIC_FIELDS
 import utils
 import json
-
+import markdown as md
 
 def get_state(key, default=None):
     return st.session_state.get(key, default)
@@ -38,6 +38,27 @@ def task_selector_page():
             st.rerun()
     else:
         st.success(f"Task already selected: **{st.session_state['task']}**")
+
+def load_model_card_page():
+    st.header("Load a Model Card")
+    st.markdown(
+    "<p style='font-size:18px; font-weight:450;'>Upload a <code>.json</code> model card</p>",
+    unsafe_allow_html=True
+    )
+    uploaded_file = st.file_uploader(".", type=["json"], label_visibility="hidden")
+    #uploaded_file = st.file_uploader("Upload a `.json` model card", type=["json"])
+    st.info("Only `.json` files are supported. Please ensure your file is in the correct format.")
+    if uploaded_file:
+        try:
+            json_data = json.load(uploaded_file)
+            utils.populate_session_state_from_json(json_data)
+            st.success("Model card loaded successfully!")
+            # Redirigir a la primera sección
+            from custom_pages.card_metadata import card_metadata_render
+            st.session_state.runpage = card_metadata_render
+            st.rerun()
+        except Exception as e:
+            st.error(f"Error loading file: {e}")
 
 #IDEA: max_archs = len(st.session_state.get("learning_architecture_forms", {})) guardar dinámicamente el número de Learning architectures que hay
 
@@ -148,34 +169,31 @@ def main():
     st.header("About Model Cards")
     about_path = Path("about.md")
     if about_path.exists():
-        st.markdown(about_path.read_text(), unsafe_allow_html=True)
+        raw_md = about_path.read_text()
+        
+        # Convertimos Markdown a HTML
+        html_body = md.markdown(raw_md)
+
+        # Lo envolvemos en un div con justificación
+        justified_html = f'<div style="text-align: justify;">{html_body}</div>'
+
+        # Mostramos en Streamlit
+        st.markdown(justified_html, unsafe_allow_html=True)
     else:
         st.error(
             "The file 'about.md' is missing. Please ensure it exists in the current working directory."
         )
-
-    if st.button("Create a Model Card"):
-        page_switcher(task_selector_page)
-        st.rerun()
-
-        # Separador visual
-    st.markdown("---")
-
-    # Opción 2: cargar una card previa
-    st.subheader("📂 Auto-fill from a Previous Model Card")
-    uploaded_file = st.file_uploader("Upload a `.json` model card", type=["json"])
-
-    if uploaded_file:
-        try:
-            json_data = json.load(uploaded_file)
-            utils.populate_session_state_from_json(json_data)
-            st.success("✅ Model card loaded successfully!")
-            # Redirigir a la primera sección
-            from custom_pages.card_metadata import card_metadata_render
-            st.session_state.runpage = card_metadata_render
+    #st.markdown("<br>", unsafe_allow_html=True)
+    col1, col2 = st.columns([3.4, 1])
+    with col1:
+        if st.button("Create a Model Card"):
+            page_switcher(task_selector_page)
             st.rerun()
-        except Exception as e:
-            st.error(f"❌ Error loading file: {e}")
+    with col2:
+        if st.button("Load a Model Card"):
+            page_switcher(load_model_card_page)
+            st.rerun()
+
 
 if __name__ == "__main__":
     if "runpage" not in st.session_state:
