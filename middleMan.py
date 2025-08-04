@@ -1,90 +1,11 @@
 import streamlit as st
 import json
-import utils
-# from pages.viewCardProgress import get_card
-from modelcards import CardData, ModelCard
-from markdownTagExtract import tag_checker, listToString, to_markdown
-
-# from specific_extraction import extract_it
-from modelcards import CardData, ModelCard
-from jinja2 import Environment, FileSystemLoader
+from collections import OrderedDict
+from main import extract_evaluations_from_state
+from template_base import LEARNING_ARCHITECTURE, DATA_INPUT_OUTPUT_TS, TASK_METRIC_MAP, EVALUATION_METRIC_FIELDS
+from copy import deepcopy
 
 
-def is_float(value):
-    try:
-        float(value)
-        return True
-    except:
-        return False
-
-
-## Handles parsing jinja variable templates
-def parse_into_jinja_markdown():
-    env = Environment(loader=FileSystemLoader("."), autoescape=True)
-    temp = env.get_template(st.session_state.markdown_upload)
-    # to add:
-    # - parent model
-    # to fix:
-    # citation on form: check box for bibtex or apa: then parse
-    return temp.render(
-        model_name=st.session_state["model_name"],
-        model_version=st.session_state["model_version"],
-        icd10=st.session_state["icd10"],
-        treatment_modality=st.session_state["treatment_modality"],
-        prescription_levels=st.session_state["prescription_levels"],
-        additional_information=st.session_state["additional_information"],
-        motivation=st.session_state["motivation"],
-        model_class=st.session_state["model_class"],
-        creation_date=st.session_state["creation_date"],
-        architecture=st.session_state["architecture"],
-        model_developers=st.session_state["model_developers"],
-        funded_by=st.session_state["funded_by"],
-        shared_by=st.session_state["shared_by"],
-        license=st.session_state["license"],
-        finetuned_from=st.session_state["finetuned_from"],
-        research_paper=st.session_state["research_paper"],
-        git_repo=st.session_state["git_repo"],
-        nb_parameters=st.session_state["nb_parameters"],
-        input_channels=st.session_state["input_channels"],
-        loss_function=st.session_state["loss_function"],
-        batch_size=st.session_state["batch_size"],
-        patch_dimension=st.session_state["patch_dimension"],
-        architecture_filename=st.session_state["architecture_filename"],
-        libraries=st.session_state["libraries"],
-        hardware=st.session_state["hardware"],
-        inference_time=st.session_state["inference_time"],
-        get_started_code=st.session_state["get_started_code"],
-        training_set_size=st.session_state["training_set_size"],
-        validation_set_size=st.session_state["validation_set_size"],
-        age_fig_filename=st.session_state["age_fig_filename"],
-        sex_fig_filename=st.session_state["sex_fig_filename"],
-        dataset_source=st.session_state["dataset_source"],
-        acquisition_from=st.session_state["acquisition_from"],
-        acquisition_to=st.session_state["acquisition_to"],
-        # direct_use = st.session_state["Direct_Use"], downstream_use = st.session_state["Downstream_Use"],out_of_scope_use = st.session_state["Out-of-Scope_Use"],
-        # bias_risks_limitations = st.session_state["Model_Limits_n_Risks"], bias_recommendations = st.session_state['Recommendations'],
-        # model_examination = st.session_state['Model_examin'],
-        # speeds_sizes_times = st.session_state['Speeds_Sizes_Times'],
-        # hardware= st.session_state['Model_hardware'], hours_used = st.session_state['hours_used'], cloud_provider = st.session_state['Model_cloud_provider'], cloud_region = st.session_state['Model_cloud_region'], co2_emitted = st.session_state['Model_c02_emitted'],
-        # citation_bibtex= st.session_state["APA_citation"], citation_apa = st.session_state['bibtex_citation'],
-        # training_data = st.session_state['training_Data'], preprocessing =st.session_state['model_preprocessing'],
-        # model_specs = st.session_state['Model_specs'], compute_infrastructure = st.session_state['compute_infrastructure'],software = st.session_state['technical_specs_software'],
-        # glossary = st.session_state['Glossary'],
-        # more_information = st.session_state['More_info'],
-        # model_card_authors = st.session_state['the_authors'],
-        # model_card_contact = st.session_state['Model_card_contact'],
-        # get_started_code =st.session_state["Model_how_to"],
-        # repo_link = st.session_state["github_url"],
-        # paper_link = st.session_state["paper_url"],
-        # blog_link = st.session_state["blog_url"],
-        # testing_data = st.session_state["Testing_Data"],
-        # testing_factors = st.session_state["Factors"],
-        # results = st.session_state['Model_Results'],
-        # testing_metrics = st.session_state["Metrics"]
-    )
-
-
-# Instead of dumping st.session_state directly:
 
 
 """ def parse_into_json():
@@ -102,9 +23,141 @@ def parse_into_jinja_markdown():
 
     json_string = json.dumps(serializable_state)
     return json_string
- """
-
+"""
+"""
+VOLCADO DEL SESSIO STATE A UN JSON UTIL PARA VER CON QUÉ NOMBRE SE GUARDA CADA CAMPO
 def parse_into_json():
     serializable_state = {key: st.session_state[key] for key in st.session_state if isinstance(st.session_state[key], (str, int, float, bool, list, dict, type(None)))}
     json_string = json.dumps(serializable_state)
     return json_string 
+"""
+
+
+def parse_into_json(schema):
+    raw_data = {}
+    current_task = st.session_state.get("task")
+
+    for section, fields in schema.items():
+        raw_data[section] = {}
+
+        # Soporta formato antiguo: lista de claves
+        if isinstance(fields, list):
+            for full_key in fields:
+                prefix = section + "_"
+                subkey = full_key[len(prefix):] if full_key.startswith(prefix) else full_key
+                raw_data[section][subkey] = st.session_state.get(full_key, "")
+
+        # Soporta formato nuevo: diccionario de propiedades
+        elif isinstance(fields, dict):
+            for key, props in fields.items():
+                allowed_tasks = props.get("model_types")
+                if allowed_tasks is not None and current_task not in allowed_tasks:
+                    continue
+                full_key = f"{section}_{key}"
+                raw_data[section][key] = st.session_state.get(full_key, "")
+
+
+    # 2. Añadir learning_architectures como sección independiente
+    forms = st.session_state.get("learning_architecture_forms", {})
+    learning_architectures = []
+
+    for i in range(len(forms)):
+        prefix = f"learning_architecture_{i}_"
+        arch = deepcopy(LEARNING_ARCHITECTURE)
+        for field in arch.keys():
+            session_key = f"{prefix}{field}"
+            arch[field] = st.session_state.get(session_key, arch[field])
+        arch["id"] = i
+        learning_architectures.append(arch)
+
+    # 3. Reordenar secciones como quieras
+    structured_data = OrderedDict()
+    task = st.session_state.get("task")
+    if task:
+        structured_data["task"] = task
+
+    for section in ["card_metadata", "model_basic_information", "technical_specifications"]:
+        if section in raw_data:
+            structured_data[section] = raw_data[section]
+
+    # Insertar learning_architectures aquí
+    structured_data["learning_architectures"] = learning_architectures
+
+    # Luego el resto (hw_and_sw)
+    if "hw_and_sw" in raw_data:
+        structured_data["hw_and_sw"] = raw_data["hw_and_sw"]
+
+    if "training_data" in raw_data:
+        structured_data["training_data"] = raw_data["training_data"]
+
+    # Recolectar entradas model_inputs y model_outputs
+    modality_entries = []
+    for key, value in st.session_state.items():
+        if key.endswith("model_inputs") and isinstance(value, list):
+            for item in value:
+                modality_entries.append({"modality": item, "source": "model_inputs"})
+        elif key.endswith("model_outputs") and isinstance(value, list):
+            for item in value:
+                modality_entries.append({"modality": item, "source": "model_outputs"})
+
+    model_inputs_outputs_ts = []
+    for entry in modality_entries:
+        clean_modality = entry["modality"].strip().replace(" ", "_").lower()
+        source = entry["source"]
+        modality_obj = {
+            "input_content": entry["modality"],
+            "source": source
+        }
+        for field in DATA_INPUT_OUTPUT_TS:
+            key = f"training_data_{clean_modality}_{source}_{field}"
+
+            value = st.session_state.get(key)
+            if value is None:
+                value = st.session_state.get(f"_{key}")
+            if value is None:
+                value = st.session_state.get(f"__{key}")
+            modality_obj[field] = value if value is not None else ""
+
+        model_inputs_outputs_ts.append(modality_obj)
+
+    if "training_data" not in raw_data:
+        raw_data["training_data"] = {}
+
+    raw_data["training_data"]["inputs_outputs_technical_specifications"] = model_inputs_outputs_ts
+
+    structured_data["training_data"]["inputs_outputs_technical_specifications"] = model_inputs_outputs_ts
+    
+    structured_data["evaluations"] = extract_evaluations_from_state()
+    task = st.session_state.get("task", "").strip().lower()
+    metric_types = TASK_METRIC_MAP.get(task, [])
+
+    for eval_form in structured_data.get("evaluations", []):
+        for metric_type in metric_types:
+            metric_list_key = f"{metric_type}_list"
+            metric_entries = st.session_state.get(f"evaluation_{eval_form.get('name', '')}_{metric_list_key}", [])
+
+            export_list = []
+            for metric_name in metric_entries:
+                sub_prefix = f"evaluation_{eval_form.get('name', '')}.{metric_name}"
+                metric_obj = {"name": metric_name}
+                for field in EVALUATION_METRIC_FIELDS[metric_type]:
+                    key = f"{sub_prefix}_{field}"
+                    value = st.session_state.get(key)
+                    if value is None:
+                        value = st.session_state.get(f"_{key}")
+                    metric_obj[field] = value if value is not None else ""
+                export_list.append(metric_obj)
+
+            if export_list:
+                eval_form[metric_type] = export_list
+
+    if "qualitative_evaluation" in raw_data:
+        structured_data["qualitative_evaluation"] = raw_data["qualitative_evaluation"]
+
+    if "other_considerations" in raw_data:
+        structured_data["other_considerations"] = raw_data["other_considerations"]
+
+    return json.dumps(structured_data, indent=2)
+
+
+

@@ -11,8 +11,6 @@ from render import (
 
 def render_evaluation_section(schema_section, section_prefix, current_task):
     utils.require_task()
-    # model_card_schema = utils.get_model_card_schema()
-    # section = model_card_schema["evaluation_data_methodology_results_commisioning"]
 
     if "evaluation_date" in schema_section:
         props = schema_section["evaluation_date"]
@@ -24,32 +22,32 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
 
         create_helpicon(label, description, field_type, example, required)
 
-        date_widget_key = f"{section_prefix}_date_widget"
+        widget_key = f"{section_prefix}_evaluation_date"
 
-        if date_widget_key not in st.session_state:
-            st.session_state[date_widget_key] = None
+        if widget_key not in st.session_state:
+            st.session_state[widget_key] = None
 
         st.date_input(
             "Click and select a date",
-            value=st.session_state[date_widget_key],
+            value=st.session_state[widget_key],
             min_value=datetime(1900, 1, 1),
             max_value=datetime.today(),
-            key=f"_{date_widget_key}",
+            key=f"_{widget_key}",
             on_change=utils.store_value,
-            args=[date_widget_key],
+            args=[widget_key],
         )
-        
-        user_date = st.session_state.get(f"_{date_widget_key}")
+
+        user_date = st.session_state.get(f"_{widget_key}")
 
         if user_date:
             formatted = user_date.strftime("%Y%m%d")
-            st.session_state["evaluation_creation_date"] = formatted
+            st.session_state[widget_key] = formatted
         elif required and user_date is not None:
-            # Only show error if field exists but is empty (not on initial load)
-            st.session_state["evaluation_creation_date"] = None
+            st.session_state[widget_key] = None
             st.error("Date of evaluation is required. Please select a valid date.")
         else:
-            st.session_state["evaluation_creation_date"] = None
+            st.session_state[widget_key] = None
+
 
     utils.section_divider()
 
@@ -961,15 +959,6 @@ def evaluation_data_mrc_render():
             if key.startswith(prefix):
                 del st.session_state[key]
         st.rerun()
-
-    # with st.expander("🛠️ Debug: Session State", expanded=False):
-    #     st.subheader("evaluation_forms:")
-    #     st.write(st.session_state.get("evaluation_forms", {}))
-
-    #     st.subheader("All session_state keys:")
-    #     for key in sorted(st.session_state.keys()):
-    #         if key != "evaluation_forms":
-    #             st.write(f"{key}: {st.session_state[key]}")
 
     st.markdown("<br>", unsafe_allow_html=True)
     col1, col2, col3, col4, col5 = st.columns([1.5, 2, 4.3, 2, 1.1])

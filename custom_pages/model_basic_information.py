@@ -33,22 +33,21 @@ def model_basic_information_render():
                 create_helpicon(label, description, field_type, example, required)
 
                 # Only load if a real stored value exists, not default today
-                if "creation_date_widget" not in st.session_state:
-                    st.session_state["creation_date_widget"] = None
-
+                if "model_basic_information_creation_date" not in st.session_state:
+                    st.session_state["model_basic_information_creation_date"] = None
 
                 st.date_input(
                     "Click and select a date",
-                    value=st.session_state["creation_date_widget"],
+                    value=st.session_state["model_basic_information_creation_date"],
                     min_value=datetime(1900, 1, 1),
                     max_value=datetime.today(),
-                    key="_creation_date_widget",
+                    key="_model_basic_information_creation_date",
                     on_change=utils.store_value,
-                    args=["creation_date_widget"],
+                    args=["model_basic_information_creation_date"],
                 )
 
                 # Check if user actually interacted with the input
-                user_date = st.session_state.get("_creation_date_widget")
+                user_date = st.session_state.get("_model_basic_information_creation_date")
 
                 if user_date:
                     formatted = user_date.strftime("%Y%m%d")

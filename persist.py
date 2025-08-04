@@ -24,3 +24,5 @@ def load_widget_state():
             for key, value in _state.items()
             if key in _state[_PERSIST_STATE_KEY]
         })
+
+

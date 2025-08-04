@@ -3,8 +3,6 @@ from tg263 import RTSTRUCT_SUBTYPES
 import html
 import utils
 import numpy as np
-import calendar
-from datetime import datetime, date
 
 DEFAULT_SELECT = "< PICK A VALUE >"
 
