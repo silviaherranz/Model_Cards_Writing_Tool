@@ -108,6 +108,8 @@ def model_basic_information_render():
             "clearance_type", section["clearance_type"], "model_basic_information"
         )
     # Grouped "Approved by"
+    # El campo clearance_approved_by_name se guarda en el session state con el nombre:
+    # "model_basic_information_clearance_approved_by_name"
     if all(
         k in section
         for k in [
@@ -163,7 +165,7 @@ def model_basic_information_render():
         section["type_of_learning_architecture"],
         "model_basic_information",
     )
-
+    
     utils.section_divider()
 
     # Developer Information

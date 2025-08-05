@@ -40,22 +40,20 @@ def parse_into_json(schema):
     for section, fields in schema.items():
         raw_data[section] = {}
 
-        # Soporta formato antiguo: lista de claves
+        # Formato antiguo: lista de claves
         if isinstance(fields, list):
             for full_key in fields:
                 prefix = section + "_"
                 subkey = full_key[len(prefix):] if full_key.startswith(prefix) else full_key
                 raw_data[section][subkey] = st.session_state.get(full_key, "")
 
-        # Soporta formato nuevo: diccionario de propiedades
+        # Formato nuevo: dict con propiedades por campo (como model_types)
         elif isinstance(fields, dict):
             for key, props in fields.items():
                 allowed_tasks = props.get("model_types")
-                if allowed_tasks is not None and current_task not in allowed_tasks:
-                    continue
-                full_key = f"{section}_{key}"
-                raw_data[section][key] = st.session_state.get(full_key, "")
-
+                if allowed_tasks is None or current_task in allowed_tasks:
+                    full_key = f"{section}_{key}"
+                    raw_data[section][key] = st.session_state.get(full_key, "")
 
     # 2. Añadir learning_architectures como sección independiente
     forms = st.session_state.get("learning_architecture_forms", {})

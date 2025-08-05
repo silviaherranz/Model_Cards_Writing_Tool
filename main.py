@@ -119,7 +119,14 @@ def extract_evaluations_from_state():
         # General evaluation fields
         for field in SCHEMA.get("evaluation_data", []):
             key = prefix + field
+            if field.startswith("evaluated_by_") and field in evaluation:
+                continue  # ya está seteado desde el checkbox
             evaluation[field] = st.session_state.get(key, "")
+            # Copiar aprobadores si el checkbox está activo
+            if evaluation.get("evaluated_same_as_approved", False):
+                evaluation["evaluated_by_name"] = st.session_state.get("model_basic_information_clearance_approved_by_name", "")
+                evaluation["evaluated_by_institution"] = st.session_state.get("model_basic_information_clearance_approved_by_institution", "")
+                evaluation["evaluated_by_contact_email"] = st.session_state.get("model_basic_information_clearance_approved_by_contact_email", "")
 
         # Inputs/outputs technical characteristics
         modality_entries = []

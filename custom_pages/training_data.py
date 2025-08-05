@@ -4,7 +4,6 @@ from render import (
     render_field,
     should_render
 )
-import re
 
 
 def training_data_render():
