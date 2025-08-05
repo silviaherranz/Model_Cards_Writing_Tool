@@ -53,7 +53,6 @@ def model_basic_information_render():
                     formatted = user_date.strftime("%Y%m%d")
                     st.session_state["model_basic_information_creation_date"] = formatted
                 elif required and user_date is not None:
-                    # Only show error if field exists but is empty (not on initial load)
                     st.session_state["model_basic_information_creation_date"] = None
                     st.error("Creation date is required. Please select a valid date.")
                 else:

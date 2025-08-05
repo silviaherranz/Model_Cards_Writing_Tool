@@ -6730,7 +6730,7 @@
     }
   },
   "qualitative_evaluation":{
-    "evaluators_informations":{
+    "evaluators_information":{
       "type": "String, Free text format",
       "label": "Evaluators information",
       "description": "Information about the evaluators, such as number of evaluators, years of experience, role (RTT, radOnc, physicist). If not evaluated or not relevant, disclose “NA” (Not Applicable).",

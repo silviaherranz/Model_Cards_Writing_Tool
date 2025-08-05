@@ -196,7 +196,11 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         field_keys["patient_positioning"],
                         "",
                     )
+                # ...rest of fields...
 
+    # Ejemplo de cómo se guarda en session_state:
+    # Para una evaluación llamada "eval1", un input "CT", el field "image_resolution":
+    # st.session_state["evaluation_eval1_ct_model_inputs_image_resolution"]
                 render_field(
                     f"{tech_section_prefix}_{clean_modality}_{source}_scanner_model",
                     field_keys["scanner_model"],
@@ -831,8 +835,8 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
             utils.title_header_grey("Qualitative Evaluation")
 
             render_field(
-                "evaluators_informations",
-                qeval["evaluators_informations"],
+                "evaluators_information",
+                qeval["evaluators_information"],
                 section_prefix,
             )
             utils.section_divider()

@@ -63,12 +63,31 @@ def validate_required_fields(schema, session_state, current_task=None):
 def is_yyyymmdd(s):
     return isinstance(s, str) and len(s) == 8 and s.isdigit()
 
-
 def to_date(s):
     try:
         return datetime.strptime(s, "%Y%m%d").date()
     except:
         return None
+
+def set_safe_date_field(base_key: str, yyyymmdd_string: str | None):
+    """
+    Guarda de forma segura un campo de fecha en st.session_state:
+    - Acepta string YYYYMMDD válida.
+    - Guarda .date() en las claves de widget.
+    - Deja None si el valor no es válido.
+    """
+    widget_key = f"{base_key}_widget"
+    raw_key = f"_{widget_key}"
+
+    if is_yyyymmdd(yyyymmdd_string):
+        parsed_date = to_date(yyyymmdd_string)
+    else:
+        parsed_date = None
+
+    # Guardar para el widget
+    st.session_state[base_key] = yyyymmdd_string if parsed_date else None
+    st.session_state[widget_key] = parsed_date
+    st.session_state[raw_key] = parsed_date
 
 
 def populate_session_state_from_json(data):
@@ -86,6 +105,28 @@ def populate_session_state_from_json(data):
                     full_key = f"{prefix}{key}"
                     st.session_state[full_key] = value
 
+        elif section == "training_data":
+            # Guarda los campos planos y listas
+            for k, v in content.items():
+                full_key = f"{section}_{k}"
+                if not isinstance(v, list):
+                    st.session_state[full_key] = v
+                else:
+                    st.session_state[full_key] = v
+                    st.session_state[full_key + "_list"] = v
+
+            # Maneja los campos técnicos de inputs/outputs
+            ios = content.get("inputs_outputs_technical_specifications", [])
+            for io in ios:
+                clean = io["input_content"].strip().replace(" ", "_").lower()
+                src = io["source"]
+                for io_key, io_val in io.items():
+                    if io_key not in ["input_content", "source"]:
+                        io_full_key = f"training_data_{clean}_{src}_{io_key}"
+                        st.session_state[io_full_key] = io_val
+                        st.session_state["_" + io_full_key] = io_val  # <- Esto es CLAVE
+
+
         elif section == "evaluations":
             eval_names = [entry["name"] for entry in content]
             st.session_state["evaluation_forms"] = eval_names
@@ -97,14 +138,14 @@ def populate_session_state_from_json(data):
                 for key, value in entry.items():
                     if key == "inputs_outputs_technical_specifications":
                         for io in value:
-                            clean = (
-                                io["input_content"].strip().replace(" ", "_").lower()
-                            )
+                            clean = io["input_content"].strip().replace(" ", "_").lower()
                             src = io["source"]
                             for io_key, io_val in io.items():
                                 if io_key not in ["input_content", "source"]:
                                     io_full_key = f"{prefix}{clean}_{src}_{io_key}"
                                     st.session_state[io_full_key] = io_val
+                                    st.session_state["_" + io_full_key] = io_val
+
 
                     elif isinstance(value, list) and key.startswith("type_"):
                         metric_names = [m["name"] for m in value]
@@ -115,9 +156,7 @@ def populate_session_state_from_json(data):
                             metric_prefix = f"evaluation_{name}.{metric['name']}"
                             for m_field, m_val in metric.items():
                                 if m_field != "name":
-                                    st.session_state[f"{metric_prefix}_{m_field}"] = (
-                                        m_val
-                                    )
+                                    st.session_state[f"{metric_prefix}_{m_field}"] = m_val
 
                     elif is_yyyymmdd(value):
                         date_obj = to_date(value)
@@ -136,18 +175,12 @@ def populate_session_state_from_json(data):
                 full_key = f"{section}_{k}"
                 st.session_state[full_key] = v
 
-                if is_yyyymmdd(v):
-                    dt = to_date(v)
-                    if dt:
-                        widget_key = f"{full_key}_widget"
-                        st.session_state[widget_key] = dt
-                        st.session_state[f"_{widget_key}"] = dt
-
-                        if full_key == "card_metadata_creation_date":
-                            st.session_state["_card_metadata_creation_date_widget"] = dt
+                if k.endswith("creation_date"):
+                    set_safe_date_field(full_key, v)
 
                 if isinstance(v, list):
                     st.session_state[full_key + "_list"] = v
+
 
 
 def light_header(text, size="16px", bottom_margin="1em"):

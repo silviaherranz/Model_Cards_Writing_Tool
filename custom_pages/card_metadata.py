@@ -33,6 +33,7 @@ def card_metadata_render():
             min_value=datetime(1900, 1, 1),
             max_value=datetime.today(),
             key="_card_metadata_card_creation_date",
+            
         )
 
         user_date = st.session_state.get("_card_metadata_card_creation_date")
