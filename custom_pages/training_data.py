@@ -192,7 +192,6 @@ def training_data_render():
     section = model_card_schema["training_data_methodology_results_commisioning"]
     task = st.session_state.get("task").strip().lower()
 
-    # st.write("Current task:", task)
     if should_render(section["treatment_modality_train"], task):
         render_field(
             "treatment_modality_train", section["treatment_modality_train"], "training_data"

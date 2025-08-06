@@ -38,10 +38,8 @@ def warnings_render():
     task = st.session_state.get("task", "Image-to-Image translation")
 
     # Validar campos requeridos
-    st.write("🧪 LLAMANDO validate_required_fields()")
-
     missing_required = utils.validate_required_fields(
-        model_card_schema, st.session_state
+        model_card_schema, st.session_state, current_task=task
     )
 
     # Agrupar los campos faltantes por su clave de sección
@@ -72,6 +70,4 @@ def warnings_render():
         st.info(f"Section: {section_title}")
         st.warning(f"Missing required fields: {', '.join(labels)}")
 
-    st.write("🧩 Claves actuales en session_state:")
-    for k, v in st.session_state.items():
-        st.write(f"- {k}: {v}")
+

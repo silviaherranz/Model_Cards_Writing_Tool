@@ -352,7 +352,7 @@
       ],
       "example": "CT, MR T1"
     },
-    "input_content_rstruct_subtype": {
+    "input_content_rtstruct_subtype": {
       "type": "select",
       "label": "RTSTRUCT Subtype",
       "options": [
@@ -1077,7 +1077,7 @@
       "description": "If the input content is RTSTRUCT, you can specify the subtype of the structure.",
       "required": true
     },
-    "output_content_rstruct_subtype": {
+    "output_content_rtstruct_subtype": {
       "type": "select",
       "label": "RTSTRUCT Subtype",
       "options": [
