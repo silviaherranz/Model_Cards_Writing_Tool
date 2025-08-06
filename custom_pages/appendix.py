@@ -101,7 +101,4 @@ def appendix_render():
                 utils.light_header_italics("Could not preview this file.")
 
             utils.section_divider()
-    # 👇 esto lo puedes poner temporalmente para ver logs
-    st.write("=== DEBUG EVALUATIONS ===")
-    extract_evaluations_from_state()
-    st.write("=== END DEBUG ===")
+

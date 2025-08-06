@@ -171,13 +171,14 @@ LEARNING_ARCHITECTURE = {
 }
 
 DATA_INPUT_OUTPUT_TS = {
-    "image_resolution": "",
-    "patient_positioning": "",
-    "scanner_model": "",
-    "scan_acquisition_parameters": "",
-    "scan_reconstruction_parameters": "",
-    "fov": "",
+    "image_resolution": "Image resolution",
+    "patient_positioning": "Patient positioning",
+    "scanner_model": "Scan(s) manufacturer and model",
+    "scan_acquisition_parameters": "Scan acquisition parameters",
+    "scan_reconstruction_parameters": "Scan reconstruction parameters",
+    "fov": "FOV",
 }
+
 
 EVALUATION_METRIC_FIELDS = {
     "type_ism": [

@@ -97,10 +97,10 @@ def sidebar_render():
             st.rerun()
 
         task = st.session_state.get("task", "Image-to-Image translation")
-        if utils.validate_required_fields(model_card_schema, st.session_state, current_task=task):
-            if st.button("Warnings"):
-                st.session_state.runpage = warnings_render
-                st.rerun()
+        # if utils.validate_required_fields(model_card_schema, st.session_state):
+        if st.button("Warnings"):
+            st.session_state.runpage = warnings_render
+            st.rerun()
 
     # with st.sidebar:
     #     task = st.session_state.get("task", "Image-to-Image translation")
