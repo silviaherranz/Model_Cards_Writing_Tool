@@ -344,66 +344,8 @@ def populate_session_state_from_json(data):
                 if isinstance(v, list):
                     st.session_state[full_key + "_list"] = v
 
-from fpdf import FPDF
-import json
-
-class PDF(FPDF):
-    def header(self):
-        self.set_font("Helvetica", "B", 14)
-        self.set_text_color(30, 30, 30)
-        self.cell(0, 10, "Model Card", ln=True, align="C")
-        self.ln(5)
-        self.set_draw_color(200, 200, 200)
-        self.set_line_width(0.5)
-        self.line(10, self.get_y(), 200, self.get_y())
-        self.ln(5)
-
-    def footer(self):
-        self.set_y(-15)
-        self.set_font("Helvetica", "I", 8)
-        self.set_text_color(128)
-        self.cell(0, 10, f"Página {self.page_no()}", align="C")
-
-    def add_json_data(self, json_data):
-        self.set_font("Helvetica", size=12)
-        self.set_text_color(50, 50, 50)
-        
-        for key, value in json_data.items():
-            # Key as title
-            self.set_font("Helvetica", "B", 12)
-            self.set_fill_color(240, 240, 240)
-            self.cell(0, 10, f"{key}:", ln=True, fill=True)
-
-            # Value as content
-            self.set_font("Helvetica", "", 12)
-            if isinstance(value, (dict, list)):
-                pretty_value = json.dumps(value, indent=2, ensure_ascii=False)
-            else:
-                pretty_value = str(value)
-
-            self.multi_cell(0, 8, pretty_value)
-            self.ln(2)
-
-    def add_section_title(self, title):
-        self.set_font("Helvetica", "B", 12)
-        self.set_fill_color(230, 230, 230)
-        self.cell(0, 10, title, ln=True, fill=True)
-        self.ln(2)
-
-    def add_field(self, label, value):
-        self.set_font("Helvetica", "", 11)
-        text = f"{label}: {value if value else ""}"
-        self.multi_cell(0, 8, text)
-        self.ln(1)
-
-
-
-
-from fpdf import FPDF
-import json
 
 def export_json_pretty_to_pdf(schema_path, filename="output.pdf"):
-    from middleMan import parse_into_json
     with open(schema_path, "r", encoding="utf-8") as f:
         schema = json.load(f)
 
@@ -413,23 +355,13 @@ def export_json_pretty_to_pdf(schema_path, filename="output.pdf"):
 
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Courier", size=10)
+    pdf.set_font("Helvetica", size=10)
 
     for line in pretty.split("\n"):
         pdf.multi_cell(0, 5, line)
 
     pdf.output(filename)
 
-
-# def export_json_to_pdf(json_data, filename="output.pdf"):
-#     pdf = FPDF()
-#     pdf.add_page()
-#     pdf.set_font("Arial", size=12)
-
-#     for key, value in json_data.items():
-#         pdf.multi_cell(0, 10, f"{key}: {value}")
-
-#     pdf.output(filename)
 
 
 def light_header(text, size="16px", bottom_margin="1em"):
