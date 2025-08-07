@@ -183,6 +183,7 @@ def main_page():
 
     sidebar_render()
 
+
     get_cached_data()
 
     """ missing_required = utils.validate_required_fields(

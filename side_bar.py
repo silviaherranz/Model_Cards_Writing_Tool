@@ -232,12 +232,9 @@ def sidebar_render():
                 )
                 if missing_required:
                     st.session_state.download_ready = True
-                #     st.error(
-                #         "The following required fields are missing:\n\n"
-                #         + "\n".join([f"- {field}" for field in missing_required])
-                #     )
-                # else:
-                #     st.session_state.download_ready = True
+                st.error(
+                    "There are some fields missing, check the Warnings section on the sidebar for more information."
+                )
 
         # Trigger download immediately if validation passed
         if st.session_state.get("download_ready"):
