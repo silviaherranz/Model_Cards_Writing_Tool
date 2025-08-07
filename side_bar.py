@@ -189,70 +189,63 @@ def sidebar_render():
 
         if "show_download" not in st.session_state:
             st.session_state.show_download = False
-
+    
+            
         st.markdown("## Download Model Card")
-        """ with st.form("Download model card form"):
-            download_submit = st.form_submit_button("📥 Download Model Card as `.md`")
-            if download_submit:
-                task = st.session_state.get("task")
-                missing_required = utils.validate_required_fields(
-                    model_card_schema, st.session_state, current_task=task
-                )
-                if missing_required:
-                    st.session_state.show_download = True
-                    st.error(
-                        "The following required fields are missing:\n\n"
-                        + "\n".join([f"- {field}" for field in missing_required])
+
+        with st.expander("Download Options", expanded=True):
+            task = st.session_state.get("task")
+
+            missing_required = utils.validate_required_fields(SCHEMA, st.session_state, current_task=task)
+
+            with st.form("Download model card as json"):
+                download_submit = st.form_submit_button("Download Model Card as `.json`")
+                if download_submit:
+                    task = st.session_state.get("task")
+                    missing_required = utils.validate_required_fields(
+                        model_card_schema, st.session_state, current_task=task
                     )
-                else:
-                    st.session_state.show_download = True
-
-        if st.session_state.get("show_download"):
-            card_content = parse_into_jinja_markdown(st.session_state)
-            st.download_button(
-                "📥 Click here to download",
-                data=card_content,
-                file_name="model_card.md",
-                mime="text/markdown",
-            ) """
-        
-        """ for key, value in {
-            "model_name": "",
-            "license": "",
-            "markdown_upload": "current_card.md",
-        }.items():
-            st.session_state.setdefault(key, value) """
-
-        if st.button("Export to PDF"):
-            card_data = parse_into_json(SCHEMA)
-            if isinstance(card_data, str):
-                card_data = json.loads(card_data) 
-            utils.export_json_pretty_to_pdf("model_card_schema.json")
-            with open("output.pdf", "rb") as f:
-                st.download_button("Download PDF", f, file_name="model_card.pdf")
-        
-
-        with st.form("Download model card as json"):
-            download_submit = st.form_submit_button("Download Model Card as `.json`")
-            if download_submit:
-                task = st.session_state.get("task")
-                missing_required = utils.validate_required_fields(
-                    model_card_schema, st.session_state, current_task=task
+                    if missing_required:
+                        st.session_state.download_ready = True
+                    st.error(
+                        "There are some fields missing, check the Warnings section on the sidebar for more information."
+                    )
+            if st.session_state.get("download_ready"):
+                card_content = parse_into_json(SCHEMA)
+                st.download_button(
+                    "Your download is ready — click here (JSON)",
+                    data=card_content,
+                    file_name="model_card.json",
+                    mime="application/json",
                 )
-                if missing_required:
-                    st.session_state.download_ready = True
-                st.error(
-                    "There are some fields missing, check the Warnings section on the sidebar for more information."
-                )
+                st.session_state.download_ready = False
 
-        # Trigger download immediately if validation passed
-        if st.session_state.get("download_ready"):
-            card_content = parse_into_json(SCHEMA)
-            st.download_button(
-                "Your download is ready — click here",
-                data=card_content,
-                file_name="model_card.json",
-                mime="application/json",
-            )
-            # Optional: Reset download state after showing the button
-            st.session_state.download_ready = False
+            with st.form("Download model card as pdf"):
+                pdf_submit = st.form_submit_button("Download Model Card as `.pdf`")
+                if pdf_submit:
+                    task = st.session_state.get("task")
+                    missing_required = utils.validate_required_fields(
+                        model_card_schema, st.session_state, current_task=task
+                    )
+
+                    card_data = parse_into_json(SCHEMA)
+                    if isinstance(card_data, str):
+                        card_data = json.loads(card_data)
+
+                    utils.export_json_pretty_to_pdf("model_card_schema.json")
+                    st.session_state.download_ready_pdf = True
+
+                    if missing_required:
+                        st.error(
+                            "There are some fields missing, check the Warnings section on the sidebar for more information."
+                        )
+
+            if st.session_state.get("download_ready_pdf"):
+                with open("output.pdf", "rb") as f:
+                    st.download_button(
+                        "Your download is ready — click here (PDF)",
+                        f,
+                        file_name="model_card.pdf",
+                        use_container_width=True,
+                    )
+                st.session_state.download_ready_pdf = False

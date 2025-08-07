@@ -4,9 +4,13 @@ import re
 from datetime import datetime, date, timedelta
 import base64
 from fpdf import FPDF
-
 from middleMan import parse_into_json
-from template_base import DATA_INPUT_OUTPUT_TS, EVALUATION_METRIC_FIELDS, LEARNING_ARCHITECTURE, TASK_METRIC_MAP
+from template_base import (
+    DATA_INPUT_OUTPUT_TS,
+    EVALUATION_METRIC_FIELDS,
+    LEARNING_ARCHITECTURE,
+    TASK_METRIC_MAP,
+)
 
 
 def get_base64_image(path):
@@ -46,16 +50,24 @@ def load_value(key, default=None):
         st.session_state[key] = default
     st.session_state["_" + key] = st.session_state[key]
 
+
 def validate_static_fields(schema, session_state, current_task):
     from template_base import DATA_INPUT_OUTPUT_TS
+
     missing = []
 
     def is_empty(value):
         return value in ("", None, [], {})
 
     skip_fields = set(DATA_INPUT_OUTPUT_TS.keys())
-    skip_keys = {"input_content_rtstruct_subtype", "output_content_rtstruct_subtype"}  # puedes agregar más claves aquí
-    skip_sections = {"evaluation_data_methodology_results_commisioning", "learning_architecture"}
+    skip_keys = {
+        "input_content_rtstruct_subtype",
+        "output_content_rtstruct_subtype",
+    }  # puedes agregar más claves aquí
+    skip_sections = {
+        "evaluation_data_methodology_results_commisioning",
+        "learning_architecture",
+    }
 
     for section, fields in schema.items():
         if section in skip_sections:
@@ -63,7 +75,10 @@ def validate_static_fields(schema, session_state, current_task):
         if not isinstance(fields, dict):
             continue
         for key, props in fields.items():
-            if key in skip_fields and section in ["training_data_methodology_results_commisioning", "evaluation_data_methodology_results_commisioning"]:
+            if key in skip_fields and section in [
+                "training_data_methodology_results_commisioning",
+                "evaluation_data_methodology_results_commisioning",
+            ]:
                 continue
         for key, props in fields.items():
             if key in skip_keys:
@@ -72,12 +87,15 @@ def validate_static_fields(schema, session_state, current_task):
             full_key = f"{section}_{key}"
             if props.get("required", False):
                 model_types = props.get("model_types")
-                if model_types is None or (current_task and current_task in model_types):
+                if model_types is None or (
+                    current_task and current_task in model_types
+                ):
                     value = session_state.get(full_key)
                     if is_empty(value):
                         label = props.get("label", key) or key.replace("_", " ").title()
                         missing.append((section, label))
     return missing
+
 
 def validate_learning_architectures(schema, session_state):
     missing = []
@@ -102,10 +120,12 @@ def validate_learning_architectures(schema, session_state):
 
                 if is_empty(value):
                     label = props.get("label", field.replace("_", " ").title())
-                    missing.append((
-                        "learning_architecture",
-                        f"{label} (Learning Architecture {i+1})"
-                    ))
+                    missing.append(
+                        (
+                            "learning_architecture",
+                            f"{label} (Learning Architecture {i + 1})",
+                        )
+                    )
 
     return missing
 
@@ -133,10 +153,12 @@ def validate_modalities_fields(schema, session_state, current_task):
             full_key = f"{prefix_train}{field}"
             value = session_state.get(full_key)
             if is_empty(value):
-                missing.append((
-                    "training_data_methodology_results_commisioning",
-                    f"{label} ({modality} - {source})"
-                ))
+                missing.append(
+                    (
+                        "training_data_methodology_results_commisioning",
+                        f"{label} ({modality} - {source})",
+                    )
+                )
 
         # --- EVALUATION ---
         prefix_eval = f"evaluation_data_{clean}_{source}_"
@@ -144,11 +166,12 @@ def validate_modalities_fields(schema, session_state, current_task):
             full_key = f"{prefix_eval}{field}"
             value = session_state.get(full_key)
             if is_empty(value):
-                missing.append((
-                    "evaluation_data_methodology_results_commisioning",
-                    f"{label} ({modality} - {source})"
-                ))
-
+                missing.append(
+                    (
+                        "evaluation_data_methodology_results_commisioning",
+                        f"{label} ({modality} - {source})",
+                    )
+                )
 
     return missing
 
@@ -177,18 +200,28 @@ def validate_evaluation_forms(schema, session_state, current_task):
         # 🔹 Validación general (no métricas)
         for key, props in eval_section.items():
             if key in metric_field_keys:
-                continue 
+                continue
 
-            if approved_same and key in ["evaluated_by_institution", "evaluated_by_contact_email"]:
+            if approved_same and key in [
+                "evaluated_by_institution",
+                "evaluated_by_contact_email",
+            ]:
                 continue
 
             if props.get("required", False):
                 model_types = props.get("model_types")
-                if model_types is None or (current_task and current_task in model_types):
+                if model_types is None or (
+                    current_task and current_task in model_types
+                ):
                     value = session_state.get(f"{prefix}{key}")
                     if is_empty(value):
                         label = props.get("label", key) or key.replace("_", " ").title()
-                        missing.append(("evaluation_data_methodology_results_commisioning", f"{label} (Eval: {name})"))
+                        missing.append(
+                            (
+                                "evaluation_data_methodology_results_commisioning",
+                                f"{label} (Eval: {name})",
+                            )
+                        )
 
         # 🔹 Validación específica de métricas
         for type_field in metric_fields:
@@ -206,10 +239,12 @@ def validate_evaluation_forms(schema, session_state, current_task):
                     value = session_state.get(full_key)
                     if is_empty(value):
                         label = props.get("label", field_key.replace("_", " ").title())
-                        missing.append((
-                            "evaluation_data_methodology_results_commisioning",
-                            f"{label} (Metric: {metric_short}, Eval: {name})"
-                        ))
+                        missing.append(
+                            (
+                                "evaluation_data_methodology_results_commisioning",
+                                f"{label} (Metric: {metric_short}, Eval: {name})",
+                            )
+                        )
     return missing
 
 
@@ -223,14 +258,17 @@ def validate_required_fields(schema, session_state, current_task=None):
 
     return missing_fields
 
+
 def is_yyyymmdd(s):
     return isinstance(s, str) and len(s) == 8 and s.isdigit()
+
 
 def to_date(s):
     try:
         return datetime.strptime(s, "%Y%m%d").date()
     except:
         return None
+
 
 def set_safe_date_field(base_key: str, yyyymmdd_string: str | None):
     """
@@ -289,7 +327,6 @@ def populate_session_state_from_json(data):
                         st.session_state[io_full_key] = io_val
                         st.session_state["_" + io_full_key] = io_val  # <- Esto es CLAVE
 
-
         elif section == "evaluations":
             eval_names = [entry["name"] for entry in content]
             st.session_state["evaluation_forms"] = eval_names
@@ -301,14 +338,15 @@ def populate_session_state_from_json(data):
                 for key, value in entry.items():
                     if key == "inputs_outputs_technical_specifications":
                         for io in value:
-                            clean = io["input_content"].strip().replace(" ", "_").lower()
+                            clean = (
+                                io["input_content"].strip().replace(" ", "_").lower()
+                            )
                             src = io["source"]
                             for io_key, io_val in io.items():
                                 if io_key not in ["input_content", "source"]:
                                     io_full_key = f"{prefix}{clean}_{src}_{io_key}"
                                     st.session_state[io_full_key] = io_val
                                     st.session_state["_" + io_full_key] = io_val
-
 
                     elif isinstance(value, list) and key.startswith("type_"):
                         metric_names = [m["name"] for m in value]
@@ -319,7 +357,9 @@ def populate_session_state_from_json(data):
                             metric_prefix = f"evaluation_{name}.{metric['name']}"
                             for m_field, m_val in metric.items():
                                 if m_field != "name":
-                                    st.session_state[f"{metric_prefix}_{m_field}"] = m_val
+                                    st.session_state[f"{metric_prefix}_{m_field}"] = (
+                                        m_val
+                                    )
 
                     elif is_yyyymmdd(value):
                         date_obj = to_date(value)
@@ -361,7 +401,6 @@ def export_json_pretty_to_pdf(schema_path, filename="output.pdf"):
         pdf.multi_cell(0, 5, line)
 
     pdf.output(filename)
-
 
 
 def light_header(text, size="16px", bottom_margin="1em"):
