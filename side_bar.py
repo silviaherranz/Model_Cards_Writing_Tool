@@ -227,7 +227,7 @@ def sidebar_render():
             card_data = parse_into_json(SCHEMA)
             if isinstance(card_data, str):
                 card_data = json.loads(card_data) 
-            utils.export_json_to_pdf(card_data)
+            utils.export_json_pretty_to_pdf("model_card_schema.json")
             with open("output.pdf", "rb") as f:
                 st.download_button("Download PDF", f, file_name="model_card.pdf")
         

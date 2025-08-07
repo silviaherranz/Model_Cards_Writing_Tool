@@ -123,6 +123,9 @@ def parse_into_json(schema):
 
     raw_data["training_data"]["inputs_outputs_technical_specifications"] = model_inputs_outputs_ts
 
+    if "training_data" not in structured_data:
+        structured_data["training_data"] = {}
+        
     structured_data["training_data"]["inputs_outputs_technical_specifications"] = model_inputs_outputs_ts
     
     structured_data["evaluations"] = extract_evaluations_from_state()
