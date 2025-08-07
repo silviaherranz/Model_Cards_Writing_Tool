@@ -3,3 +3,4 @@ modelcards==0.1.2
 pandas
 lxml
 altair<5
+fpdf

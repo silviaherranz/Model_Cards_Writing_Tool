@@ -3,6 +3,7 @@ import streamlit as st
 import re
 from datetime import datetime, date, timedelta
 import base64
+from fpdf import FPDF
 
 from template_base import DATA_INPUT_OUTPUT_TS, EVALUATION_METRIC_FIELDS, LEARNING_ARCHITECTURE, TASK_METRIC_MAP
 
@@ -175,7 +176,7 @@ def validate_evaluation_forms(schema, session_state, current_task):
         # 🔹 Validación general (no métricas)
         for key, props in eval_section.items():
             if key in metric_field_keys:
-                continue  # ⛔️ Este campo se valida como métrico más abajo
+                continue 
 
             if approved_same and key in ["evaluated_by_institution", "evaluated_by_contact_email"]:
                 continue
@@ -208,10 +209,7 @@ def validate_evaluation_forms(schema, session_state, current_task):
                             "evaluation_data_methodology_results_commisioning",
                             f"{label} (Metric: {metric_short}, Eval: {name})"
                         ))
-
     return missing
-
-
 
 
 def validate_required_fields(schema, session_state, current_task=None):
@@ -345,6 +343,16 @@ def populate_session_state_from_json(data):
                 if isinstance(v, list):
                     st.session_state[full_key + "_list"] = v
 
+
+def export_json_to_pdf(json_data, filename="output.pdf"):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    for key, value in json_data.items():
+        pdf.multi_cell(0, 10, f"{key}: {value}")
+
+    pdf.output(filename)
 
 
 def light_header(text, size="16px", bottom_margin="1em"):

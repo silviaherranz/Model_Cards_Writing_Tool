@@ -223,8 +223,17 @@ def sidebar_render():
         }.items():
             st.session_state.setdefault(key, value) """
 
+        if st.button("Export to PDF"):
+            card_data = parse_into_json(SCHEMA)
+            if isinstance(card_data, str):
+                card_data = json.loads(card_data) 
+            utils.export_json_to_pdf(card_data)
+            with open("output.pdf", "rb") as f:
+                st.download_button("Download PDF", f, file_name="model_card.pdf")
+        
+
         with st.form("Download model card as json"):
-            download_submit = st.form_submit_button("📥 Download Model Card as `.json`")
+            download_submit = st.form_submit_button("Download Model Card as `.json`")
             if download_submit:
                 task = st.session_state.get("task")
                 missing_required = utils.validate_required_fields(
@@ -240,7 +249,7 @@ def sidebar_render():
         if st.session_state.get("download_ready"):
             card_content = parse_into_json(SCHEMA)
             st.download_button(
-                "📥 Your download is ready — click here",
+                "Your download is ready — click here",
                 data=card_content,
                 file_name="model_card.json",
                 mime="application/json",
