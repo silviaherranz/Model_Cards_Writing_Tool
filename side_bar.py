@@ -147,7 +147,7 @@ def sidebar_render():
                 else:
                     st.error("Repo ID invalid. It should be username/repo-name. For example: nateraw/food")
 
-
+        st.markdown("## Download Model Card")
         with st.expander("Download Options", expanded=True):
             task = st.session_state.get("task")
 

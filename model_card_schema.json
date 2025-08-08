@@ -5,7 +5,8 @@
       "label": "Creation Date",
       "description": "Date of creation of the card. Ideally, this should match or closely follow the model's final release date. Creating the model card promptly after the model is finalized is good practice, as it helps ensure accurate and complete documentation. While it is possible to create model cards for already released models, this should be avoided or done carefully, as important information may be difficult to retrieve or lost over time. If different versions, this field should indicate the date of creation of the current version (see next field).",
       "required": true,
-      "example": "20241001"
+      "example": "20241001",
+      "format": "YYYYMMDD"
     },
     "version_number": {
       "type": "String, Free text format",
@@ -49,7 +50,9 @@
       "description": "Version number of the model",
       "required": true,
       "placeholder": "MM.mm.bbbb",
-      "example": "01.00.0000"
+      "example": "01.00.0000",
+      "format": "^[0-9]{2}\\.[0-9]{2}\\.[0-9]{4}$",
+      "format_description": "Format: MM.mm.bbbb (two digits, dot, two digits, dot, four digits)"
     },
     "version_changes": {
       "type": "String, Free text format",
@@ -309,14 +312,19 @@
       "label": "Total number of trainable parameters",
       "description": "Total number of trainable parameters of the learning architecture",
       "required": true,
-      "example": 5000000
+      "example": 5000000,
+      "format": "^[0-9]{1,100000}$",
+      "format_description": "Must be a positive integer with up to 100000 digits."
+      
     },
     "number_of_inputs": {
       "type": "Integer",
       "label": "Number of inputs",
       "description": "Number of inputs in the learning architecture. This may refer to channels (e.g., in CNNs), tokens (e.g., in transformers), feature vectors (e.g., in tabular models), etc",
       "required": true,
-      "example": 5
+      "example": 5,
+      "format": "^[0-9]{1,100000}$",
+      "format_description": "Must be a positive integer with up to 100000 digits." 
     },
     "input_content": {
       "type": "select",
@@ -1828,7 +1836,9 @@
       "label": "Number of outputs",
       "description": "Number of outputs in the learning architecture. This may refer to channels (e.g., in CNNs), tokens (e.g., in transformers), feature vectors (e.g., in tabular models), etc",
       "required": true,
-      "example": 1
+      "example": 1,
+      "format": "^[0-9]{1,100000}$",
+      "format_description": "Must be a positive integer with up to 100000 digits."
     },
     "output_content": {
       "type": "select",
@@ -1897,7 +1907,9 @@
       "label": "Batch Size",
       "description": "Size of the batch used to train the learning architecture.",
       "required": false,
-      "example": 20
+      "example": 20,
+      "format": "^[0-9]{1,100000}$",
+      "format_description": "Must be a positive integer with up to 100000 digits."
     },
     "regularisation": {
       "type": "String, Free text format",
@@ -2008,7 +2020,9 @@
       "label": "Number of patients",
       "description": "Number of different patients where the training samples are coming from. It can be equal or smaller (e.g. using repeated CT for the same patient, or having a 2D model) than the training size.",
       "required": true,
-      "example": "40"
+      "example": "40",
+      "format": "^[0-9]{1,100000}$",
+      "format_description": "Must be a positive integer with up to 100000 digits."
     },
     "source": {
       "type": "String, Free text format",
@@ -2349,7 +2363,9 @@
       "label": "Number of patients",
       "description": "Number of different patients used in the evaluation set. It can be equal or smaller (e.g. using repeated CT for the same patient, or having a 2D model) than the evaluation size.f",
       "required": true,
-      "example": "40"
+      "example": "40",
+      "format": "^[0-9]{1,100000}$",
+      "format_description": "Must be a positive integer with up to 100000 digits."
     },
     "source": {
       "type": "String, Free text format",
@@ -3325,7 +3341,7 @@
       "required": false
     },
     "mean_data_ism": {
-      "type": "list[float], size=4, [mean, min, max, SD]",
+      "type": "list[float]",
       "label": "Mean Data",
       "description": "Mean, range, and standard deviation for the entire evaluation dataset.",
       "placeholder": "[mean, min, max, SD]",
@@ -4185,7 +4201,7 @@
       "example": "[124.54, 132.27, ….]"
     },
     "mean_data_dm": {
-      "type": "list[float], size=4, [mean, min, max, SD]",
+      "type": "list[float]",
       "label": "Mean Data",
       "description": "Mean, range, and standard deviation for the entire evaluation dataset.",
       "placeholder": "[mean, min, max, SD]",
@@ -4968,7 +4984,7 @@
       "example": "[124.54, 132.27, ….]"
     },
     "mean_data_gm_seg": {
-      "type": "list[float], size=4, [mean, min, max, SD]",
+      "type": "list[float]",
       "label": "Mean Data",
       "description": "Mean, range, and standard deviation for the entire evaluation dataset.",
       "placeholder": "[mean, min, max, SD]",
@@ -4990,7 +5006,6 @@
       "model_types": [
         "Segmentation"
       ],
-      "format": "image/png",
       "required": false
     },
     "type_dose_dm_seg": {
@@ -5814,7 +5829,7 @@
       "example": "[124.54, 132.27, ….]"
     },
     "mean_data_dm_seg": {
-      "type": "list[float], size=4, [mean, min, max, SD]",
+      "type": "list[float]",
       "label": "Mean Data",
       "description": "Mean, range, and standard deviation for the entire evaluation dataset.",
       "placeholder": "[mean, min, max, SD]",
@@ -5884,7 +5899,7 @@
       "example": "[124.54, 132.27, ….]"
     },
     "mean_data_other": {
-      "type": "list[float], size=4, [mean, min, max, SD]",
+      "type": "list[float]",
       "label": "Mean Data",
       "description": "Mean, range, and standard deviation for the entire evaluation dataset.",
       "placeholder": "[mean, min, max, SD]",
@@ -6681,7 +6696,7 @@
       "example": "[124.54, 132.27, ….]"
     },
     "mean_data_dm_dp": {
-      "type": "list[float], size=4, [mean, min, max, SD]",
+      "type": "list[float]",
       "label": "Mean Data",
       "description": "Mean, range, and standard deviation for the entire evaluation dataset.",
       "placeholder": "[mean, min, max, SD]",
