@@ -3,6 +3,9 @@ import streamlit as st
 import re
 from datetime import datetime, date, timedelta
 import base64
+import subprocess
+import shutil
+import os
 from fpdf import FPDF
 from middleMan import parse_into_json
 from template_base import (
@@ -402,6 +405,71 @@ def export_json_pretty_to_pdf(schema_path, filename="output.pdf"):
 
     pdf.output(filename)
 
+
+# Directorio donde guardarás los archivos subidos
+UPLOAD_DIR = "uploaded_files"
+
+# Asegúrate de que el directorio exista
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+def create_repo(repo_id, exist_ok, token):
+    """
+    Crea o clona un repositorio de Hugging Face si no existe.
+    """
+    repo_url = f"https://huggingface.co/{repo_id}"
+
+    # Asegurarse de que el directorio para el repositorio exista
+    repo_path = repo_id.split("/")[-1]  # Nombre del repositorio (última parte del repo_id)
+
+    if not os.path.exists(repo_path):  # Si el repositorio no ha sido clonado previamente
+        try:
+            # Clonamos el repositorio
+            subprocess.run(["git", "clone", repo_url], check=True)
+            print(f"Repositorio {repo_id} clonado correctamente.")
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"Error al clonar el repositorio: {repo_url}. Detalles del error: {e}")
+    else:
+        print(f"Repositorio {repo_id} ya existe en el directorio local.")
+
+    return repo_path
+
+
+def card_upload(model_card, repo_id, token):
+    """
+    Carga un archivo JSON al repositorio en Hugging Face usando Git.
+    """
+    repo_path = create_repo(repo_id, exist_ok=True, token=token)
+    repo_url = f"https://huggingface.co/{repo_id}"
+
+    # Asignamos un nombre a este archivo JSON
+    file_name = "model_card.json"  
+
+    # Guardar el contenido del archivo model_card
+    with open(file_name, "w") as json_file:
+        json.dump(model_card, json_file)
+
+    # Copiar el archivo JSON al repositorio clonado
+    shutil.copy(file_name, os.path.join(repo_path, file_name))
+
+    # Añadir, hacer commit y hacer push del archivo al repositorio de Hugging Face
+    subprocess.run(["git", "add", file_name], cwd=repo_path, check=True)
+    subprocess.run(["git", "commit", "-m", f"Add {file_name}"], cwd=repo_path, check=True)
+    subprocess.run(["git", "push", "origin", "main"], cwd=repo_path, check=True)
+
+    return f"Archivo JSON cargado a {repo_url}"
+
+
+def save_uploadedfile(uploaded_file):
+    """
+    Guarda el archivo subido y devuelve el nombre del archivo guardado.
+    """
+    # Guardar el archivo en el directorio local (puedes personalizar la ruta)
+    file_path = os.path.join(UPLOAD_DIR, uploaded_file.name)
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
+    return file_path
 
 def light_header(text, size="16px", bottom_margin="1em"):
     st.markdown(

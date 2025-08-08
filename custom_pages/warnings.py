@@ -69,5 +69,3 @@ def warnings_render():
     for section_title, labels in display_grouped.items():
         st.info(f"Section: {section_title}")
         st.warning(f"Missing required fields: {', '.join(labels)}")
-
-

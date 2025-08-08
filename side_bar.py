@@ -105,41 +105,48 @@ def sidebar_render():
         ######################################################
         ### Uploading a model card from local drive
         ######################################################
+
+     
+        # Código Streamlit para interactuar con el usuario
+
         st.markdown("## Upload Model Card")
 
-        # Read a single file 
-        uploaded_file = st.file_uploader("Choose a file", type = ['.json'], help = 'Please choose a JSON (.json) file type to upload')
+        # Subir un archivo JSON
+        uploaded_file = st.file_uploader("Choose a file", type=['.json'], help='Choose a JSON (.json) file to upload')
+
         if uploaded_file is not None:
+            # Guardamos el archivo subido en el directorio local
             name_of_uploaded_file = save_uploadedfile(uploaded_file)
-           
             st.session_state.markdown_upload = name_of_uploaded_file
-        
-        else:
-            
-            st.session_state.markdown_upload =  "current_card.md" 
-        print("st.session_state.markdown_upload",st.session_state.markdown_upload)
 
-        out_markdown =open( st.session_state.markdown_upload, "r+"
-            ).read() 
-        print_out_final = f"{out_markdown}"
-        st.markdown("## Export Loaded Model Card to Hub")
-        with st.form("Upload to 🤗 Hub"):
-            st.markdown("Use a token with write access from [here](https://hf.co/settings/tokens)")
-            token = st.text_input("Token", type='password')
-            repo_id = st.text_input("Repo ID")
-            submit = st.form_submit_button('Upload to 🤗 Hub', help='The current model card will be uploaded to a branch in the supplied repo ')
+            st.success(f"Archivo {uploaded_file.name} guardado correctamente.")
 
-        if submit:
-            if len(repo_id.split('/')) == 2:
-                repo_url = create_repo(repo_id, exist_ok=True, token=token)
-                new_url = card_upload(parse_into_json(SCHEMA),repo_id, token=token)
-                # images_upload([st.session_state['architecture_filename'], st.session_state["age_fig_filename"], st.session_state["sex_fig_filename"]],repo_id, token=token)
-                st.success(f"Pushed the card to the repo [here]({new_url})!") # note: was repo_url
-            else:
-                st.error("Repo ID invalid. It should be username/repo-name. For example: nateraw/food")
-    
-            
-        st.markdown("## Download Model Card")
+            # Exportar la tarjeta de modelo cargada al Hub
+            st.markdown("## Export Loaded Model Card to Hub")
+            with st.form("Upload to 🤗 Hub"):
+                st.markdown("Use a token with write access from [here](https://hf.co/settings/tokens)")
+                token = st.text_input("Token", type='password')
+                repo_id = st.text_input("Repo ID")
+                submit = st.form_submit_button('Upload to 🤗 Hub', help='The current model card will be uploaded to a branch in the supplied repo')
+
+            if submit:
+                # Validación de Repo ID
+                if len(repo_id.split('/')) == 2:
+                    try:
+                        # Cargar la tarjeta de modelo
+                        with open(name_of_uploaded_file, "r") as json_file:
+                            model_card = json.load(json_file)
+
+                        # Subir el archivo .json al Hugging Face Hub
+                        new_url = card_upload(model_card, repo_id, token)
+
+                        st.success(f"Pushed the card to the repo [here]({new_url})!")  # Éxito, mostrar URL
+
+                    except Exception as e:
+                        st.error(f"Error: {str(e)}")  # Mostrar error si algo sale mal
+                else:
+                    st.error("Repo ID invalid. It should be username/repo-name. For example: nateraw/food")
+
 
         with st.expander("Download Options", expanded=True):
             task = st.session_state.get("task")
