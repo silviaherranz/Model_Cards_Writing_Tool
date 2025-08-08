@@ -65,8 +65,6 @@ def render_field(key, props, section_prefix):
             friendly_msg = props.get("format_description")
             st.error(friendly_msg)
 
-
-
     create_helpicon(label, description, field_type, example, required)
     
     try:
