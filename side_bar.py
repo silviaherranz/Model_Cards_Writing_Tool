@@ -102,93 +102,41 @@ def sidebar_render():
                 st.session_state.runpage = warnings_render
                 st.rerun()
 
-    # with st.sidebar:
-    #     task = st.session_state.get("task", "Image-to-Image translation")
-
-    #     st.markdown("## Menu")
-
-    #     if st.button("Card Metadata"):
-    #         st.session_state.runpage = card_metadata_render
-    #         st.rerun()
-        
-    #     if st.button("Model Basic Information"):
-    #         st.session_state.runpage = model_basic_information_render
-    #         st.rerun()
-        
-    #     if st.button("Technical Specifications"):
-    #         st.session_state.runpage = technical_specifications_render
-    #         st.rerun()
-
-    #     if st.button("Training Data Methodology, Results & Commissioning"):
-    #         st.session_state.runpage = training_data_render
-    #         st.rerun()
-        
-    #     if st.button("Evaluation Data Methodology, Results & Commissioning"):
-    #         st.session_state.runpage = evaluation_data_mrc_render
-    #         st.rerun()
-        
-    #     if st.button("Other Considerations"):
-    #         st.session_state.runpage = other_considerations_render
-    #         st.rerun()
-
-    #     if st.button("Appendix"):
-    #         st.session_state.runpage = appendix_render
-    #         st.rerun()
-
-
-    #     missing_required = utils.validate_required_fields(
-    #         model_card_schema, st.session_state, current_task=task
-    #     )
-
-    #     if missing_required:
-    #         if st.button("Warnings"):
-    #             st.session_state.runpage = warnings_render
-    #             st.rerun()
-            
-
+        ######################################################
+        ### Uploading a model card from local drive
+        ######################################################
         st.markdown("## Upload Model Card")
-        uploaded_file = st.file_uploader(
-            "Choose a file", type=["md"], help="Upload a markdown (.md) file"
-        )
-        if uploaded_file:
-            st.session_state.markdown_upload = save_uploadedfile(uploaded_file)
+
+        # Read a single file 
+        uploaded_file = st.file_uploader("Choose a file", type = ['.json'], help = 'Please choose a JSON (.json) file type to upload')
+        if uploaded_file is not None:
+            name_of_uploaded_file = save_uploadedfile(uploaded_file)
+           
+            st.session_state.markdown_upload = name_of_uploaded_file
+        
         else:
-            st.session_state.markdown_upload = "current_card.md"
+            
+            st.session_state.markdown_upload =  "current_card.md" 
+        print("st.session_state.markdown_upload",st.session_state.markdown_upload)
 
-        try:
-            out_markdown = Path(st.session_state.markdown_upload).read_text()
-        except FileNotFoundError:
-            st.error(
-                f"File {st.session_state.markdown_upload} not found. Please upload a valid file."
-            )
-            out_markdown = ""
-
+        out_markdown =open( st.session_state.markdown_upload, "r+"
+            ).read() 
+        print_out_final = f"{out_markdown}"
         st.markdown("## Export Loaded Model Card to Hub")
         with st.form("Upload to 🤗 Hub"):
-            token = st.text_input("Token", type="password")
+            st.markdown("Use a token with write access from [here](https://hf.co/settings/tokens)")
+            token = st.text_input("Token", type='password')
             repo_id = st.text_input("Repo ID")
-            submit = st.form_submit_button("Upload to 🤗 Hub")
+            submit = st.form_submit_button('Upload to 🤗 Hub', help='The current model card will be uploaded to a branch in the supplied repo ')
 
         if submit:
-            task = st.session_state.get("task")
-            missing_required = utils.validate_required_fields(
-                model_card_schema, st.session_state, current_task=task
-            )
-            if missing_required:
-                st.error(
-                    "Please complete the required fields:\n\n"
-                    + "\n".join([f"- {field}" for field in missing_required])
-                )
-            elif len(repo_id.split("/")) == 2:
-                create_repo(repo_id, exist_ok=True, token=token)
-                card_content = parse_into_jinja_markdown(st.session_state)
-                new_url = card_upload(card_content, repo_id, token=token)
-                st.success(f"Pushed the card to the repo [here]({new_url})!")
+            if len(repo_id.split('/')) == 2:
+                repo_url = create_repo(repo_id, exist_ok=True, token=token)
+                new_url = card_upload(pj(),repo_id, token=token)
+                # images_upload([st.session_state['architecture_filename'], st.session_state["age_fig_filename"], st.session_state["sex_fig_filename"]],repo_id, token=token)
+                st.success(f"Pushed the card to the repo [here]({new_url})!") # note: was repo_url
             else:
-                st.error("Repo ID invalid. It should be username/repo-name.")
-
-        if "show_download" not in st.session_state:
-            st.session_state.show_download = False
+                st.error("Repo ID invalid. It should be username/repo-name. For example: nateraw/food")
     
             
         st.markdown("## Download Model Card")
