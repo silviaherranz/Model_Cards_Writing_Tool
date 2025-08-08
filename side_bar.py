@@ -132,7 +132,7 @@ def sidebar_render():
         if submit:
             if len(repo_id.split('/')) == 2:
                 repo_url = create_repo(repo_id, exist_ok=True, token=token)
-                new_url = card_upload(pj(),repo_id, token=token)
+                new_url = card_upload(parse_into_json(SCHEMA),repo_id, token=token)
                 # images_upload([st.session_state['architecture_filename'], st.session_state["age_fig_filename"], st.session_state["sex_fig_filename"]],repo_id, token=token)
                 st.success(f"Pushed the card to the repo [here]({new_url})!") # note: was repo_url
             else:
