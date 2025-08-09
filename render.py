@@ -58,12 +58,14 @@ def render_field(key, props, section_prefix):
     options = props.get("options", [])
     placeholder = props.get("placeholder", "")
 
+    #st.session_state["format_error"] = False  
     pattern = props.get("format")
     if pattern:
         value = st.session_state.get(full_key)
         if value is not None and not re.match(pattern, str(value)):
             friendly_msg = props.get("format_description")
             st.error(friendly_msg)
+            #st.session_state["format_error"] = True
 
     create_helpicon(label, description, field_type, example, required)
     

@@ -156,15 +156,17 @@ def sidebar_render():
             with st.form("Download model card as json"):
                 download_submit = st.form_submit_button("Download Model Card as `.json`")
                 if download_submit:
-                    task = st.session_state.get("task")
-                    missing_required = utils.validate_required_fields(
-                        model_card_schema, st.session_state, current_task=task
-                    )
-                    if missing_required:
-                        st.session_state.download_ready = True
-                    st.error(
-                        "There are some fields missing, check the Warnings section on the sidebar for more information."
-                    )
+                    if st.session_state.get("format_error"):
+                        st.error("Cannot download — there are fields with invalid format.")
+                    else:
+                        task = st.session_state.get("task")
+                        missing_required = utils.validate_required_fields(
+                            model_card_schema, st.session_state, current_task=task
+                        )
+                        st.session_state.download_ready = True  # allow download even if missing_required
+                        if missing_required:
+                            st.error("There are some fields missing, check the Warnings section on the sidebar for more information.")
+
             if st.session_state.get("download_ready"):
                 card_content = parse_into_json(SCHEMA)
                 st.download_button(
@@ -178,23 +180,21 @@ def sidebar_render():
             with st.form("Download model card as pdf"):
                 pdf_submit = st.form_submit_button("Download Model Card as `.pdf`")
                 if pdf_submit:
-                    task = st.session_state.get("task")
-                    missing_required = utils.validate_required_fields(
-                        model_card_schema, st.session_state, current_task=task
-                    )
-
-                    card_data = parse_into_json(SCHEMA)
-                    if isinstance(card_data, str):
-                        card_data = json.loads(card_data)
-
-                    utils.export_json_pretty_to_pdf("model_card_schema.json")
-                    st.session_state.download_ready_pdf = True
-
-                    if missing_required:
-                        st.error(
-                            "There are some fields missing, check the Warnings section on the sidebar for more information."
+                    if st.session_state.get("format_error"):
+                        st.error("Cannot download — there are fields with invalid format.")
+                    else:
+                        task = st.session_state.get("task")
+                        missing_required = utils.validate_required_fields(
+                            model_card_schema, st.session_state, current_task=task
                         )
+                        card_data = parse_into_json(SCHEMA)
+                        if isinstance(card_data, str):
+                            card_data = json.loads(card_data)
 
+                        utils.export_json_pretty_to_pdf("model_card_schema.json")
+                        st.session_state.download_ready_pdf = True
+                        if missing_required:
+                            st.error("There are some fields missing, check the Warnings section on the sidebar for more information.")
             if st.session_state.get("download_ready_pdf"):
                 with open("output.pdf", "rb") as f:
                     st.download_button(

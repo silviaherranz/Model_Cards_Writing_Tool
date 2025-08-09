@@ -313,9 +313,9 @@
       "description": "Total number of trainable parameters of the learning architecture",
       "required": true,
       "example": 5000000,
-      "format": "^[0-9]{1,100000}$",
-      "format_description": "Must be a positive integer with up to 100000 digits."
-      
+      "format": "^(?:[0-9]{1,100000}|10\\^[0-9]+|10\\s*\\^\\s*[0-9]+|10[⁰¹²³⁴⁵⁶⁷⁸⁹]+)$",
+      "format_description": "Must be a positive integer with up to 100000 digits, or a power of ten (e.g. 10^6, 10 ^ 6, or 10⁶)."
+
     },
     "number_of_inputs": {
       "type": "Integer",
@@ -323,8 +323,8 @@
       "description": "Number of inputs in the learning architecture. This may refer to channels (e.g., in CNNs), tokens (e.g., in transformers), feature vectors (e.g., in tabular models), etc",
       "required": true,
       "example": 5,
-      "format": "^[0-9]{1,100000}$",
-      "format_description": "Must be a positive integer with up to 100000 digits." 
+      "format": "^(?:[0-9]{1,100000}|10\\^[0-9]+|10\\s*\\^\\s*[0-9]+|10[⁰¹²³⁴⁵⁶⁷⁸⁹]+)$",
+      "format_description": "Must be a positive integer with up to 100000 digits, or a power of ten (e.g. 10^6, 10 ^ 6, or 10⁶)."
     },
     "input_content": {
       "type": "select",
@@ -1826,7 +1826,7 @@
       "required": false,
       "example": "[string, float, float, bool, bool]",
       "format": "^(\\[\\s*[A-Za-z0-9 _\\-]+(\\s*,\\s*[A-Za-z0-9 _\\-]+)*\\s*\\]|[A-Za-z0-9 _\\-]+(\\s*,\\s*[A-Za-z0-9 _\\-]+)*)$",
-      "format_description": "Must be a comma-separated list of words, either with brackets (e.g. [hola, hol, ieh]) or without (e.g. hola, hol, ieh). Letters, numbers, spaces, and hyphens are allowed."
+      "format_description": "Must be a comma-separated list of words, either with brackets (e.g. [string, float, float]) or without (e.g. string, float, float). Letters, numbers, spaces, and hyphens are allowed."
     },
     "input_size": {
       "type": "list[float] or list[list[float]]",
@@ -1843,8 +1843,8 @@
       "description": "Number of outputs in the learning architecture. This may refer to channels (e.g., in CNNs), tokens (e.g., in transformers), feature vectors (e.g., in tabular models), etc",
       "required": true,
       "example": 1,
-      "format": "^[0-9]{1,100000}$",
-      "format_description": "Must be a positive integer with up to 100000 digits."
+      "format": "^(?:[0-9]{1,100000}|10\\^[0-9]+|10\\s*\\^\\s*[0-9]+|10[⁰¹²³⁴⁵⁶⁷⁸⁹]+)$",
+      "format_description": "Must be a positive integer with up to 100000 digits, or a power of ten (e.g. 10^6, 10 ^ 6, or 10⁶)."
     },
     "output_content": {
       "type": "select",
@@ -1896,7 +1896,7 @@
       "required": false,
       "example": "[float, float, bool, bool]",
       "format": "^(\\[\\s*[A-Za-z0-9 _\\-]+(\\s*,\\s*[A-Za-z0-9 _\\-]+)*\\s*\\]|[A-Za-z0-9 _\\-]+(\\s*,\\s*[A-Za-z0-9 _\\-]+)*)$",
-      "format_description": "Must be a comma-separated list of words, either with brackets (e.g. [hola, hol, ieh]) or without (e.g. hola, hol, ieh). Letters, numbers, spaces, and hyphens are allowed."
+      "format_description": "Must be a comma-separated list of words, either with brackets (e.g. [float, float, bool]) or without (e.g. float, float, bool). Letters, numbers, spaces, and hyphens are allowed."
     },
     "output_size": {
       "type": "list[float] or list[list[float]]",
@@ -1920,8 +1920,8 @@
       "description": "Size of the batch used to train the learning architecture.",
       "required": false,
       "example": 20,
-      "format": "^[0-9]{1,100000}$",
-      "format_description": "Must be a positive integer with up to 100000 digits."
+      "format": "^(?:[0-9]{1,100000}|10\\^[0-9]+|10\\s*\\^\\s*[0-9]+|10[⁰¹²³⁴⁵⁶⁷⁸⁹]+)$",
+      "format_description": "Must be a positive integer with up to 100000 digits, or a power of ten (e.g. 10^6, 10 ^ 6, or 10⁶)."
     },
     "regularisation": {
       "type": "String, Free text format",
@@ -1984,7 +1984,9 @@
       "label": "Inference time (s) for recommended hardware",
       "description": "Time to obtain model output (i.e.after the full model pipeline) when using recommended hardware, for a representative use-case",
       "required": false,
-      "example": "2.5"
+      "example": "2.5",
+      "format": "^[0-9]+\\.[0-9]+$",
+      "format_description": "Must be a positive decimal number with a dot (e.g. 3.14, 8.0). Integers must include '.0'."
     },
     "installation_getting_started": {
       "type": "String, Free text format",
@@ -2025,7 +2027,10 @@
       "description": "Number of total samples used for training -including validation -, including real and data augmented samples. If several folds have been trained with different training sizes, a list with as many entries as folds should be used. If the size is the same for all folds, a single entry can be used.",
       "type": "list of Integers",
       "required": true,
-      "example": "[80], [80, 82, 78]"
+      "example": "[80], [80, 82, 78]",
+      "format": "^\\[\\s*[0-9]+(?:\\s*,\\s*[0-9]+)*\\s*\\](?:\\s*,\\s*\\[\\s*[0-9]+(?:\\s*,\\s*[0-9]+)*\\s*\\])*?$",
+      "format_description": "Must be one or more lists of integers in square brackets, e.g. [80] or [80], [80, 82, 78], separated by commas if multiple."
+
     },
     "number_of_patients": {
       "type": "Integer",
@@ -2033,8 +2038,8 @@
       "description": "Number of different patients where the training samples are coming from. It can be equal or smaller (e.g. using repeated CT for the same patient, or having a 2D model) than the training size.",
       "required": true,
       "example": "40",
-      "format": "^[0-9]{1,100000}$",
-      "format_description": "Must be a positive integer with up to 100000 digits."
+      "format": "^(?:[0-9]{1,100000}|10\\^[0-9]+|10\\s*\\^\\s*[0-9]+|10[⁰¹²³⁴⁵⁶⁷⁸⁹]+)$",
+      "format_description": "Must be a positive integer with up to 100000 digits, or a power of ten (e.g. 10^6, 10 ^ 6, or 10⁶)."
     },
     "source": {
       "type": "String, Free text format",
@@ -2067,9 +2072,12 @@
     "strategy_for_data_augmentation": {
       "type": "List of strings, Free text format",
       "label": "Strategy for Data Augmentation",
-      "description": "Strategy for data augmentation. Whenever possible and relevant, report the number of augmented samples per real ones. If none applied say “Not applicable”",
+      "description": "Strategy for data augmentation. Whenever possible and relevant, report the number of augmented samples per real ones. If none applied say NA (Not Applicable).",
       "required": true,
-      "example": "[random, on-the-fly during training, all], [prior-to-training, 5 augmented per real image]"
+      "example": "[random, on-the-fly during training, all], [prior-to-training, 5 augmented per real image]",
+      "format": "^(?i:NA|\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\](?:\\s*,\\s*\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\])*)$",
+      "format_description": "Must be NA or one or more lists of strings in square brackets (e.g. [random, on-the-fly during training, all], [prior-to-training, 5 augmented per real image]), separated by commas if multiple."
+
     },
     "url_info": {
       "label": "URL info",
@@ -2082,7 +2090,9 @@
       "label": "Image resolution",
       "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Provide the values that correspond to the specific image you are currently filling in. Remember that this field refers to images before pre-processing steps.",
       "required": true,
-      "example": "[1.0, 1.0, 2.0]"
+      "example": "[1.0, 1.0, 2.0]",
+      "format": "^(?i:NA|\\[\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*\\])$",
+      "format_description": "Must be NA or a list of exactly three decimal numbers in square brackets (e.g. [1.0, 2.5, 3.14]). Integers must include '.0'."
     },
     "patient_positioning": {
       "type": "String, Free text format",
@@ -2176,14 +2186,16 @@
       "example": "[[PTV_5000,PTV_7000],[PTV_5425,PTV_7000],[PTV_6900]]"
     },
     "number_of_fractions": {
-      "type": "List of floats, Formatted as fraction numbers separated by commas, in the same order as the indicated target prescriptions",
+      "type": "List of floats or integers, Formatted as fraction numbers separated by commas, in the same order as the indicated target prescriptions",
       "label": "Number of fractions",
       "description": "Number of fractions for the given prescription list in the field 'Target prescription'",
       "model_types": [
         "Dose prediction"
       ],
       "required": true,
-      "example": "[30, 30, 30]"
+      "example": "[30, 30, 30]",
+      "format": "^\\[\\s*[0-9]+(?:\\.[0-9]+)?\\s*(?:,\\s*[0-9]+(?:\\.[0-9]+)?\\s*)*\\]$",
+      "format_description": "Must be a list of integers or floats in square brackets, separated by commas (e.g. [30, 30, 30] or [30.5, 29, 31.0])."
     },
     "reference_standard": {
       "type": "String, Free text format",
@@ -2210,7 +2222,10 @@
       "type": "List of strings, Free text format",
       "label": "ICD10/11",
       "description": "ICD10/11 codes for the tumour location of the patients in the dataset.",
-      "required": false
+      "required": false,
+      "format": "^\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\](?:\\s*,\\s*\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\])*?$",
+      "format_description": "Must be one or more lists of strings in square brackets (e.g. [item1], [item2], [item3]), separated by commas if multiple."
+
     },
     "tnm_staging": {
       "type": "String, Free text format",
@@ -2222,7 +2237,8 @@
       "type": "String, Free text format",
       "label": "Age",
       "description": "Median and range of the age of patients in the dataset. If not possible to retrieve (e.g. anonymisation), disclose 'NA'.",
-      "required": true
+      "required": true,
+      "placeholder": "[median, range]"
     },
     "sex": {
       "type": "String, Free text format",
@@ -2239,13 +2255,17 @@
       "example": [
         "PTV = 245",
         "(130–350)"
-      ]
+      ],
+      "placeholder": "e.g. [PTV = 245, (130–350)]",
+      "format": "^\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\](?:\\s*,\\s*\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\])*$",
+      "format_description": "Must be one or more lists of strings in square brackets (e.g. [\"PTV = 245\", \"(130–350)\"]), separated by commas if multiple."
     },
     "bmi": {
       "type": "String, Free text format",
       "label": "BMI",
       "description": "Median and range of the BMI of patients in the dataset.",
-      "required": false
+      "required": false,
+      "placeholder": "[median, range]"
     },
     "additional_patient_info": {
       "type": "String, Free text format",
@@ -2268,7 +2288,10 @@
       "required": true,
       "example": [
         "20%"
-      ]
+      ],
+      "format": "^(?i:NA|[0-9]+(?:\\.[0-9]+)?%|\\[\\s*[0-9]+(?:\\.[0-9]+)?%\\s*(?:,\\s*[0-9]+(?:\\.[0-9]+)?%\\s*)*\\])$",
+      "format_description": "Must be NA, a single percentage (e.g. 15%, 12.5%), or a bracketed list of percentages (e.g. [15%], [20%, 30%])."
+
     },
     "weights_initialization": {
       "type": "String, Free text format",
@@ -2282,7 +2305,9 @@
       "label": "Epochs",
       "description": "Number of epochs the model has been trained for, and for which the provided weights correspond. If multiple folds are trained, use a list of Integers with each entry corresponding to one fold. If you have trained for longer but used early stopping to choose your model, please add the epochs at the moment of the early stopping and specify the 'model choice criteria' in the corresponding field",
       "example": "[200, 180, 189, 201, 199]",
-      "required": false
+      "required": false,
+      "format": "^\\[\\s*[0-9]+\\s*(?:,\\s*[0-9]+\\s*)*\\]$",
+      "format_description": "Must be a list of integers in square brackets, separated by commas (e.g. [1], [10, 20, 30])."  
     },
     "optimiser": {
       "type": "String, Free text format",
@@ -2368,7 +2393,9 @@
       "description": "Number of total samples used for evaluation-including validation -, including real and data augmented samples. If several folds have been evaluated with different evaluation sizes, a list with as many entries as folds should be used. If the size is the same for all folds, a single entry can be used.",
       "type": "list of Integers",
       "required": true,
-      "example": "[80], [80, 82, 78]"
+      "example": "[80], [80, 82, 78]",
+      "format": "^\\[\\s*[0-9]+(?:\\s*,\\s*[0-9]+)*\\s*\\](?:\\s*,\\s*\\[\\s*[0-9]+(?:\\s*,\\s*[0-9]+)*\\s*\\])*?$",
+      "format_description": "Must be one or more lists of integers in square brackets, e.g. [80] or [80], [80, 82, 78], separated by commas if multiple."
     },
     "number_of_patients": {
       "type": "Integer",
@@ -2376,8 +2403,8 @@
       "description": "Number of different patients used in the evaluation set. It can be equal or smaller (e.g. using repeated CT for the same patient, or having a 2D model) than the evaluation size.f",
       "required": true,
       "example": "40",
-      "format": "^[0-9]{1,100000}$",
-      "format_description": "Must be a positive integer with up to 100000 digits."
+      "format": "^(?:[0-9]{1,100000}|10\\^[0-9]+|10\\s*\\^\\s*[0-9]+|10[⁰¹²³⁴⁵⁶⁷⁸⁹]+)$",
+      "format_description": "Must be a positive integer with up to 100000 digits, or a power of ten (e.g. 10^6, 10 ^ 6, or 10⁶)."
     },
     "source": {
       "type": "String, Free text format",
@@ -2411,7 +2438,9 @@
       "label": "Image resolution",
       "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Remember that this field refers to images before pre-processing steps.",
       "required": true,
-      "example": "[1.0, 1.0, 2.0]"
+      "example": "[1.0, 1.0, 2.0]",
+      "format": "^(?i:NA|\\[\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*\\])$",
+      "format_description": "Must be NA or a list of exactly three decimal numbers in square brackets (e.g. [1.0, 2.5, 3.14]). Integers must include '.0'."
     },
     "patient_positioning": {
       "type": "String, Free text format",
@@ -2505,14 +2534,16 @@
       "example": "[[PTV_5000,PTV_7000],[PTV_5425,PTV_7000],[PTV_6900]]"
     },
     "number_of_fractions": {
-      "type": "List of floats, Formatted as fraction numbers separated by commas, in the same order as the indicated target prescriptions",
+      "type": "List of floats or integers, Formatted as fraction numbers separated by commas, in the same order as the indicated target prescriptions",
       "label": "Number of fractions",
       "description": "Number of fractions for the given prescription list in the field 'Target prescription'",
       "model_types": [
         "Dose prediction"
       ],
       "required": true,
-      "example": "[30, 30, 30]"
+      "example": "[30, 30, 30]",
+      "format": "^\\[\\s*[0-9]+(?:\\.[0-9]+)?\\s*(?:,\\s*[0-9]+(?:\\.[0-9]+)?\\s*)*\\]$",
+      "format_description": "Must be a list of integers or floats in square brackets, separated by commas (e.g. [30, 30, 30] or [30.5, 29, 31.0])."
     },
     "reference_standard": {
       "type": "String, Free text format",
@@ -2539,7 +2570,9 @@
       "type": "List of strings",
       "label": "ICD10/11",
       "description": "ICD10/11 codes for the tumour location of the patients in the dataset.",
-      "required": false
+      "required": false,
+      "format": "^\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\](?:\\s*,\\s*\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\])*?$",
+      "format_description": "Must be one or more lists of strings in square brackets (e.g. [item1], [item2], [item3]), separated by commas if multiple."
     },
     "tnm_staging_ev": {
       "type": "String, Free text format",
@@ -2551,7 +2584,8 @@
       "type": "String, Free text format",
       "label": "Age",
       "description": "Median and range of the age of patients in the dataset. If not possible to retrieve (e.g. anonymisation), disclose 'NA'.",
-      "required": true
+      "required": true,
+      "placeholder": "[median, range]"
     },
     "sex_ev": {
       "type": "String, Free text format",
@@ -2568,7 +2602,10 @@
       "example": [
         "PTV = 245",
         "(130–350)"
-      ]
+      ],
+      "placeholder": "e.g. [PTV = 245, (130–350)]",
+      "format": "^\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\](?:\\s*,\\s*\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\])*$",
+      "format_description": "Must be one or more lists of strings in square brackets (e.g. [\"PTV = 245\", \"(130–350)\"]), separated by commas if multiple."
     },
     "bmi_ev": {
       "type": "String, Free text format",
@@ -3366,7 +3403,10 @@
         87.12,
         130.45,
         40
-      ]
+      ],
+      "format": "^\\[\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*\\]$",
+      "format_description": "Must be a list of exactly four decimal numbers in square brackets (e.g. [1.0, 2.5, 3.14, 4.0]). Integers must include '.0'."
+
     },
     "figure_ism": {
       "type": "Image",
@@ -4226,7 +4266,10 @@
         87.12,
         130.45,
         40
-      ]
+      ],
+      "format": "^\\[\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*\\]$",
+      "format_description": "Must be a list of exactly four decimal numbers in square brackets (e.g. [1.0, 2.5, 3.14, 4.0]). Integers must include '.0'."
+
     },
     "figure_dm": {
       "type": "Image",
@@ -5009,7 +5052,10 @@
         87.12,
         130.45,
         40
-      ]
+      ],
+      "format": "^\\[\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*\\]$",
+      "format_description": "Must be a list of exactly four decimal numbers in square brackets (e.g. [1.0, 2.5, 3.14, 4.0]). Integers must include '.0'."
+
     },
     "figure_gm_seg": {
       "type": "Image",
@@ -5854,7 +5900,10 @@
         87.12,
         130.45,
         40
-      ]
+      ],
+      "format": "^\\[\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*\\]$",
+      "format_description": "Must be a list of exactly four decimal numbers in square brackets (e.g. [1.0, 2.5, 3.14, 4.0]). Integers must include '.0'."
+
     },
     "figure_dm_seg": {
       "type": "Image",
@@ -5924,7 +5973,9 @@
         87.12,
         130.45,
         40
-      ]
+      ],
+      "format": "^\\[\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*\\]$",
+      "format_description": "Must be a list of exactly four decimal numbers in square brackets (e.g. [1.0, 2.5, 3.14, 4.0]). Integers must include '.0'."
     },
     "figure_other": {
       "type": "Image",
@@ -6721,7 +6772,10 @@
         87.12,
         130.45,
         40
-      ]
+      ],
+      "format": "^\\[\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*\\]$",
+      "format_description": "Must be a list of exactly four decimal numbers in square brackets (e.g. [1.0, 2.5, 3.14, 4.0]). Integers must include '.0'."
+
     },
     "figure_dm_dp": {
       "type": "Image",
