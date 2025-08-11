@@ -267,9 +267,8 @@ def parse_into_json(schema):
 
             if export_list:
                 eval_form[metric_type] = export_list
-
-    if "qualitative_evaluation" in raw_data:
-        structured_data["qualitative_evaluation"] = raw_data["qualitative_evaluation"]
+    # if "qualitative_evaluation" in raw_data:
+    #     structured_data["qualitative_evaluation"] = raw_data["qualitative_evaluation"]
 
     if "other_considerations" in raw_data:
         structured_data["other_considerations"] = raw_data["other_considerations"]

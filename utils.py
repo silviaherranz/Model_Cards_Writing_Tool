@@ -133,9 +133,7 @@ def populate_session_state_from_json(data):
                 for key, value in entry.items():
                     if key == "inputs_outputs_technical_specifications":
                         for io in value:
-                            clean = (
-                                io["input_content"].strip().replace(" ", "_").lower()
-                            )
+                            clean = io["input_content"].strip().replace(" ", "_").lower()
                             src = io["source"]
                             for io_key, io_val in io.items():
                                 if io_key not in ["input_content", "source"]:
@@ -143,20 +141,42 @@ def populate_session_state_from_json(data):
                                     st.session_state[io_full_key] = io_val
                                     st.session_state["_" + io_full_key] = io_val
 
+                    elif key == "qualitative_evaluation" and isinstance(value, dict):
+                        qprefix = f"evaluation_{name}_qualitative_evaluation_"
+
+                        # Campos simples
+                        for simple_field in ["evaluators_information", "explainability", "citation_details"]:
+                            qkey = f"{qprefix}{simple_field}"
+                            qval = value.get(simple_field, "")
+                            st.session_state[qkey] = qval
+                            st.session_state["_" + qkey] = qval  # espejo
+
+                        # Bloques con method/results
+                        for block in ["likert_scoring", "turing_test", "time_saving", "other"]:
+                            b = value.get(block, {})
+                            if isinstance(b, dict):
+                                mkey = f"{qprefix}{block}_method"
+                                rkey = f"{qprefix}{block}_results"
+                                mval = b.get("method", "")
+                                rval = b.get("results", "")
+                                st.session_state[mkey] = mval
+                                st.session_state[rkey] = rval
+                                st.session_state["_" + mkey] = mval
+                                st.session_state["_" + rkey] = rval
+
                     elif isinstance(value, list) and key.startswith("type_"):
                         metric_names = [m["name"] for m in value]
                         st.session_state[f"{prefix}{key}_list"] = metric_names
                         st.session_state[f"{prefix}{key}"] = metric_names
 
                         for metric in value:
-                            metric_prefix = f"evaluation_{name}.{metric['name']}"
+                            metric_prefix = f"evaluation_{name}_{metric['name']}"
                             for m_field, m_val in metric.items():
                                 if m_field != "name":
-                                    st.session_state[f"{metric_prefix}_{m_field}"] = (
-                                        m_val
-                                    )
+                                    st.session_state[f"{metric_prefix}_{m_field}"] = m_val
 
-                    elif is_yyyymmdd(value):
+                    elif isinstance(value, str) and is_yyyymmdd(value):
+                        # 2) SOLO si es str, tratamos como fecha
                         date_obj = to_date(value)
                         if date_obj:
                             widget_key = f"{prefix}{key}_widget"
@@ -165,8 +185,10 @@ def populate_session_state_from_json(data):
                             st.session_state[f"{prefix}{key}"] = value
                         else:
                             st.session_state[f"{prefix}{key}"] = value
+
                     else:
                         st.session_state[f"{prefix}{key}"] = value
+
 
         elif isinstance(content, dict):
             for k, v in content.items():
