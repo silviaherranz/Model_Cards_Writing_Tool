@@ -119,19 +119,19 @@ SCHEMA = {
         "other_method": {},
         "other_results": {}
     },
-    "qualitative_evaluation": {
-        "evaluators_information": {},
-        "likert_scoring_method": {},
-        "likert_scoring_results": {},
-        "turing_test_method": {},
-        "turing_test_results": {},
-        "time_saving_method": {},
-        "time_saving_results": {},
-        "other_method": {},
-        "other_results": {},
-        "explainability": {},
-        "citation_details": {}
-    },
+    # "qualitative_evaluation": {
+    #     "evaluators_information": {},
+    #     "likert_scoring_method": {},
+    #     "likert_scoring_results": {},
+    #     "turing_test_method": {},
+    #     "turing_test_results": {},
+    #     "time_saving_method": {},
+    #     "time_saving_results": {},
+    #     "other_method": {},
+    #     "other_results": {},
+    #     "explainability": {},
+    #     "citation_details": {}
+    # },
     "other_considerations": {
         "responsible_use_and_ethical_considerations": {},
         "risk_analysis": {},

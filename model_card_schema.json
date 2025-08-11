@@ -114,7 +114,9 @@
       "type": "String, Free text format",
       "label": "Contact Email(s)",
       "description": "Contact email(s) for the team or persons. If several, separate them by commas.",
-      "required": true
+      "required": true,
+      "format": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}(\\s*,\\s*[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,})*$",
+      "format_description": "Must be one or more valid email addresses separated by commas, e.g. user@example.com or user1@example.com, user2@example.org"
     },
     "clearance_additional_information": {
       "type": "String, Free text format",
@@ -168,7 +170,9 @@
       "type": "String, Free text format",
       "label": "Contact Email(s)",
       "description": "Contact email for the development team or persons. If several, separate them by commas.",
-      "required": true
+      "required": true,
+      "format": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}(\\s*,\\s*[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,})*$",
+      "format_description": "Must be one or more valid email addresses separated by commas, e.g. user@example.com or user1@example.com, user2@example.org"
     },
     "conflict_of_interest": {
       "type": "String, Free text format",
@@ -2222,10 +2226,7 @@
       "type": "List of strings, Free text format",
       "label": "ICD10/11",
       "description": "ICD10/11 codes for the tumour location of the patients in the dataset.",
-      "required": false,
-      "format": "^\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\](?:\\s*,\\s*\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\])*?$",
-      "format_description": "Must be one or more lists of strings in square brackets (e.g. [item1], [item2], [item3]), separated by commas if multiple."
-
+      "required": false
     },
     "tnm_staging": {
       "type": "String, Free text format",
@@ -2256,9 +2257,7 @@
         "PTV = 245",
         "(130–350)"
       ],
-      "placeholder": "e.g. [PTV = 245, (130–350)]",
-      "format": "^\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\](?:\\s*,\\s*\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\])*$",
-      "format_description": "Must be one or more lists of strings in square brackets (e.g. [\"PTV = 245\", \"(130–350)\"]), separated by commas if multiple."
+      "placeholder": "e.g. [PTV = 245, (130–350)]"
     },
     "bmi": {
       "type": "String, Free text format",
@@ -2369,7 +2368,9 @@
       "type": "String, Free text format",
       "label": "Contact Email",
       "description": "Contact email(s) for the team or persons. If several, separate them by commas.",
-      "required": true
+      "required": true,
+      "format": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}(\\s*,\\s*[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,})*$",
+      "format_description": "Must be one or more valid email addresses separated by commas, e.g. user@example.com or user1@example.com, user2@example.org"
     },
     "evaluation_frame": {
       "type": "String, Free text format",
@@ -2570,9 +2571,7 @@
       "type": "List of strings",
       "label": "ICD10/11",
       "description": "ICD10/11 codes for the tumour location of the patients in the dataset.",
-      "required": false,
-      "format": "^\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\](?:\\s*,\\s*\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\])*?$",
-      "format_description": "Must be one or more lists of strings in square brackets (e.g. [item1], [item2], [item3]), separated by commas if multiple."
+      "required": false
     },
     "tnm_staging_ev": {
       "type": "String, Free text format",
@@ -2603,9 +2602,7 @@
         "PTV = 245",
         "(130–350)"
       ],
-      "placeholder": "e.g. [PTV = 245, (130–350)]",
-      "format": "^\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\](?:\\s*,\\s*\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\])*$",
-      "format_description": "Must be one or more lists of strings in square brackets (e.g. [\"PTV = 245\", \"(130–350)\"]), separated by commas if multiple."
+      "placeholder": "e.g. [PTV = 245, (130–350)]"
     },
     "bmi_ev": {
       "type": "String, Free text format",
@@ -4231,7 +4228,9 @@
         3,
         3,
         3
-      ]
+      ],
+      "format": "^\\[\\s*-?\\d+(?:\\.\\d+)?\\s*,\\s*-?\\d+(?:\\.\\d+)?\\s*,\\s*-?\\d+(?:\\.\\d+)?\\s*\\]$",
+      "format_description": "Must be an array of exactly three integers or floats in square brackets, e.g. [1, 2, 3] or [1.5, 2, 3.25]."
     },
     "tps_vendor_dm": {
       "type": "String, Free text format",
@@ -5865,7 +5864,9 @@
         3,
         3,
         3
-      ]
+      ],
+      "format": "^\\[\\s*-?\\d+(?:\\.\\d+)?\\s*,\\s*-?\\d+(?:\\.\\d+)?\\s*,\\s*-?\\d+(?:\\.\\d+)?\\s*\\]$",
+      "format_description": "Must be an array of exactly three integers or floats, e.g. [1, 2, 3] or [1.5, 2, 3.25]."
     },
     "tps_vendor_dm_seg": {
       "type": "String, Free text format",
@@ -6747,7 +6748,9 @@
         3,
         3,
         3
-      ]
+      ],
+      "format": "^\\[\\s*-?\\d+(?:\\.\\d+)?\\s*,\\s*-?\\d+(?:\\.\\d+)?\\s*,\\s*-?\\d+(?:\\.\\d+)?\\s*\\]$",
+      "format_description": "Must be an array of exactly three integers or floats, e.g. [1, 2, 3] or [1.5, 2, 3.25]."
     },
     "sample_data_dm_dp": {
       "type": "list[float]. Array of floats, same size as the evaluation dataset",

@@ -42,6 +42,9 @@ def task_selector_page():
 
             st.session_state.runpage = card_metadata_render
             st.rerun()
+        if st.button("Return to Main Page"):
+            st.session_state.runpage = main
+            st.rerun()
     else:
         st.success(f"Task already selected: **{st.session_state['task']}**")
 
@@ -127,7 +130,41 @@ def extract_evaluations_from_state():
                 evaluation["evaluated_by_name"] = st.session_state.get("model_basic_information_clearance_approved_by_name", "")
                 evaluation["evaluated_by_institution"] = st.session_state.get("model_basic_information_clearance_approved_by_institution", "")
                 evaluation["evaluated_by_contact_email"] = st.session_state.get("model_basic_information_clearance_approved_by_contact_email", "")
+                # Qualitative Evaluation (namespaced por formulario)
+        q_prefix = f"{prefix}qualitative_evaluation_"
 
+        def qget(suffix, default=""):
+            # lecturas robustas por si hay restos de claves antiguas con underscores
+            return (
+                st.session_state.get(q_prefix + suffix, None)
+                or st.session_state.get("_" + q_prefix + suffix, None)
+                or st.session_state.get("__" + q_prefix + suffix, None)
+                or default
+            )
+
+        qualitative = {
+            "evaluators_information": qget("evaluators_information", ""),
+            "likert_scoring": {
+                "method": qget("likert_scoring_method", ""),
+                "results": qget("likert_scoring_results", ""),
+            },
+            "turing_test": {
+                "method": qget("turing_test_method", ""),
+                "results": qget("turing_test_results", ""),
+            },
+            "time_saving": {
+                "method": qget("time_saving_method", ""),
+                "results": qget("time_saving_results", ""),
+            },
+            "other": {
+                "method": qget("other_method", ""),
+                "results": qget("other_results", ""),
+            },
+            "explainability": qget("explainability", ""),
+            "citation_details": qget("citation_details", ""),
+        }
+
+        evaluation["qualitative_evaluation"] = qualitative
         # Inputs/outputs technical characteristics
         modality_entries = []
         for key, value in st.session_state.items():

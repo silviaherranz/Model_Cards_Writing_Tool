@@ -20,6 +20,7 @@
 #     )
 import streamlit as st
 import utils
+import validation_utils
 
 model_card_schema = utils.get_model_card_schema()
 
@@ -38,7 +39,7 @@ def warnings_render():
     task = st.session_state.get("task", "Image-to-Image translation")
 
     # Validar campos requeridos
-    missing_required = utils.validate_required_fields(
+    missing_required = validation_utils.validate_required_fields(
         model_card_schema, st.session_state, current_task=task
     )
 

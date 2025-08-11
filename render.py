@@ -192,7 +192,7 @@ def render_field(key, props, section_prefix):
                             line = ", ".join(tooltip_items)
                             st.markdown(f"<span>{line}</span>", unsafe_allow_html=True)
                         with col2:
-                            if st.button("🧹 Clear", key=f"{full_key}_clear_all"):
+                            if st.button("Clear", key=f"{full_key}_clear_all"):
                                 st.session_state[content_list_key] = []
                                 st.session_state[full_key] = []
                                 st.rerun()
@@ -249,7 +249,6 @@ def render_field(key, props, section_prefix):
                                 st.session_state[full_key] = []
                                 st.rerun()
                     return
-
 
                 if key in ["type_ism", "type_gm_seg"]:
                     type_key = full_key + "_selected"
