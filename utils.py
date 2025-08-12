@@ -1,4 +1,6 @@
+import io
 import json
+import zipfile
 import streamlit as st
 import re
 from datetime import datetime, date, timedelta
@@ -215,6 +217,52 @@ def export_json_pretty_to_pdf(schema_path, filename="output.pdf"):
         pdf.multi_cell(0, 5, line)
 
     pdf.output(filename)
+    
+
+def export_model_card_zip(schema):
+    import streamlit as st
+    from pathlib import Path
+
+    json_str = parse_into_json(schema)
+    data = json.loads(json_str)
+
+    def _maybe_add(zf, relpath: str, arcname: str | None = None):
+        if not relpath:
+            return
+        p = Path(relpath)
+        if p.exists() and p.is_file():
+            zf.write(p, arcname=arcname or relpath)
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        # the model card JSON
+        zf.writestr("model_card.json", json_str)
+
+        # appendix
+        for item in data.get("appendix", []):
+            rel = item.get("relpath")
+            if rel:
+                p = Path(rel)
+                arc = f"assets/appendix/{p.name}"
+                _maybe_add(zf, rel, arc)
+
+        # images by field
+        for field_key, items in data.get("assets", {}).get("images", {}).items():
+            for item in items:
+                rel = item.get("relpath")
+                if rel:
+                    p = Path(rel)
+                    arc = f"assets/images/{field_key}/{p.name}"
+                    _maybe_add(zf, rel, arc)
+
+    buf.seek(0)
+    st.download_button(
+        "Download model card + assets (.zip)",
+        data=buf.getvalue(),
+        file_name="model_card_with_assets.zip",
+        mime="application/zip",
+    )
+
 
 
 def light_header(text, size="16px", bottom_margin="1em"):

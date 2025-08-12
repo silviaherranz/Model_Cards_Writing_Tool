@@ -1,4 +1,5 @@
 import streamlit as st
+from helpers import build_model_card_zip
 from io_utils import save_uploadedfile, upload_json_card, upload_readme_card
 from pathlib import Path
 import json
@@ -229,6 +230,33 @@ def sidebar_render():
             st.markdown("## Download Model Card")
 
             with st.expander("Download Options", expanded=True):
+                with st.form("form_download_zip"):
+                    zip_submit = st.form_submit_button("Download Model Card + Assets (.zip)")
+                    if zip_submit:
+                        if st.session_state.get("format_error"):
+                            st.error("Cannot download — there are fields with invalid format.")
+                        else:
+                            # mismas validaciones que usas para JSON
+                            missing_required = validation_utils.validate_required_fields(
+                                model_card_schema,
+                                st.session_state,
+                                current_task=st.session_state.get("task"),
+                            )
+                            st.session_state.zip_ready = True
+                            if missing_required:
+                                st.error("Some required fields are missing. Check Warnings.")
+                if st.session_state.get("zip_ready"):
+                    try:
+                        zip_bytes = build_model_card_zip(SCHEMA)
+                        st.download_button(
+                            "Your download is ready — click here (.zip)",
+                            data=zip_bytes,
+                            file_name="model_card_with_assets.zip",
+                            mime="application/zip",
+                            key="btn_download_zip",
+                        )
+                    finally:
+                        st.session_state.zip_ready = False
                 # JSON
                 with st.form("form_download_json"):
                     download_submit = st.form_submit_button(

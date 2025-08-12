@@ -130,4 +130,22 @@ def parse_into_json(schema):
     if "other_considerations" in raw_data:
         structured_data["other_considerations"] = raw_data["other_considerations"]
 
+    # Appendix
+    appendix = []
+    for name, data in st.session_state.get("appendix_uploads", {}).items():
+        appendix.append({"name": name, "label": data.get("custom_label",""), "relpath": data.get("path","")})
+    if appendix:
+        structured_data["appendix"] = appendix
+
+    # Images
+    images = {}
+    for field_key, recs in st.session_state.get("image_fields", {}).items():
+        items = [{"name": r.get("name",""), "label": r.get("label",""), "relpath": r.get("relpath","")} for r in recs]
+        if items:
+            images[field_key] = items
+    if images:
+        structured_data.setdefault("assets", {})
+        structured_data["assets"]["images"] = images
+
+
     return json.dumps(structured_data, indent=2)

@@ -1,4 +1,5 @@
 import streamlit as st
+from helpers import image_field_uploader
 from tg263 import RTSTRUCT_SUBTYPES
 import html
 import utils
@@ -459,47 +460,36 @@ def render_field(key, props, section_prefix):
 
         elif field_type == "Image":
             st.markdown(
-                "<i>If too big or not readable, please indicate the figure number and attach it to the appendix",
+                "<i>If too big or not readable, please indicate the figure number and attach it to the appendix</i>",
                 unsafe_allow_html=True,
             )
+
             col1, col2 = st.columns([1, 2])
             with col1:
-                st.text_input(
+                fig_note = st.text_input(
                     label=".",
                     placeholder="e.g., Fig. 1",
                     key=f"{full_key}_appendix_note",
                     label_visibility="collapsed",
                 )
+
             with col2:
-                uploaded_image = st.file_uploader(
-                    label=".",
-                    type=[
-                        "png",
-                        "jpg",
-                        "jpeg",
-                        "gif",
-                        "bmp",
-                        "tiff",
-                        "webp",
-                        "svg",
-                        "dcm",
-                        "dicom",
-                        "nii",
-                        "nifti",
-                        "pdf",
-                        "docx",
-                        "doc",
-                        "pptx",
-                        "ppt",
-                        "txt",
-                        "xlsx",
-                        "xls",
+                # Usa el MISMO key que antes (uploader_key=full_key) y permite todos tus tipos
+                image_field_uploader(
+                    field_key=full_key,
+                    ui_label=".",                      # mantenemos el label colapsado
+                    allow_multiple=False,              # o True si ese campo admite varias
+                    allowed_types=[
+                        "png","jpg","jpeg","gif","bmp","tiff","webp","svg",
+                        "dcm","dicom","nii","nifti","pdf","docx","doc","pptx","ppt",
+                        "txt","xlsx","xls",
                     ],
-                    key=full_key,
-                    label_visibility="collapsed",
+                    uploader_key=f"{full_key}_uploader",
+                    default_label=fig_note,            # precarga la etiqueta con la nota de figura
+                    set_legacy_key=True,               # sigue rellenando {full_key}_image
                 )
-            if uploaded_image:
-                st.session_state[f"{full_key}_image"] = uploaded_image
+
+
 
         else:
             utils.load_value(full_key)
