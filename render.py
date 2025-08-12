@@ -576,7 +576,7 @@ def create_helpicon(label, description, field_format, example, required=False):
             z-index: 10;
             box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
             font-weight: normal;
-            font-size: 0.9em;
+            font-size: 0.95em;
             line-height: 1.4;
             white-space: normal;
             word-wrap: break-word;
