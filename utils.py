@@ -102,7 +102,6 @@ def populate_session_state_from_json(data):
                     st.session_state[full_key] = value
 
         elif section == "training_data":
-            # Guarda los campos planos y listas
             for k, v in content.items():
                 full_key = f"{section}_{k}"
                 if not isinstance(v, list):
@@ -111,7 +110,6 @@ def populate_session_state_from_json(data):
                     st.session_state[full_key] = v
                     st.session_state[full_key + "_list"] = v
 
-            # Maneja los campos técnicos de inputs/outputs
             ios = content.get("inputs_outputs_technical_specifications", [])
             for io in ios:
                 clean = io["input_content"].strip().replace(" ", "_").lower()
@@ -149,7 +147,7 @@ def populate_session_state_from_json(data):
                             qkey = f"{qprefix}{simple_field}"
                             qval = value.get(simple_field, "")
                             st.session_state[qkey] = qval
-                            st.session_state["_" + qkey] = qval  # espejo
+                            st.session_state["_" + qkey] = qval  
 
                         # Bloques con method/results
                         for block in ["likert_scoring", "turing_test", "time_saving", "other"]:
