@@ -49,6 +49,7 @@ def card_metadata_render():
 
     utils.section_divider()
     utils.title_header("Versioning")
+    st.info("Version number of the model card is set to 0.0 by default, change it to reflect the current version of the model card. You can introduce manually the number or use the up and down arrows to change it.")
 
     if all(k in section for k in ["version_number", "version_changes"]):
         col1, col2 = st.columns([1, 3])
