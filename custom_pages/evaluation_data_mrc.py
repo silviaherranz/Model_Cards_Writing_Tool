@@ -603,23 +603,22 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                             sub_prefix,
                         )
 
-                    col1, col2 = st.columns([1, 1])
-                    with col1:
-                        if should_render(schema_section["on_volume_dm_seg"], task):
-                            render_field(
-                                "on_volume_dm_seg",
-                                schema_section["on_volume_dm_seg"],
-                                sub_prefix,
-                            )
-                    with col2:
-                        if should_render(
-                            schema_section["treatment_modality_dm_seg"], task
-                        ):
-                            render_field(
-                                "treatment_modality_dm_seg",
-                                schema_section["treatment_modality_dm_seg"],
-                                sub_prefix,
-                            )
+
+                    if should_render(schema_section["on_volume_dm_seg"], task):
+                        render_field(
+                            "on_volume_dm_seg",
+                            schema_section["on_volume_dm_seg"],
+                            sub_prefix,
+                        )
+
+                    if should_render(
+                        schema_section["treatment_modality_dm_seg"], task
+                    ):
+                        render_field(
+                            "treatment_modality_dm_seg",
+                            schema_section["treatment_modality_dm_seg"],
+                            sub_prefix,
+                        )
 
                     col1, col2, col3 = st.columns([1, 1, 1])
                     with col1:
@@ -831,80 +830,50 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         model_card_schema = utils.get_model_card_schema()
         if "qualitative_evaluation" in model_card_schema:
             qeval = model_card_schema["qualitative_evaluation"]
-            section_prefix = "qualitative_evaluation"
+            q_prefix = f"{section_prefix}_qualitative_evaluation"
             utils.title_header_grey("Qualitative Evaluation")
 
-            render_field(
-                "evaluators_information",
-                qeval["evaluators_information"],
-                section_prefix,
-            )
-            utils.section_divider()
-
+            render_field("evaluators_information", qeval["evaluators_information"], q_prefix)
+            # Likert
             tabs = st.tabs(["Likert Scoring", "Turing Test", "Time Saving", "Other"])
-
-            with tabs[0]:  
+            with tabs[0]:
                 utils.title_header("Likert Scoring")
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    render_field(
-                        "likert_scoring_method",
-                        qeval["likert_scoring_method"],
-                        section_prefix,
-                    )
+                    render_field("likert_scoring_method", qeval["likert_scoring_method"], q_prefix)
                 with col2:
-                    render_field(
-                        "likert_scoring_results",
-                        qeval["likert_scoring_results"],
-                        section_prefix,
-                    )
+                    render_field("likert_scoring_results", qeval["likert_scoring_results"], q_prefix)
 
-            with tabs[1]:  
+            # Turing Test
+            with tabs[1]:
                 utils.title_header("Turing Test")
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    render_field(
-                        "turing_test_method",
-                        qeval["turing_test_method"],
-                        section_prefix,
-                    )
+                    render_field("turing_test_method", qeval["turing_test_method"], q_prefix)
                 with col2:
-                    render_field(
-                        "turing_test_results",
-                        qeval["turing_test_results"],
-                        section_prefix,
-                    )
+                    render_field("turing_test_results", qeval["turing_test_results"], q_prefix)
 
-            with tabs[2]:  
+            # Time Saving
+            with tabs[2]:
                 utils.title_header("Time Saving")
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    render_field(
-                        "time_saving_method",
-                        qeval["time_saving_method"],
-                        section_prefix,
-                    )
+                    render_field("time_saving_method", qeval["time_saving_method"], q_prefix)
                 with col2:
-                    render_field(
-                        "time_saving_results",
-                        qeval["time_saving_results"],
-                        section_prefix,
-                    )
+                    render_field("time_saving_results", qeval["time_saving_results"], q_prefix)
 
-            with tabs[3]:  
+            # Other
+            with tabs[3]:
                 utils.title_header("Other Evaluation")
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    render_field("other_method", qeval["other_method"], section_prefix)
+                    render_field("other_method", qeval["other_method"], q_prefix)
                 with col2:
-                    render_field(
-                        "other_results", qeval["other_results"], section_prefix
-                    )
+                    render_field("other_results", qeval["other_results"], q_prefix)
 
             utils.section_divider()
-
-            render_field("explainability", qeval["explainability"], section_prefix)
-            render_field("citation_details", qeval["citation_details"], section_prefix)
+            render_field("explainability", qeval["explainability"], q_prefix)
+            render_field("citation_details", qeval["citation_details"], q_prefix)
 
 
 def evaluation_data_mrc_render():

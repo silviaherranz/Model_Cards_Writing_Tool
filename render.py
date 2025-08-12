@@ -2,6 +2,7 @@ import streamlit as st
 from tg263 import RTSTRUCT_SUBTYPES
 import html
 import utils
+import re
 import numpy as np
 
 DEFAULT_SELECT = "< PICK A VALUE >"
@@ -56,6 +57,15 @@ def render_field(key, props, section_prefix):
     required = props.get("required", False)
     options = props.get("options", [])
     placeholder = props.get("placeholder", "")
+
+    #st.session_state["format_error"] = False  
+    pattern = props.get("format")
+    if pattern:
+        value = st.session_state.get(full_key)
+        if value is not None and not re.match(pattern, str(value)):
+            friendly_msg = props.get("format_description")
+            st.error(friendly_msg)
+            #st.session_state["format_error"] = True
 
     create_helpicon(label, description, field_type, example, required)
     
@@ -182,7 +192,7 @@ def render_field(key, props, section_prefix):
                             line = ", ".join(tooltip_items)
                             st.markdown(f"<span>{line}</span>", unsafe_allow_html=True)
                         with col2:
-                            if st.button("🧹 Clear", key=f"{full_key}_clear_all"):
+                            if st.button("Clear", key=f"{full_key}_clear_all"):
                                 st.session_state[content_list_key] = []
                                 st.session_state[full_key] = []
                                 st.rerun()
@@ -239,7 +249,6 @@ def render_field(key, props, section_prefix):
                                 st.session_state[full_key] = []
                                 st.rerun()
                     return
-
 
                 if key in ["type_ism", "type_gm_seg"]:
                     type_key = full_key + "_selected"
@@ -442,7 +451,7 @@ def render_field(key, props, section_prefix):
             with col2:
                 uploaded_image = st.file_uploader(
                     label=".",
-                    type=["png", "jpg", "jpeg"],
+                    type=["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp", "svg", "dcm", "dicom", "nii", "nifti", "pdf", "docx", "doc", "pptx", "ppt", "txt", "xlsx", "xls"],
                     key=full_key,
                     label_visibility="collapsed",
                 )
@@ -460,29 +469,29 @@ def render_field(key, props, section_prefix):
                 placeholder=placeholder,
             )
 
-            # Integer enforcement for specific keys
-            integer_keys = [
-                "number_of_inputs",
-                "number_of_outputs",
-                "total_number_trainable_parameters",
-                "batch_size",
-                "number_of_patients"
-            ]
-            # SAFELY check and validate
-            if key in integer_keys:
-                if raw_input:
-                    stripped = raw_input.strip()
-                    if stripped.isdigit():
-                        st.session_state[full_key] = stripped  # store as string
-                    else:
-                        st.error(f"'{label}' must be a valid integer.")
-                        if full_key in st.session_state:
-                            del st.session_state[full_key]
-                else:
-                    if full_key in st.session_state:
-                        del st.session_state[full_key]
-            else:
-                st.session_state[full_key] = raw_input.strip() if raw_input else ""
+            # # Integer enforcement for specific keys
+            # integer_keys = [
+            #     "number_of_inputs",
+            #     "number_of_outputs",
+            #     "total_number_trainable_parameters",
+            #     "batch_size",
+            #     "number_of_patients"
+            # ]
+            # # SAFELY check and validate
+            # if key in integer_keys:
+            #     if raw_input:
+            #         stripped = raw_input.strip()
+            #         if stripped.isdigit():
+            #             st.session_state[full_key] = stripped  # store as string
+            #         else:
+            #             st.error(f"'{label}' must be a valid integer.")
+            #             if full_key in st.session_state:
+            #                 del st.session_state[full_key]
+            #     else:
+            #         if full_key in st.session_state:
+            #             del st.session_state[full_key]
+            # else:
+            #     st.session_state[full_key] = raw_input.strip() if raw_input else ""
 
     except Exception as e:
         st.error(f"Error rendering field '{label}': {str(e)}")

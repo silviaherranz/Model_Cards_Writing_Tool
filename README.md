@@ -1,11 +1,11 @@
 ---
-title: Modelcard Creator
+title: Model Card Creator
 emoji: ⚡
 colorFrom: red
 colorTo: yellow
 sdk: streamlit
 sdk_version: 1.10.0
-app_file: 1_📝_form.py
+app_file: main.py
 pinned: false
 license: mit
 ---
