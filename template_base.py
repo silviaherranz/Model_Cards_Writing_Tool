@@ -1,7 +1,7 @@
 SCHEMA = {
     "card_metadata": {
         "card_creation_date": {},
-        "version_number":{},
+        "version_number": {},
         "version_changes": {},
         "doi": {},
     },
@@ -117,13 +117,13 @@ SCHEMA = {
         "uncertainty_metrics_method": {},
         "uncertainty_metrics_results": {},
         "other_method": {},
-        "other_results": {}
+        "other_results": {},
     },
     "other_considerations": {
         "responsible_use_and_ethical_considerations": {},
         "risk_analysis": {},
-        "post_market_surveillance_live_monitoring": {}
-    }
+        "post_market_surveillance_live_monitoring": {},
+    },
 }
 
 LEARNING_ARCHITECTURE = {
@@ -216,12 +216,12 @@ EVALUATION_METRIC_FIELDS = {
         "additional_info_other",
         "sample_data_other",
         "mean_data_other",
-        "figure_other_appendix_note"
-    ]
+        "figure_other_appendix_note",
+    ],
 }
 TASK_METRIC_MAP = {
     "Image-to-Image translation": ["type_ism", "type_dose_dm"],
     "Segmentation": ["type_gm_seg", "type_dose_dm_seg"],
     "Dose prediction": ["type_dose_dm_dp"],
-    "Other": ["type_metrics_other"]
+    "Other": ["type_metrics_other"],
 }

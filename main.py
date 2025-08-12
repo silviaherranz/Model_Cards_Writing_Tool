@@ -88,9 +88,6 @@ def load_model_card_page():
         st.rerun()
 
 
-# IDEA: max_archs = len(st.session_state.get("learning_architecture_forms", {})) guardar dinámicamente el número de Learning architectures que hay
-
-
 def extract_learning_architectures_from_state(max_archs=100):
     learning_architectures = []
 
@@ -119,22 +116,24 @@ def extract_evaluations_from_state():
         nested_prefix = f"evaluation_{slug}."
         evaluation = {"name": name}
 
-        # General evaluation fields
         for field in SCHEMA.get("evaluation_data", []):
             key = prefix + field
             if field.startswith("evaluated_by_") and field in evaluation:
-                continue  # ya está seteado desde el checkbox
+                continue
             evaluation[field] = st.session_state.get(key, "")
-            # Copiar aprobadores si el checkbox está activo
             if evaluation.get("evaluated_same_as_approved", False):
-                evaluation["evaluated_by_name"] = st.session_state.get("model_basic_information_clearance_approved_by_name", "")
-                evaluation["evaluated_by_institution"] = st.session_state.get("model_basic_information_clearance_approved_by_institution", "")
-                evaluation["evaluated_by_contact_email"] = st.session_state.get("model_basic_information_clearance_approved_by_contact_email", "")
-                # Qualitative Evaluation (namespaced por formulario)
+                evaluation["evaluated_by_name"] = st.session_state.get(
+                    "model_basic_information_clearance_approved_by_name", ""
+                )
+                evaluation["evaluated_by_institution"] = st.session_state.get(
+                    "model_basic_information_clearance_approved_by_institution", ""
+                )
+                evaluation["evaluated_by_contact_email"] = st.session_state.get(
+                    "model_basic_information_clearance_approved_by_contact_email", ""
+                )
         q_prefix = f"{prefix}qualitative_evaluation_"
 
         def qget(suffix, default=""):
-            # lecturas robustas por si hay restos de claves antiguas con underscores
             return (
                 st.session_state.get(q_prefix + suffix, None)
                 or st.session_state.get("_" + q_prefix + suffix, None)
@@ -165,7 +164,6 @@ def extract_evaluations_from_state():
         }
 
         evaluation["qualitative_evaluation"] = qualitative
-        # Inputs/outputs technical characteristics
         modality_entries = []
         for key, value in st.session_state.items():
             if key.endswith("model_inputs") and isinstance(value, list):
@@ -197,7 +195,6 @@ def extract_evaluations_from_state():
 
         evaluation["inputs_outputs_technical_specifications"] = io_details
 
-        # Metrics per task
         for metric_key in TASK_METRIC_MAP.get(task, []):
             type_list_key = f"{prefix}{metric_key}_list"
             metric_entries = st.session_state.get(type_list_key, [])
@@ -218,10 +215,7 @@ def extract_evaluations_from_state():
 def main_page():
     from side_bar import sidebar_render
 
-    utils.boost_typography(38)
-
     sidebar_render()
-
 
     get_cached_data()
 

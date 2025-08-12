@@ -1,9 +1,6 @@
 import streamlit as st
 import utils
-from render import (
-    render_field,
-    should_render
-)
+from render import render_field, should_render
 
 
 def training_data_render():
@@ -19,7 +16,9 @@ def training_data_render():
         "containing all information about training and validation data (in case of a fine-tuned model, this section contains information about the tuning dataset)"
     )
     utils.title_header("Fine tuned from")
-    utils.light_header_italics("These fields are only relevant for fine-tuned models. For tuned models, the training data will contain the tuning data information. Indicate NA if not applicable.")
+    utils.light_header_italics(
+        "These fields are only relevant for fine-tuned models. For tuned models, the training data will contain the tuning data information. Indicate NA if not applicable."
+    )
     col1, col2, col3 = st.columns([1, 1.5, 1.5])
     with col1:
         render_field(
@@ -43,10 +42,12 @@ def training_data_render():
     utils.section_divider()
 
     utils.title_header("Training Dataset", size="1.2rem")
-    utils.light_header_italics("Note that all fields refer to the raw training data used in 'Model inputs' (i.e. before pre-processing steps).")
+    utils.light_header_italics(
+        "Note that all fields refer to the raw training data used in 'Model inputs' (i.e. before pre-processing steps)."
+    )
     utils.title_header("1. General information")
 
-    col1, col2 = st.columns([1,1])
+    col1, col2 = st.columns([1, 1])
     with col1:
         render_field(
             "total_size",
@@ -99,30 +100,21 @@ def training_data_render():
 
     modality_entries = []
 
-    # Collect all model_inputs and model_outputs
     for key, value in st.session_state.items():
         if key.endswith("model_inputs") and isinstance(value, list):
             for item in value:
-                modality_entries.append({
-                    "modality": item,
-                    "source": "model_inputs"
-                })
+                modality_entries.append({"modality": item, "source": "model_inputs"})
 
         elif key.endswith("model_outputs") and isinstance(value, list):
             for item in value:
-                modality_entries.append({
-                    "modality": item,
-                    "source": "model_outputs"
-                })
+                modality_entries.append({"modality": item, "source": "model_outputs"})
 
-    # Show warning if no entries
     if not modality_entries:
-        st.warning("Start by adding model inputs and outputs in the previous section to enable technical details.")
+        st.warning(
+            "Start by adding model inputs and outputs in the previous section to enable technical details."
+        )
     else:
-        # Create tabs — labeled by modality name only
-        tabs = st.tabs([
-            utils.strip_brackets(m["modality"]) for m in modality_entries
-        ])
+        tabs = st.tabs([utils.strip_brackets(m["modality"]) for m in modality_entries])
 
         for idx, entry in enumerate(modality_entries):
             modality = entry["modality"]
@@ -132,16 +124,20 @@ def training_data_render():
                 clean_modality = modality.strip().replace(" ", "_").lower()
                 utils.title_header(
                     f"{utils.strip_brackets(modality)} — {source.replace('_', ' ').capitalize()}",
-                    size="1rem"
+                    size="1rem",
                 )
 
                 field_keys = {
-                "image_resolution": section["image_resolution"],
-                "patient_positioning": section["patient_positioning"],
-                "scanner_model": section["scanner_model"],
-                "scan_acquisition_parameters": section["scan_acquisition_parameters"],
-                "scan_reconstruction_parameters": section["scan_reconstruction_parameters"],
-                "fov": section["fov"],
+                    "image_resolution": section["image_resolution"],
+                    "patient_positioning": section["patient_positioning"],
+                    "scanner_model": section["scanner_model"],
+                    "scan_acquisition_parameters": section[
+                        "scan_acquisition_parameters"
+                    ],
+                    "scan_reconstruction_parameters": section[
+                        "scan_reconstruction_parameters"
+                    ],
+                    "fov": section["fov"],
                 }
 
                 for f in field_keys.values():
@@ -185,7 +181,7 @@ def training_data_render():
                 render_field(
                     f"{tech_section_prefix}_{clean_modality}_{source}_fov",
                     field_keys["fov"],
-                    ""
+                    "",
                 )
 
     model_card_schema = utils.get_model_card_schema()
@@ -194,7 +190,9 @@ def training_data_render():
 
     if should_render(section["treatment_modality_train"], task):
         render_field(
-            "treatment_modality_train", section["treatment_modality_train"], "training_data"
+            "treatment_modality_train",
+            section["treatment_modality_train"],
+            "training_data",
         )
 
     col1, col2 = st.columns([2, 1.1])

@@ -1,6 +1,7 @@
 import io
 import yaml
 
+
 def build_readme_from_card(card: dict) -> str:
     """
     Build a Hugging Face–friendly README.md (YAML front-matter + Markdown body)
@@ -10,9 +11,12 @@ def build_readme_from_card(card: dict) -> str:
     """
 
     def _nonempty(x):
-        if x is None: return False
-        if isinstance(x, str): return x.strip() != ""
-        if isinstance(x, (list, dict)): return len(x) > 0
+        if x is None:
+            return False
+        if isinstance(x, str):
+            return x.strip() != ""
+        if isinstance(x, (list, dict)):
+            return len(x) > 0
         return True
 
     def _render_list_or_dict(v, indent_level=2):
@@ -21,7 +25,7 @@ def build_readme_from_card(card: dict) -> str:
         indent = " " * indent_level
         if isinstance(v, dict):
             for sub_k, sub_v in v.items():
-                if sub_k in ("input_content", "source"):  # skip for later
+                if sub_k in ("input_content", "source"):
                     continue
                 if _nonempty(sub_v):
                     label = sub_k.replace("_", " ").capitalize()
@@ -51,7 +55,9 @@ def build_readme_from_card(card: dict) -> str:
 
     yaml_buf = io.StringIO()
     yaml_buf.write("---\n")
-    yaml.safe_dump({k: v for k, v in meta.items() if _nonempty(v)}, yaml_buf, sort_keys=False)
+    yaml.safe_dump(
+        {k: v for k, v in meta.items() if _nonempty(v)}, yaml_buf, sort_keys=False
+    )
     yaml_buf.write("---\n\n")
 
     # --------------------
@@ -66,12 +72,15 @@ def build_readme_from_card(card: dict) -> str:
         skip_keys = set(skip_keys or [])
         lines.append(f"## {title}")
         if isinstance(data, dict):
-            items = [(k, v) for k, v in data.items() if k not in skip_keys and _nonempty(v)]
+            items = [
+                (k, v) for k, v in data.items() if k not in skip_keys and _nonempty(v)
+            ]
             if field_order:
                 ordered, seen = [], set()
                 for k in field_order:
                     if k in data and k not in skip_keys and _nonempty(data[k]):
-                        ordered.append((k, data[k])); seen.add(k)
+                        ordered.append((k, data[k]))
+                        seen.add(k)
                 for k, v in items:
                     if k not in seen:
                         ordered.append((k, v))
@@ -123,30 +132,24 @@ def build_readme_from_card(card: dict) -> str:
                 lines.extend(_render_list_or_dict(e, indent_level=2))
             lines.append("")
 
-    # Core sections
     add_section("Card Metadata", card.get("card_metadata", {}))
     add_section("Model Basic Information", mbi)
     add_section("Technical Specifications", card.get("technical_specifications", {}))
     add_section("Learning Architectures", card.get("learning_architectures", []))
     add_section("HW and SW", card.get("hw_and_sw", {}))
 
-    # Training Data: primero lo “normal”, excluyendo IO-TS…
     td = card.get("training_data", {}) or {}
     add_section(
-        "Training Data",
-        td,
-        # si quieres forzar orden, añade field_order=[...]
-        skip_keys={"inputs_outputs_technical_specifications"}
+        "Training Data", td, skip_keys={"inputs_outputs_technical_specifications"}
     )
-    # …y luego IO-TS con formato especial
+
     add_training_io(td)
 
-    # Evaluations
     evaluations = card.get("evaluations", [])
     if _nonempty(evaluations):
         lines.append("## Evaluations")
         for i, ev in enumerate(evaluations, 1):
-            lines.append(f"### Evaluation {i}: {ev.get('name','')}")
+            lines.append(f"### Evaluation {i}: {ev.get('name', '')}")
             for k, v in ev.items():
                 if k == "name" or not _nonempty(v):
                     continue
@@ -158,7 +161,6 @@ def build_readme_from_card(card: dict) -> str:
                     lines.append(f"- **{label}:** {v}")
             lines.append("")
 
-    # Other considerations
     add_section("Other Considerations", card.get("other_considerations", {}))
 
     return yaml_buf.getvalue() + "\n".join(lines).rstrip() + "\n"

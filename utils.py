@@ -3,17 +3,8 @@ import streamlit as st
 import re
 from datetime import datetime, date, timedelta
 import base64
-import subprocess
-import shutil
-import os
 from fpdf import FPDF
 from middleMan import parse_into_json
-from template_base import (
-    DATA_INPUT_OUTPUT_TS,
-    EVALUATION_METRIC_FIELDS,
-    LEARNING_ARCHITECTURE,
-    TASK_METRIC_MAP,
-)
 
 
 def get_base64_image(path):
@@ -80,7 +71,6 @@ def set_safe_date_field(base_key: str, yyyymmdd_string: str | None):
     else:
         parsed_date = None
 
-    # Guardar para el widget
     st.session_state[base_key] = yyyymmdd_string if parsed_date else None
     st.session_state[widget_key] = parsed_date
     st.session_state[raw_key] = parsed_date
@@ -131,7 +121,9 @@ def populate_session_state_from_json(data):
                 for key, value in entry.items():
                     if key == "inputs_outputs_technical_specifications":
                         for io in value:
-                            clean = io["input_content"].strip().replace(" ", "_").lower()
+                            clean = (
+                                io["input_content"].strip().replace(" ", "_").lower()
+                            )
                             src = io["source"]
                             for io_key, io_val in io.items():
                                 if io_key not in ["input_content", "source"]:
@@ -142,15 +134,22 @@ def populate_session_state_from_json(data):
                     elif key == "qualitative_evaluation" and isinstance(value, dict):
                         qprefix = f"evaluation_{name}_qualitative_evaluation_"
 
-                        # Campos simples
-                        for simple_field in ["evaluators_information", "explainability", "citation_details"]:
+                        for simple_field in [
+                            "evaluators_information",
+                            "explainability",
+                            "citation_details",
+                        ]:
                             qkey = f"{qprefix}{simple_field}"
                             qval = value.get(simple_field, "")
                             st.session_state[qkey] = qval
-                            st.session_state["_" + qkey] = qval  
+                            st.session_state["_" + qkey] = qval
 
-                        # Bloques con method/results
-                        for block in ["likert_scoring", "turing_test", "time_saving", "other"]:
+                        for block in [
+                            "likert_scoring",
+                            "turing_test",
+                            "time_saving",
+                            "other",
+                        ]:
                             b = value.get(block, {})
                             if isinstance(b, dict):
                                 mkey = f"{qprefix}{block}_method"
@@ -171,10 +170,11 @@ def populate_session_state_from_json(data):
                             metric_prefix = f"evaluation_{name}_{metric['name']}"
                             for m_field, m_val in metric.items():
                                 if m_field != "name":
-                                    st.session_state[f"{metric_prefix}_{m_field}"] = m_val
+                                    st.session_state[f"{metric_prefix}_{m_field}"] = (
+                                        m_val
+                                    )
 
                     elif isinstance(value, str) and is_yyyymmdd(value):
-                        # 2) SOLO si es str, tratamos como fecha
                         date_obj = to_date(value)
                         if date_obj:
                             widget_key = f"{prefix}{key}_widget"
@@ -186,7 +186,6 @@ def populate_session_state_from_json(data):
 
                     else:
                         st.session_state[f"{prefix}{key}"] = value
-
 
         elif isinstance(content, dict):
             for k, v in content.items():
@@ -216,7 +215,7 @@ def export_json_pretty_to_pdf(schema_path, filename="output.pdf"):
         pdf.multi_cell(0, 5, line)
 
     pdf.output(filename)
-    
+
 
 def light_header(text, size="16px", bottom_margin="1em"):
     st.markdown(
@@ -311,3 +310,34 @@ def section_divider():
 
 def strip_brackets(text):
     return re.sub(r"\s*\(.*?\)", "", text).strip()
+
+
+def enlarge_tab_titles(font_px: int, underline_px: int = 4, pad_y: int = 6):
+    st.markdown(
+        f"""
+    <style>
+      /* Streamlit 1.4x+: los tabs son botones con role=tab */
+      [data-testid="stTabs"] button[role="tab"] {{
+        font-size: {font_px}px !important;
+        padding-top: {pad_y}px !important;
+        padding-bottom: {pad_y}px !important;
+        line-height: 1.2 !important;
+      }}
+      /* Algunas builds envuelven el texto en <p> */
+      [data-testid="stTabs"] button[role="tab"] p {{
+        font-size: {font_px}px !important;
+      }}
+      /* Subrayado de la pestaña activa (opcional) */
+      [data-testid="stTabs"] [data-baseweb="tab-highlight"] {{
+        height: {underline_px}px !important;
+      }}
+      /* Fallback para implementaciones antiguas basadas en baseweb */
+      [data-testid="stTabs"] [data-baseweb="tab"] {{
+        font-size: {font_px}px !important;
+        padding-top: {pad_y}px !important;
+        padding-bottom: {pad_y}px !important;
+      }}
+    </style>
+    """,
+        unsafe_allow_html=True,
+    )

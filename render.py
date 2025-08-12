@@ -58,17 +58,15 @@ def render_field(key, props, section_prefix):
     options = props.get("options", [])
     placeholder = props.get("placeholder", "")
 
-    #st.session_state["format_error"] = False  
     pattern = props.get("format")
     if pattern:
         value = st.session_state.get(full_key)
         if value is not None and not re.match(pattern, str(value)):
             friendly_msg = props.get("format_description")
             st.error(friendly_msg)
-            #st.session_state["format_error"] = True
 
     create_helpicon(label, description, field_type, example, required)
-    
+
     try:
         safe_label = label.strip() or "Field"
         if key == "type_metrics_other":
@@ -78,12 +76,16 @@ def render_field(key, props, section_prefix):
             if not options:
                 st.warning(f"Field '{label}' is missing options for select dropdown.")
             else:
-                if key in ["input_content", "output_content", "model_inputs", "model_outputs"]:
+                if key in [
+                    "input_content",
+                    "output_content",
+                    "model_inputs",
+                    "model_outputs",
+                ]:
                     content_list_key = f"{full_key}_list"
                     type_key = f"{full_key}_new_type"
                     subtype_key = f"{full_key}_new_subtype"
 
-                    # Initialize persistent values
                     utils.load_value(content_list_key, default=[])
                     utils.load_value(type_key)
                     utils.load_value(subtype_key)
@@ -126,7 +128,6 @@ def render_field(key, props, section_prefix):
                     else:
                         col1, col2, col3 = st.columns([2, 1, 0.5])
 
-                        # Type selectbox
                         with col1:
                             st.selectbox(
                                 label=".",
@@ -135,13 +136,12 @@ def render_field(key, props, section_prefix):
                                 on_change=utils.store_value,
                                 args=[type_key],
                                 label_visibility="hidden",
-                                placeholder="-Select an option-"
+                                placeholder="-Select an option-",
                             )
 
                         selected_type = st.session_state.get(type_key)
                         custom_key = f"{full_key}_custom_text"
                         utils.load_value(custom_key, default="")
-
 
                         with col2:
                             st.markdown(
@@ -160,9 +160,11 @@ def render_field(key, props, section_prefix):
                             else:
                                 st.markdown("&nbsp;", unsafe_allow_html=True)
 
-                        # Add button
                         with col3:
-                            st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
+                            st.markdown(
+                                "<div style='margin-top: 26px;'>",
+                                unsafe_allow_html=True,
+                            )
                             add_clicked = st.button("➕", key=f"{full_key}_add_button")
                             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -170,16 +172,26 @@ def render_field(key, props, section_prefix):
                             if selected_type in [None, "", DEFAULT_SELECT]:
                                 st.error("Please select an option before adding.")
                             elif selected_type == "OT (Other)":
-                                custom_text = st.session_state.get(custom_key, "").strip()
+                                custom_text = st.session_state.get(
+                                    custom_key, ""
+                                ).strip()
                                 if not custom_text:
-                                    st.error("Please enter a custom name before adding.")
+                                    st.error(
+                                        "Please enter a custom name before adding."
+                                    )
                                 else:
-                                    st.session_state[content_list_key].append(custom_text)
-                                    st.session_state[full_key] = st.session_state[content_list_key]
+                                    st.session_state[content_list_key].append(
+                                        custom_text
+                                    )
+                                    st.session_state[full_key] = st.session_state[
+                                        content_list_key
+                                    ]
                             else:
                                 entry = utils.strip_brackets(selected_type)
                                 st.session_state[content_list_key].append(entry)
-                                st.session_state[full_key] = st.session_state[content_list_key]
+                                st.session_state[full_key] = st.session_state[
+                                    content_list_key
+                                ]
 
                     entries = st.session_state[content_list_key]
                     if entries:
@@ -201,7 +213,6 @@ def render_field(key, props, section_prefix):
                     content_list_key2 = f"{full_key}_modality_list"
                     type_key2 = f"{full_key}_modality_type"
 
-                    # Initialize persistent values
                     utils.load_value(content_list_key2, default=[])
                     utils.load_value(type_key2)
 
@@ -215,13 +226,17 @@ def render_field(key, props, section_prefix):
                             on_change=utils.store_value,
                             args=[type_key2],
                             label_visibility="hidden",
-                            placeholder="-Select an option-"
+                            placeholder="-Select an option-",
                         )
 
                     add_clicked = False
                     with col2:
-                        st.markdown("<div style='margin-top: 26px;'>", unsafe_allow_html=True)
-                        add_clicked = st.button("➕", key=f"{full_key}_modality_add_button")
+                        st.markdown(
+                            "<div style='margin-top: 26px;'>", unsafe_allow_html=True
+                        )
+                        add_clicked = st.button(
+                            "➕", key=f"{full_key}_modality_add_button"
+                        )
                         st.markdown("</div>", unsafe_allow_html=True)
 
                     raw_value2 = st.session_state.get(type_key2)
@@ -231,7 +246,9 @@ def render_field(key, props, section_prefix):
                         else:
                             entry = utils.strip_brackets(raw_value2)
                             st.session_state[content_list_key2].append(entry)
-                            st.session_state[full_key] = st.session_state[content_list_key2]
+                            st.session_state[full_key] = st.session_state[
+                                content_list_key2
+                            ]
 
                     entries = st.session_state[content_list_key2]
                     if entries:
@@ -287,7 +304,7 @@ def render_field(key, props, section_prefix):
                             st.session_state[full_key] = st.session_state[type_list_key]
 
                     if error_msg:
-                        st.markdown(" ")  # spacing
+                        st.markdown(" ")
                         st.error(error_msg)
 
                     with col3:
@@ -303,9 +320,14 @@ def render_field(key, props, section_prefix):
                             st.markdown("</div>", unsafe_allow_html=True)
 
                     return
-                
+
                 if key in ["type_dose_dm", "type_dose_dm_seg", "type_dose_dm_dp"]:
-                    static_options = ["GPR (Gamma Passing Rate)", "MAE (Mean Absolute Error)", "MSE (Mean Squared Error)", "Other"]
+                    static_options = [
+                        "GPR (Gamma Passing Rate)",
+                        "MAE (Mean Absolute Error)",
+                        "MSE (Mean Squared Error)",
+                        "Other",
+                    ]
                     parametric_options = ["D", "V"]
 
                     dm_key = full_key
@@ -383,7 +405,7 @@ def render_field(key, props, section_prefix):
                         st.markdown("</div>", unsafe_allow_html=True)
 
                     if add_clicked:
-                        metric = None  # default
+                        metric = None
                         if not dm_type:
                             error_msg = (
                                 "Please choose a dose metric type before adding."
@@ -404,7 +426,7 @@ def render_field(key, props, section_prefix):
                                 metric = f"{dm_type}{val_struct.get('value', '')}"
 
                         if error_msg:
-                            st.markdown(" ")  # spacing
+                            st.markdown(" ")
                             st.error(error_msg)
                         elif metric and metric not in st.session_state[dm_list_key]:
                             st.session_state[dm_list_key].append(metric)
@@ -451,7 +473,28 @@ def render_field(key, props, section_prefix):
             with col2:
                 uploaded_image = st.file_uploader(
                     label=".",
-                    type=["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp", "svg", "dcm", "dicom", "nii", "nifti", "pdf", "docx", "doc", "pptx", "ppt", "txt", "xlsx", "xls"],
+                    type=[
+                        "png",
+                        "jpg",
+                        "jpeg",
+                        "gif",
+                        "bmp",
+                        "tiff",
+                        "webp",
+                        "svg",
+                        "dcm",
+                        "dicom",
+                        "nii",
+                        "nifti",
+                        "pdf",
+                        "docx",
+                        "doc",
+                        "pptx",
+                        "ppt",
+                        "txt",
+                        "xlsx",
+                        "xls",
+                    ],
                     key=full_key,
                     label_visibility="collapsed",
                 )
@@ -460,7 +503,7 @@ def render_field(key, props, section_prefix):
 
         else:
             utils.load_value(full_key)
-            raw_input=st.text_input(
+            st.text_input(
                 safe_label,
                 key="_" + full_key,
                 on_change=utils.store_value,
@@ -469,32 +512,9 @@ def render_field(key, props, section_prefix):
                 placeholder=placeholder,
             )
 
-            # # Integer enforcement for specific keys
-            # integer_keys = [
-            #     "number_of_inputs",
-            #     "number_of_outputs",
-            #     "total_number_trainable_parameters",
-            #     "batch_size",
-            #     "number_of_patients"
-            # ]
-            # # SAFELY check and validate
-            # if key in integer_keys:
-            #     if raw_input:
-            #         stripped = raw_input.strip()
-            #         if stripped.isdigit():
-            #             st.session_state[full_key] = stripped  # store as string
-            #         else:
-            #             st.error(f"'{label}' must be a valid integer.")
-            #             if full_key in st.session_state:
-            #                 del st.session_state[full_key]
-            #     else:
-            #         if full_key in st.session_state:
-            #             del st.session_state[full_key]
-            # else:
-            #     st.session_state[full_key] = raw_input.strip() if raw_input else ""
-
     except Exception as e:
         st.error(f"Error rendering field '{label}': {str(e)}")
+
 
 def render_type_metrics_other(full_key, label):
     metrics_list_key = f"{full_key}_list"
@@ -514,7 +534,7 @@ def render_type_metrics_other(full_key, label):
             on_change=utils.store_value,
             args=[metrics_selected_key],
             placeholder="Enter metric name (e.g. MSE)",
-            label_visibility="hidden"
+            label_visibility="hidden",
         )
 
     with col2:
@@ -540,17 +560,17 @@ def render_type_metrics_other(full_key, label):
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # Warning shown below the row
     if show_warning:
         st.warning("Please enter a valid metric name before adding.")
 
+
 def create_helpicon(label, description, field_format, example, required=False):
     required_tag = (
-        "<span style='color: black; font-size: 1.2em;'>*</span>"
-        if required else ""
+        "<span style='color: black; font-size: 1.2em;'>*</span>" if required else ""
     )
 
-    st.markdown("""
+    st.markdown(
+        """
         <style>
         .tooltip-inline {
             display: inline-block;
@@ -587,7 +607,9 @@ def create_helpicon(label, description, field_format, example, required=False):
             visibility: visible;
         }
         </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     tooltip_html = f"""
     <div style='margin-bottom: 0px; font-weight: 500; font-size: 0.98em;'>
@@ -602,5 +624,3 @@ def create_helpicon(label, description, field_format, example, required=False):
     </div>
     """
     st.markdown(tooltip_html, unsafe_allow_html=True)
-
-

@@ -1,4 +1,9 @@
-from template_base import DATA_INPUT_OUTPUT_TS, EVALUATION_METRIC_FIELDS, LEARNING_ARCHITECTURE, TASK_METRIC_MAP
+from template_base import (
+    DATA_INPUT_OUTPUT_TS,
+    EVALUATION_METRIC_FIELDS,
+    LEARNING_ARCHITECTURE,
+    TASK_METRIC_MAP,
+)
 
 
 def validate_static_fields(schema, session_state, current_task):
@@ -13,7 +18,7 @@ def validate_static_fields(schema, session_state, current_task):
     skip_keys = {
         "input_content_rtstruct_subtype",
         "output_content_rtstruct_subtype",
-    }  # puedes agregar más claves aquí
+    }
     skip_sections = {
         "evaluation_data_methodology_results_commisioning",
         "learning_architecture",
@@ -110,7 +115,6 @@ def validate_modalities_fields(schema, session_state, current_task):
                     )
                 )
 
-        # --- EVALUATION ---
         prefix_eval = f"evaluation_data_{clean}_{source}_"
         for field, label in DATA_INPUT_OUTPUT_TS.items():
             full_key = f"{prefix_eval}{field}"
@@ -136,7 +140,6 @@ def validate_evaluation_forms(schema, session_state, current_task):
     eval_section = schema.get("evaluation_data_methodology_results_commisioning", {})
     metric_fields = TASK_METRIC_MAP.get(current_task, [])
 
-    # Recolectar todas las keys métricas válidas para la tarea actual
     metric_field_keys = set()
     for type_field in metric_fields:
         metric_field_keys.update(EVALUATION_METRIC_FIELDS.get(type_field, []))
@@ -147,7 +150,6 @@ def validate_evaluation_forms(schema, session_state, current_task):
         approved_same_key = f"{prefix}evaluated_same_as_approved"
         approved_same = session_state.get(approved_same_key, False)
 
-        # 🔹 Validación general (no métricas)
         for key, props in eval_section.items():
             if key in metric_field_keys:
                 continue
@@ -173,7 +175,6 @@ def validate_evaluation_forms(schema, session_state, current_task):
                             )
                         )
 
-        # 🔹 Validación específica de métricas
         for type_field in metric_fields:
             entry_list = session_state.get(f"{prefix}{type_field}_list", [])
             for metric_name in entry_list:

@@ -1,11 +1,7 @@
 from datetime import datetime
 import streamlit as st
 import utils
-from render import (
-    create_helpicon,
-    render_field
-)
-#import uuid
+from render import create_helpicon, render_field
 
 
 def model_basic_information_render():
@@ -32,7 +28,6 @@ def model_basic_information_render():
 
                 create_helpicon(label, description, field_type, example, required)
 
-                # Only load if a real stored value exists, not default today
                 if "model_basic_information_creation_date" not in st.session_state:
                     st.session_state["model_basic_information_creation_date"] = None
 
@@ -46,12 +41,15 @@ def model_basic_information_render():
                     args=["model_basic_information_creation_date"],
                 )
 
-                # Check if user actually interacted with the input
-                user_date = st.session_state.get("_model_basic_information_creation_date")
+                user_date = st.session_state.get(
+                    "_model_basic_information_creation_date"
+                )
 
                 if user_date:
                     formatted = user_date.strftime("%Y%m%d")
-                    st.session_state["model_basic_information_creation_date"] = formatted
+                    st.session_state["model_basic_information_creation_date"] = (
+                        formatted
+                    )
                 elif required and user_date is not None:
                     st.session_state["model_basic_information_creation_date"] = None
                     st.error("Creation date is required. Please select a valid date.")
@@ -79,12 +77,12 @@ def model_basic_information_render():
                 "model_basic_information",
             )
     utils.section_divider()
-    # Line 3: doi
+
     if "doi" in section:
         render_field("doi", section["doi"], "model_basic_information")
     utils.section_divider()
     utils.title_header("Model scope")
-    # Line 4: summary + anatomical_site
+
     if "model_scope_summary" in section and "model_scope_anatomical_site" in section:
         col1, col2 = st.columns([2, 1])
         with col1:
@@ -100,16 +98,14 @@ def model_basic_information_render():
                 "model_basic_information",
             )
     utils.section_divider()
-    # Line 5: Clearance
+
     utils.title_header("Clearance")
-    # Render clearance_type
+
     if "clearance_type" in section:
         render_field(
             "clearance_type", section["clearance_type"], "model_basic_information"
         )
-    # Grouped "Approved by"
-    # El campo clearance_approved_by_name se guarda en el session state con el nombre:
-    # "model_basic_information_clearance_approved_by_name"
+
     if all(
         k in section
         for k in [
@@ -139,7 +135,6 @@ def model_basic_information_render():
                 "model_basic_information",
             )
 
-    # Render additional information
     if "clearance_additional_information" in section:
         render_field(
             "clearance_additional_information",
@@ -165,10 +160,9 @@ def model_basic_information_render():
         section["type_of_learning_architecture"],
         "model_basic_information",
     )
-    
+
     utils.section_divider()
 
-    # Developer Information
     utils.title_header("Developed by")
     col1, col2, col3 = st.columns([1, 1.5, 1.5])
     with col1:

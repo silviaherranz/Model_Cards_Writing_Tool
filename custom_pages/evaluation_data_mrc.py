@@ -9,6 +9,7 @@ from render import (
     should_render,
 )
 
+
 def render_evaluation_section(schema_section, section_prefix, current_task):
     utils.require_task()
 
@@ -47,7 +48,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
             st.error("Date of evaluation is required. Please select a valid date.")
         else:
             st.session_state[widget_key] = None
-
 
     utils.section_divider()
 
@@ -144,19 +144,15 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
     for key, value in st.session_state.items():
         if key.endswith("model_inputs") and isinstance(value, list):
             for item in value:
-                modality_entries.append({
-                    "modality": item,
-                    "source": "model_inputs"
-                })
+                modality_entries.append({"modality": item, "source": "model_inputs"})
         elif key.endswith("model_outputs") and isinstance(value, list):
             for item in value:
-                modality_entries.append({
-                    "modality": item,
-                    "source": "model_outputs"
-                })
+                modality_entries.append({"modality": item, "source": "model_outputs"})
 
     if not modality_entries:
-        st.warning("Start by adding model inputs and outputs in the Technical Specifications section to enable technical details.")
+        st.warning(
+            "Start by adding model inputs and outputs in the Technical Specifications section to enable technical details."
+        )
     else:
         tabs = st.tabs([utils.strip_brackets(m["modality"]) for m in modality_entries])
 
@@ -168,15 +164,19 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                 clean_modality = modality.strip().replace(" ", "_").lower()
                 utils.title_header(
                     f"{utils.strip_brackets(modality)} — {source.replace('_', ' ').capitalize()}",
-                    size="1rem"
+                    size="1rem",
                 )
 
                 field_keys = {
                     "image_resolution": section["image_resolution"],
                     "patient_positioning": section["patient_positioning"],
                     "scanner_model": section["scanner_model"],
-                    "scan_acquisition_parameters": section["scan_acquisition_parameters"],
-                    "scan_reconstruction_parameters": section["scan_reconstruction_parameters"],
+                    "scan_acquisition_parameters": section[
+                        "scan_acquisition_parameters"
+                    ],
+                    "scan_reconstruction_parameters": section[
+                        "scan_reconstruction_parameters"
+                    ],
                     "fov": section["fov"],
                 }
 
@@ -196,11 +196,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         field_keys["patient_positioning"],
                         "",
                     )
-                # ...rest of fields...
 
-    # Ejemplo de cómo se guarda en session_state:
-    # Para una evaluación llamada "eval1", un input "CT", el field "image_resolution":
-    # st.session_state["evaluation_eval1_ct_model_inputs_image_resolution"]
                 render_field(
                     f"{tech_section_prefix}_{clean_modality}_{source}_scanner_model",
                     field_keys["scanner_model"],
@@ -224,7 +220,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                 render_field(
                     f"{tech_section_prefix}_{clean_modality}_{source}_fov",
                     field_keys["fov"],
-                    ""
+                    "",
                 )
 
     ####################################
@@ -233,7 +229,9 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
     task = st.session_state.get("task").strip().lower()
     if should_render(schema_section["treatment_modality_eval"], task):
         render_field(
-            "treatment_modality_eval", schema_section["treatment_modality_eval"], section_prefix
+            "treatment_modality_eval",
+            schema_section["treatment_modality_eval"],
+            section_prefix,
         )
     col1, col2 = st.columns([1, 1])
     with col1:
@@ -530,7 +528,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                 with tab:
                     sub_prefix = f"{section_prefix}.{seg_name}"
 
-                    # First row: two fields side by side
                     col1, col2 = st.columns([1, 1])
                     with col1:
                         render_field(
@@ -545,7 +542,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                             sub_prefix,
                         )
 
-                    # Other fields on separate lines
                     render_field(
                         "sample_data_gm_seg",
                         schema_section["sample_data_gm_seg"],
@@ -603,7 +599,6 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                             sub_prefix,
                         )
 
-
                     if should_render(schema_section["on_volume_dm_seg"], task):
                         render_field(
                             "on_volume_dm_seg",
@@ -611,9 +606,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                             sub_prefix,
                         )
 
-                    if should_render(
-                        schema_section["treatment_modality_dm_seg"], task
-                    ):
+                    if should_render(schema_section["treatment_modality_dm_seg"], task):
                         render_field(
                             "treatment_modality_dm_seg",
                             schema_section["treatment_modality_dm_seg"],
@@ -833,36 +826,51 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
             q_prefix = f"{section_prefix}_qualitative_evaluation"
             utils.title_header_grey("Qualitative Evaluation")
 
-            render_field("evaluators_information", qeval["evaluators_information"], q_prefix)
-            # Likert
+            render_field(
+                "evaluators_information", qeval["evaluators_information"], q_prefix
+            )
+
             tabs = st.tabs(["Likert Scoring", "Turing Test", "Time Saving", "Other"])
             with tabs[0]:
                 utils.title_header("Likert Scoring")
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    render_field("likert_scoring_method", qeval["likert_scoring_method"], q_prefix)
+                    render_field(
+                        "likert_scoring_method",
+                        qeval["likert_scoring_method"],
+                        q_prefix,
+                    )
                 with col2:
-                    render_field("likert_scoring_results", qeval["likert_scoring_results"], q_prefix)
+                    render_field(
+                        "likert_scoring_results",
+                        qeval["likert_scoring_results"],
+                        q_prefix,
+                    )
 
-            # Turing Test
             with tabs[1]:
                 utils.title_header("Turing Test")
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    render_field("turing_test_method", qeval["turing_test_method"], q_prefix)
+                    render_field(
+                        "turing_test_method", qeval["turing_test_method"], q_prefix
+                    )
                 with col2:
-                    render_field("turing_test_results", qeval["turing_test_results"], q_prefix)
+                    render_field(
+                        "turing_test_results", qeval["turing_test_results"], q_prefix
+                    )
 
-            # Time Saving
             with tabs[2]:
                 utils.title_header("Time Saving")
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    render_field("time_saving_method", qeval["time_saving_method"], q_prefix)
+                    render_field(
+                        "time_saving_method", qeval["time_saving_method"], q_prefix
+                    )
                 with col2:
-                    render_field("time_saving_results", qeval["time_saving_results"], q_prefix)
+                    render_field(
+                        "time_saving_results", qeval["time_saving_results"], q_prefix
+                    )
 
-            # Other
             with tabs[3]:
                 utils.title_header("Other Evaluation")
                 col1, col2 = st.columns([1, 1])
@@ -878,6 +886,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
 
 def evaluation_data_mrc_render():
     from side_bar import sidebar_render
+
     sidebar_render()
 
     model_card_schema = utils.get_model_card_schema()
@@ -891,7 +900,6 @@ def evaluation_data_mrc_render():
     if "evaluation_forms" not in st.session_state:
         st.session_state.evaluation_forms = []
 
-    # Input for adding new evaluation form
     with st.expander("Add New Evaluation Form"):
         new_form_name = st.text_input("Evaluation name", key="new_eval_name")
         if st.button("Add Evaluation Form"):
@@ -905,13 +913,10 @@ def evaluation_data_mrc_render():
             else:
                 st.warning("Please enter a name for the evaluation form.")
 
-    # Track if a form needs to be deleted
     form_to_delete = None
 
-    # Render each evaluation form
     for form_name in list(st.session_state.evaluation_forms):
         with st.expander(f"{form_name}", expanded=False):
-            # Use form_name to namespace keys
             section_prefix = f"evaluation_{form_name.replace(' ', '_')}"
             render_evaluation_section(
                 model_card_schema["evaluation_data_methodology_results_commisioning"],
@@ -924,7 +929,6 @@ def evaluation_data_mrc_render():
                 if st.button("Delete", key=f"delete_eval_{form_name}"):
                     form_to_delete = form_name
 
-    # Handle deletion
     if form_to_delete:
         st.session_state.evaluation_forms.remove(form_to_delete)
         prefix = f"evaluation_{form_to_delete.replace(' ', '_')}_"
@@ -949,5 +953,3 @@ def evaluation_data_mrc_render():
 
             st.session_state.runpage = other_considerations_render
             st.rerun()
-
-
