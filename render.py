@@ -557,7 +557,7 @@ def create_helpicon(label, description, field_format, example, required=False):
             position: relative;
             margin-left: 6px;
             cursor: pointer;
-            font-size: 0.8em;
+            font-size: 1em;
             color: #999;
         }
 

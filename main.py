@@ -218,6 +218,8 @@ def extract_evaluations_from_state():
 def main_page():
     from side_bar import sidebar_render
 
+    utils.boost_typography(38)
+
     sidebar_render()
 
 
