@@ -34,7 +34,7 @@ SCHEMA = {
     },
     "technical_specifications": {
         "model_pipeline_summary": {},
-        "model_pipeline_figure": {},
+        "model_pipeline_figure_appendix_note": {},
         "model_inputs": {},
         "model_outputs": {},
         "pre-processing": {},
@@ -80,7 +80,7 @@ SCHEMA = {
         "epochs": {},
         "optimiser": {},
         "learning_rate": {},
-        "train_and_validation_loss_curves": {},
+        "train_and_validation_loss_curves_appendix_note": {},
         "model_choice_criteria": {},
         "inference_method": {},
     },

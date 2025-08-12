@@ -47,7 +47,7 @@ def sidebar_render():
         </style>
         """, unsafe_allow_html=True)
 
-        st.markdown("###  Menu")
+        st.markdown("## Menu")
 
         if st.button("Card Metadata"):
             st.session_state.runpage = card_metadata_render
