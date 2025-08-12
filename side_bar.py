@@ -21,7 +21,7 @@ model_card_schema = utils.get_model_card_schema()
 
 st.set_page_config(layout="wide", initial_sidebar_state="expanded")
 
-SIDEBAR_WIDTH_PX = 420  
+SIDEBAR_WIDTH_PX = 500
 
 def sidebar_render():
     with st.sidebar:
@@ -52,8 +52,6 @@ def sidebar_render():
         }}
         </style>
         """, unsafe_allow_html=True)
-
-        #sidebar_render()
 
         st.markdown("## Menu")
 
