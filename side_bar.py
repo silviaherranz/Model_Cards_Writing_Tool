@@ -1,13 +1,13 @@
 import streamlit as st
 from huggingface_hub import upload_file
 from io_utils import save_uploadedfile, upload_json_card, upload_readme_card
-import tempfile
 from pathlib import Path
 import json
 from custom_pages.other_considerations import other_considerations_render
 from readme_builder import build_readme_from_card
 from template_base import SCHEMA
 import utils
+import validation_utils
 from middleMan import parse_into_json
 from custom_pages.card_metadata import card_metadata_render
 from custom_pages.model_basic_information import model_basic_information_render
@@ -16,36 +16,44 @@ from custom_pages.training_data import training_data_render
 from custom_pages.evaluation_data_mrc import evaluation_data_mrc_render
 from custom_pages.warnings import warnings_render
 from custom_pages.appendix import appendix_render
-import time
-
-import validation_utils
 
 model_card_schema = utils.get_model_card_schema()
 
+st.set_page_config(layout="wide", initial_sidebar_state="expanded")
+
+SIDEBAR_WIDTH_PX = 420  
+
 def sidebar_render():
     with st.sidebar:
-        # Apply CSS for all buttons inside the sidebar container
-        st.markdown("""
+        st.markdown(f"""
         <style>
-        /* Style Streamlit buttons inside sidebar */
-        section[data-testid="stSidebar"] button {
-            width: 100% !important;
-            text-align: left !important;
-            padding: 0.5rem 1rem !important;
-            border: 1px solid #ccc !important;
-            border-radius: 6px !important;
-            background-color: #ffffff !important;
-            color: #000 !important;
-            margin-bottom: 10px;
-            font-size: 14px;
-            font-weight: 500;
-        }
+        [data-testid="stSidebar"], [data-testid="stSidebar"] > div:first-child {{
+          width: {SIDEBAR_WIDTH_PX}px !important;
+        }}
 
-        section[data-testid="stSidebar"] button:hover {
-            background-color: #e0f0ff !important;
-        }
+        [data-testid="stSidebar"] .stButton > button,
+        [data-testid="stSidebar"] [data-testid="baseButton-primary"],
+        [data-testid="stSidebar"] [data-testid="baseButton-secondary"] {{
+          width: 100% !important;
+          text-align: left !important;
+          padding: 0.6rem 1rem !important;
+          border: 1px solid #d1d5db !important;
+          border-radius: 8px !important;
+          background: #ffffff !important;
+          color: #111827 !important;
+          margin-bottom: 10px !important;
+          box-shadow: none !important;
+        }}
+
+        [data-testid="stSidebar"] .stButton > button:hover,
+        [data-testid="stSidebar"] [data-testid="baseButton-primary"]:hover,
+        [data-testid="stSidebar"] [data-testid="baseButton-secondary"]:hover {{
+          background: #e0f0ff !important;
+        }}
         </style>
         """, unsafe_allow_html=True)
+
+        #sidebar_render()
 
         st.markdown("## Menu")
 
