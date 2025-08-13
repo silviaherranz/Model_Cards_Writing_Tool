@@ -112,7 +112,19 @@ def extract_evaluations_from_state():
         nested_prefix = f"evaluation_{slug}."
         evaluation = {"name": name}
 
-        for field in SCHEMA.get("evaluation_data", []):
+        eval_section = SCHEMA.get("evaluation_data", {})
+
+        if isinstance(eval_section, dict):
+            iter_fields = []
+            for field, props in eval_section.items():
+                allowed_tasks = props.get("model_types")
+                if allowed_tasks is None or task in allowed_tasks:
+                    iter_fields.append(field)
+        else:
+            # fallback por si viniera como lista
+            iter_fields = list(eval_section or [])
+
+        for field in iter_fields:
             key = prefix + field
             if field.startswith("evaluated_by_") and field in evaluation:
                 continue
