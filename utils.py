@@ -5,7 +5,29 @@ from datetime import datetime, date, timedelta
 import base64
 from fpdf import FPDF
 from middleMan import parse_into_json
+from collections import OrderedDict
 
+def insert_after(odict, new_key, new_value, after_key):
+    # Convert to a list of key-value pairs
+    if len(odict) == 0:
+        return {new_key: new_value}
+    items = list(odict.items())
+    new_items = []
+    for key, value in items:
+        new_items.append((key, value))
+        if key == after_key:
+            new_items.append((new_key, new_value))
+    return OrderedDict(new_items)
+
+
+def insert_dict_after(base_dict, insert_dict, after_key):
+    """Insert all key-value pairs from insert_dict into base_dict after after_key."""
+    new_items = []
+    for key, value in base_dict.items():
+        new_items.append((key, value))
+        if key == after_key:
+            new_items.extend(insert_dict.items())
+    return OrderedDict(new_items)
 
 def get_base64_image(path):
     with open(path, "rb") as f:
@@ -81,17 +103,8 @@ def populate_session_state_from_json(data):
         st.session_state["task"] = data["task"]
 
     for section, content in data.items():
-        if section == "learning_architectures":
-            st.session_state["learning_architecture_forms"] = {
-                f"Learning Architecture {i + 1}": {} for i in range(len(content))
-            }
-            for i, arch in enumerate(content):
-                prefix = f"learning_architecture_{i}_"
-                for key, value in arch.items():
-                    full_key = f"{prefix}{key}"
-                    st.session_state[full_key] = value
 
-        elif section == "training_data":
+        if section == "training_data":
             for k, v in content.items():
                 full_key = f"{section}_{k}"
                 if not isinstance(v, list):
@@ -167,7 +180,7 @@ def populate_session_state_from_json(data):
                         st.session_state[f"{prefix}{key}"] = metric_names
 
                         for metric in value:
-                            metric_prefix = f"evaluation_{name}_{metric['name']}"
+                            metric_prefix = f"evaluation_{name}.{metric['name']}"
                             for m_field, m_val in metric.items():
                                 if m_field != "name":
                                     st.session_state[f"{metric_prefix}_{m_field}"] = (
@@ -186,6 +199,32 @@ def populate_session_state_from_json(data):
 
                     else:
                         st.session_state[f"{prefix}{key}"] = value
+
+        elif section == "technical_specifications":
+            for k, v in content.items():
+                if k == "learning_architectures" and isinstance(v, list):
+                    st.session_state["learning_architecture_forms"] = {
+                        f"Learning Architecture {i + 1}": {} for i in range(len(v))
+                    }
+                    for i, arch in enumerate(v):
+                        prefix = f"learning_architecture_{i}_"
+                        for key, value in arch.items():
+                            full_key = f"{prefix}{key}"
+                            st.session_state[full_key] = value
+                    continue
+
+                elif k == "hw_and_sw" and isinstance(v, dict):
+                    for hw_sw_key, hw_sw_val in v.items():
+                        full_key = f"{k}_{hw_sw_key}"
+                        st.session_state[full_key] = hw_sw_val
+                    continue
+
+                full_key = f"{section}_{k}"
+                st.session_state[full_key] = v
+
+                if isinstance(v, list):
+                    st.session_state[full_key + "_list"] = v
+           
 
         elif isinstance(content, dict):
             for k, v in content.items():

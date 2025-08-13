@@ -92,7 +92,6 @@ SCHEMA = {
         "evaluated_by_contact_email": {},
         "evaluation_frame": {},
         "sanity_check": {"model_types": ["Image-to-Image translation"]},
-        "type_dose_dm": {},
         "total_size": {},
         "number_of_patients": {},
         "source": {},
@@ -165,7 +164,6 @@ DATA_INPUT_OUTPUT_TS = {
     "scan_reconstruction_parameters": "Scan reconstruction parameters",
     "fov": "FOV",
 }
-
 
 EVALUATION_METRIC_FIELDS = {
     "type_ism": [

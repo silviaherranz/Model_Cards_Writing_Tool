@@ -9,7 +9,7 @@ from template_base import (
     EVALUATION_METRIC_FIELDS,
 )
 from copy import deepcopy
-
+import utils
 
 def parse_into_json(schema):
     raw_data = {}
@@ -32,7 +32,6 @@ def parse_into_json(schema):
                 if allowed_tasks is None or current_task in allowed_tasks:
                     full_key = f"{section}_{key}"
                     raw_data[section][key] = st.session_state.get(full_key, "")
-
     forms = st.session_state.get("learning_architecture_forms", {})
     learning_architectures = []
 
@@ -58,10 +57,10 @@ def parse_into_json(schema):
         if section in raw_data:
             structured_data[section] = raw_data[section]
 
-    structured_data["learning_architectures"] = learning_architectures
+    structured_data["technical_specifications"]["learning_architectures"] = learning_architectures
 
     if "hw_and_sw" in raw_data:
-        structured_data["hw_and_sw"] = raw_data["hw_and_sw"]
+        structured_data["technical_specifications"]["hw_and_sw"] = raw_data["hw_and_sw"]
 
     if "training_data" in raw_data:
         structured_data["training_data"] = raw_data["training_data"]
@@ -97,8 +96,11 @@ def parse_into_json(schema):
 
     if "training_data" not in structured_data:
         structured_data["training_data"] = {}
-    structured_data["training_data"]["inputs_outputs_technical_specifications"] = (
-        io_details
+    structured_data["training_data"] = utils.insert_after(
+        structured_data["training_data"],
+        "inputs_outputs_technical_specifications",
+        io_details,
+        "url_info",
     )
 
     structured_data["evaluations"] = extract_evaluations_from_state()
@@ -114,7 +116,7 @@ def parse_into_json(schema):
 
             export_list = []
             for metric_name in metric_entries:
-                sub_prefix = f"evaluation_{eval_form.get('name', '')}.{metric_name}"
+                sub_prefix = f"evaluation_{eval_form.get('name', '')}_{metric_name}"
                 metric_obj = {"name": metric_name}
                 for field in EVALUATION_METRIC_FIELDS[metric_type]:
                     key = f"{sub_prefix}_{field}"

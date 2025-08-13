@@ -70,18 +70,14 @@ def load_model_card_page():
 
         if st.button("Load Model Card"):
             with st.spinner("Parsing and loading model card..."):
-                try:
-                    content = uploaded_file.read().decode("utf-8")
-                    json_data = json.loads(content)
-                    utils.populate_session_state_from_json(json_data)
-                    from custom_pages.card_metadata import card_metadata_render
+                content = uploaded_file.read().decode("utf-8")
+                json_data = json.loads(content)
+                utils.populate_session_state_from_json(json_data)
+                from custom_pages.card_metadata import card_metadata_render
 
-                    st.session_state.runpage = card_metadata_render
-                    st.success("Model card loaded successfully!")
-                    st.rerun()
-
-                except Exception as e:
-                    st.error(f"Error loading file: {e}")
+                st.session_state.runpage = card_metadata_render
+                st.success("Model card loaded successfully!")
+                st.rerun()
 
     if st.button("Return to Main Page"):
         st.session_state.runpage = main
@@ -193,19 +189,31 @@ def extract_evaluations_from_state():
                 detail[field] = val
             io_details.append(detail)
 
-        evaluation["inputs_outputs_technical_specifications"] = io_details
+        evaluation = utils.insert_after(
+            evaluation,
+            "inputs_outputs_technical_specifications",
+            io_details,
+            "url_info",
+        )
 
+        metric_dic = {}
         for metric_key in TASK_METRIC_MAP.get(task, []):
             type_list_key = f"{prefix}{metric_key}_list"
             metric_entries = st.session_state.get(type_list_key, [])
-            evaluation[metric_key] = []
+            metric_dic[metric_key] = []
 
             for metric_name in metric_entries:
                 entry = {"name": metric_name}
                 for field in EVALUATION_METRIC_FIELDS[metric_key]:
                     full_key = f"{nested_prefix}{metric_name}_{field}"
                     entry[field] = st.session_state.get(full_key, "")
-                evaluation[metric_key].append(entry)
+                metric_dic[metric_key].append(entry)
+        
+        evaluation = utils.insert_dict_after(
+            evaluation,
+            metric_dic,
+            "additional_patient_info_ev",
+        )
 
         evaluations.append(evaluation)
 
