@@ -149,3 +149,30 @@ def _restore_files_from_manifest(root: Path | None, data: dict, st):
                 dst = SECTIONS_DIR / _safe_name(src.name)
                 dst.write_bytes(src.read_bytes())
                 st.session_state[logical] = str(dst)
+
+# helpers_appendix_link.py
+from pathlib import Path
+from pack_io import APPENDIX_DIR
+
+def ensure_appendix_entry(st, src_path: Path, original_name: str, label: str = "") -> str:
+    """
+    Copy src_path to the Appendix folder (if needed), register in st.session_state.appendix_uploads,
+    set label, and return the 'appendix original name' used as the key.
+    """
+    APPENDIX_DIR.mkdir(parents=True, exist_ok=True)
+    if "appendix_uploads" not in st.session_state:
+        st.session_state.appendix_uploads = {}
+
+    # Use the original name as the dictionary key (what the UI shows)
+    key_name = original_name
+
+    # If the same key exists, just update path/label; else copy file first
+    dst = APPENDIX_DIR / src_path.name
+    if not dst.exists():
+        dst.write_bytes(src_path.read_bytes())
+
+    st.session_state.appendix_uploads[key_name] = {
+        "custom_label": label or "",
+        "path": str(dst),
+    }
+    return key_name

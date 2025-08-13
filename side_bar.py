@@ -319,12 +319,20 @@ def sidebar_render():
                                 )
 
                 if st.session_state.get("download_ready_zip"):
-                    # construimos el JSON actual y empaquetamos todo
+                    # Construir el JSON actual como dict (sin __files__ aún)
                     card_json = parse_into_json(SCHEMA)
                     if isinstance(card_json, str):
-                        card_json = json.loads(card_json)
+                        try:
+                            card_json = json.loads(card_json)
+                        except Exception as e:
+                            st.error(f"Error parsing JSON: {e}")
+                            st.session_state.download_ready_zip = False
+                            st.stop()
 
+                    # Empaquetar JSON + archivos en un ZIP (añade __files__ internamente)
                     zip_bytes = build_zip_from_state(card_json, st)
+
+                    # Botón de descarga
                     st.download_button(
                         "Your download is ready — click here (ZIP)",
                         data=zip_bytes,
@@ -334,6 +342,7 @@ def sidebar_render():
                         key="btn_download_zip",
                     )
                     st.session_state.download_ready_zip = False
+
 
         # ------------------------------
         # TAB 3 — Export to Hub

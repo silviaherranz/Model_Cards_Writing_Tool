@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from tg263 import RTSTRUCT_SUBTYPES
 import html
@@ -5,11 +6,17 @@ import utils
 import re
 import numpy as np
 from pathlib import Path
-from pack_io import SECTIONS_DIR, save_uploaded_to
+from pack_io import APPENDIX_DIR, SECTIONS_DIR, ensure_appendix_entry, save_uploaded_to
+import base64
 
 
 DEFAULT_SELECT = "< PICK A VALUE >"
 
+def _safe_name(name: str) -> str:
+    # keep simple + robust for filenames
+    name = name.strip()
+    name = re.sub(r"\s+", "_", name)
+    return re.sub(r"[^A-Za-z0-9._\-]", "", name)
 
 def selectbox_with_default(label, values, key=None, help=None):
     all_options = np.insert(np.array(values, object), 0, DEFAULT_SELECT)
@@ -459,53 +466,146 @@ def render_field(key, props, section_prefix):
                     label_visibility="hidden",
                     placeholder="-Select an option-",
                 )
+
         elif field_type == "Image":
+            # --- Keys used by this field
+            label_key           = f"{full_key}_appendix_note"   # the "label" / figure note
+            section_path_key    = f"{full_key}_image_path"      # file attached directly in the section (only when no label)
+            section_name_key    = f"{full_key}_image_name"      # original filename for section file
+            appendix_link_key   = f"{full_key}_appendix_link"   # which appendix label this field created/owns
+
+            # Make sure the global link registry exists (label -> owning field)
+            if "appendix_links" not in st.session_state:
+                st.session_state.appendix_links = {}
+
+            # --- UI: label and (conditionally disabled) uploader
             st.markdown(
-                "<i>If too big or not readable, please indicate the figure number and attach it to the appendix",
+                "<i>If too big or not readable, please indicate the figure number and attach it to the appendix</i>",
                 unsafe_allow_html=True,
             )
             col1, col2 = st.columns([1, 2])
+
+            # Persist label using your utilities
+            utils.load_value(label_key, default="")
             with col1:
                 st.text_input(
                     label=".",
+                    key="_" + label_key,
+                    on_change=utils.store_value,
+                    args=[label_key],
                     placeholder="e.g., Fig. 1",
-                    key=f"{full_key}_appendix_note",
-                    label_visibility="collapsed",
-                )
-            with col2:
-                uploaded_image = st.file_uploader(
-                    label=".",
-                    type=[
-                        "png","jpg","jpeg","gif","bmp","tiff","webp","svg",
-                        "dcm","dicom","nii","nifti","pdf","docx","doc",
-                        "pptx","ppt","txt","xlsx","xls",
-                    ],
-                    key=full_key,
                     label_visibility="collapsed",
                 )
 
-            # Guardado persistente
-            path_key = f"{full_key}_image_path"
-            name_key = f"{full_key}_image_name"
+            # Evaluate current label state
+            label_val = (st.session_state.get(label_key) or "").strip()
+            has_label = bool(label_val)
 
-            if uploaded_image:
-                ext = Path(uploaded_image.name).suffix or ".bin"
-                dest = SECTIONS_DIR / f"{full_key}{ext}"
-                save_uploaded_to(dest, uploaded_image)
-                st.session_state[path_key] = str(dest)
-                st.session_state[name_key] = uploaded_image.name
+            # --------------------------
+            # CASE A — label is empty: normal section uploader enabled
+            # --------------------------
+            if not has_label:
+                # If this field previously owned an appendix entry, remove it (entry + file)
+                prev_link = st.session_state.pop(appendix_link_key, None)
+                if prev_link:
+                    owner = st.session_state.get("appendix_links", {}).get(prev_link)
+                    if owner == full_key:
+                        appx = st.session_state.get("appendix_uploads", {})
+                        prev_entry = appx.pop(prev_link, None)
+                        if prev_entry:
+                            try:
+                                if prev_entry.get("path"):
+                                    os.remove(prev_entry["path"])
+                            except Exception:
+                                pass
+                        st.session_state.appendix_uploads = appx
+                        st.session_state.appendix_links.pop(prev_link, None)
 
-            # Mostrar si ya hay uno restaurado o previo (solo si existe)
-            current_path = st.session_state.get(path_key)
-            if current_path:
-                p = Path(current_path)
-                if p.exists():
-                    shown = st.session_state.get(name_key, p.name)
-                    st.caption(f"Archivo actual: `{shown}`")
-                else:
-                    st.warning("El archivo indicado ya no existe en disco. Se ha limpiado la referencia.")
-                    st.session_state.pop(path_key, None)
-                    st.session_state.pop(name_key, None)
+                # Standard uploader for the section (same behavior you had, but only when no label)
+                with col2:
+                    uploaded_image = st.file_uploader(
+                        label=".",
+                        type=["png","jpg","jpeg","gif","bmp","tiff","webp","svg",
+                            "dcm","dicom","nii","nifti","pdf","docx","doc",
+                            "pptx","ppt","txt","xlsx","xls"],
+                        key=full_key,
+                        label_visibility="collapsed",
+                        disabled=False,
+                    )
+
+                if uploaded_image:
+                    ext = Path(uploaded_image.name).suffix or ".bin"
+                    dest = SECTIONS_DIR / f"{full_key}{ext}"
+                    save_uploaded_to(dest, uploaded_image)
+                    st.session_state[section_path_key] = str(dest)
+                    st.session_state[section_name_key] = uploaded_image.name
+
+                # Show current section file (if any)
+                current_path = st.session_state.get(section_path_key)
+                if current_path and Path(current_path).exists():
+                    p = Path(current_path)
+                    st.caption(f"Current file: `{st.session_state.get(section_name_key, p.name)}`")
+                    with open(p, "rb") as fh:
+                        st.download_button(
+                            "Download current file",
+                            data=fh,
+                            file_name=p.name,
+                            key=f"dl_{full_key}",
+                        )
+                elif current_path and not Path(current_path).exists():
+                    # clear broken reference
+                    st.session_state.pop(section_path_key, None)
+                    st.session_state.pop(section_name_key, None)
+
+            # --------------------------
+            # CASE B — label present: disable section uploader, create/keep Appendix link, show only "Go to Appendix"
+            # --------------------------
+            else:
+                # Ensure the appendix structures exist
+                if "appendix_uploads" not in st.session_state:
+                    st.session_state.appendix_uploads = {}
+
+                # If the label changed from a previous one, clean the previous appendix entry we owned
+                prev_link = st.session_state.get(appendix_link_key)
+                if prev_link and prev_link != label_val:
+                    owner = st.session_state.get("appendix_links", {}).get(prev_link)
+                    if owner == full_key:
+                        appx = st.session_state.get("appendix_uploads", {})
+                        prev_entry = appx.pop(prev_link, None)
+                        if prev_entry:
+                            try:
+                                if prev_entry.get("path"):
+                                    os.remove(prev_entry["path"])
+                            except Exception:
+                                pass
+                        st.session_state.appendix_uploads = appx
+                        st.session_state.appendix_links.pop(prev_link, None)
+
+                # Create/ensure a placeholder entry in Appendix for this label (fixed label, empty path)
+                if label_val not in st.session_state.appendix_uploads:
+                    st.session_state.appendix_uploads[label_val] = {"custom_label": label_val, "path": ""}
+
+                # Persist the link ownership
+                st.session_state[appendix_link_key] = label_val
+                st.session_state.appendix_links[label_val] = full_key
+
+                # Show disabled uploader and a single action: Go to Appendix
+                with col2:
+                    st.file_uploader(  # purely visual; disabled
+                        label=".",
+                        type=["png","jpg","jpeg","gif","bmp","tiff","webp","svg",
+                            "dcm","dicom","nii","nifti","pdf","docx","doc",
+                            "pptx","ppt","txt","xlsx","xls"],
+                        key=f"{full_key}_disabled_uploader",
+                        label_visibility="collapsed",
+                        disabled=True,
+                    )
+                    st.info(f"Uploads for this figure are managed in Appendix under label **{label_val}**.")
+                    if st.button("Go to Appendix", key=f"go_to_appendix_{full_key}"):
+                        from custom_pages.appendix import appendix_render
+                        st.session_state.runpage = appendix_render
+                        st.rerun()
+
 
 
 

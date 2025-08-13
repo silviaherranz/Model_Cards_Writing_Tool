@@ -99,6 +99,9 @@ def set_safe_date_field(base_key: str, yyyymmdd_string: str | None):
 
 
 def populate_session_state_from_json(data):
+    data = {k: v for k, v in data.items() if k != "__files__"}
+    # ... resto de tu función sin cambios
+
     if "task" in data:
         st.session_state["task"] = data["task"]
 
