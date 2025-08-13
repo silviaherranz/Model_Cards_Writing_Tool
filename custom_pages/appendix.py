@@ -1,4 +1,5 @@
 import streamlit as st
+from pack_io import APPENDIX_DIR
 import utils
 import os
 import base64
@@ -29,17 +30,15 @@ def appendix_render():
         accept_multiple_files=True,
         help="Any file type is allowed.",
     )
-
     if uploaded_files:
         for file in uploaded_files:
             if file.name not in st.session_state.appendix_uploads:
-                save_path = f"appendix_{file.name}"
+                save_path = APPENDIX_DIR / f"{file.name}"
                 with open(save_path, "wb") as f:
                     f.write(file.getbuffer())
-
                 st.session_state.appendix_uploads[file.name] = {
                     "custom_label": "",
-                    "path": save_path,
+                    "path": str(save_path),
                 }
 
     deleted_files = []

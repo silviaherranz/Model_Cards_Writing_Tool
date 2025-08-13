@@ -1,6 +1,8 @@
+import os
 from pathlib import Path
 import pandas as pd
 import streamlit as st
+from pack_io import restore_from_json_or_zip
 from template_base import (
     SCHEMA,
     DATA_INPUT_OUTPUT_TS,
@@ -8,7 +10,6 @@ from template_base import (
     EVALUATION_METRIC_FIELDS,
 )
 import utils
-import json
 
 
 def get_state(key, default=None):
@@ -48,36 +49,75 @@ def task_selector_page():
     else:
         st.success(f"Task already selected: **{st.session_state['task']}**")
 
-
 def load_model_card_page():
+
     st.header("Load a Model Card")
 
     st.markdown(
-        "<p style='font-size:18px; font-weight:450;'>Upload a <code>.json</code> model card</p>",
+        "<p style='font-size:18px; font-weight:450;'>Upload a <code>.json</code> model card or a <code>.zip</code> package</p>",
         unsafe_allow_html=True,
     )
 
     uploaded_file = st.file_uploader(
-        "Upload your model card (.json)", type=["json"], label_visibility="collapsed"
+        "Upload your model card (.json or .zip)",
+        type=["json", "zip"],
+        label_visibility="collapsed",
     )
 
     st.info(
-        "Only `.json` files are supported. Please ensure your file is in the correct format."
+        "You can load a plain `.json` or a `.zip`."
     )
+
+    # limpiar estado anterior antes de cargar
+    def _clear_previous_files():
+        for info in list(st.session_state.get("appendix_uploads", {}).values()):
+            try:
+                os.remove(info.get("path", ""))
+            except Exception:
+                pass
+        st.session_state["appendix_uploads"] = {}
+        for k in [k for k in list(st.session_state.keys()) if k.endswith("_image_path")]:
+            st.session_state.pop(k, None)
+        # <-- faltaba limpiar también los nombres
+        for k in [k for k in list(st.session_state.keys()) if k.endswith("_image_name")]:
+            st.session_state.pop(k, None)
 
     if uploaded_file:
         st.success("File uploaded. Click the button below to load it.")
 
         if st.button("Load Model Card"):
             with st.spinner("Parsing and loading model card..."):
-                content = uploaded_file.read().decode("utf-8")
-                json_data = json.loads(content)
-                utils.populate_session_state_from_json(json_data)
-                from custom_pages.card_metadata import card_metadata_render
+                try:
+                    _clear_previous_files()
 
-                st.session_state.runpage = card_metadata_render
-                st.success("Model card loaded successfully!")
-                st.rerun()
+                    # 1) Restaurar desde JSON/ZIP (esto repuebla appendix_uploads y *_image_path)
+                    data = restore_from_json_or_zip(uploaded_file, st)
+
+                    # ---- SNAPSHOT de lo restaurado (para reinyectarlo después) ----
+                    restored_appendix = dict(st.session_state.get("appendix_uploads", {}))
+                    restored_file_keys = {
+                        k: v
+                        for k, v in st.session_state.items()
+                        if k.endswith("_image_path") or k.endswith("_image_name")
+                    }
+
+                    # 2) poblar el resto del estado desde el JSON (puede sobrescribir cosas)
+                    data_clean = {k: v for k, v in data.items() if k != "__files__"}
+                    utils.populate_session_state_from_json(data_clean)
+
+                    # ---- REINJECT: devolver los archivos restaurados al estado ----
+                    st.session_state["appendix_uploads"] = restored_appendix
+                    for k, v in restored_file_keys.items():
+                        st.session_state[k] = v
+
+                    # 3) continuar
+                    from custom_pages.card_metadata import card_metadata_render
+                    st.session_state.runpage = card_metadata_render
+                    st.success("Model card loaded successfully!")
+                    st.rerun()
+
+                except Exception as e:
+                    st.error(f"Could not load the file. Details: {e}")
 
     if st.button("Return to Main Page"):
         st.session_state.runpage = main

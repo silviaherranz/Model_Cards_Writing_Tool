@@ -4,6 +4,9 @@ import html
 import utils
 import re
 import numpy as np
+from pathlib import Path
+from pack_io import SECTIONS_DIR, save_uploaded_to
+
 
 DEFAULT_SELECT = "< PICK A VALUE >"
 
@@ -456,7 +459,6 @@ def render_field(key, props, section_prefix):
                     label_visibility="hidden",
                     placeholder="-Select an option-",
                 )
-
         elif field_type == "Image":
             st.markdown(
                 "<i>If too big or not readable, please indicate the figure number and attach it to the appendix",
@@ -474,32 +476,82 @@ def render_field(key, props, section_prefix):
                 uploaded_image = st.file_uploader(
                     label=".",
                     type=[
-                        "png",
-                        "jpg",
-                        "jpeg",
-                        "gif",
-                        "bmp",
-                        "tiff",
-                        "webp",
-                        "svg",
-                        "dcm",
-                        "dicom",
-                        "nii",
-                        "nifti",
-                        "pdf",
-                        "docx",
-                        "doc",
-                        "pptx",
-                        "ppt",
-                        "txt",
-                        "xlsx",
-                        "xls",
+                        "png","jpg","jpeg","gif","bmp","tiff","webp","svg",
+                        "dcm","dicom","nii","nifti","pdf","docx","doc",
+                        "pptx","ppt","txt","xlsx","xls",
                     ],
                     key=full_key,
                     label_visibility="collapsed",
                 )
+
+            # Guardado persistente
+            path_key = f"{full_key}_image_path"
+            name_key = f"{full_key}_image_name"
+
             if uploaded_image:
-                st.session_state[f"{full_key}_image"] = uploaded_image
+                ext = Path(uploaded_image.name).suffix or ".bin"
+                dest = SECTIONS_DIR / f"{full_key}{ext}"
+                save_uploaded_to(dest, uploaded_image)
+                st.session_state[path_key] = str(dest)
+                st.session_state[name_key] = uploaded_image.name
+
+            # Mostrar si ya hay uno restaurado o previo (solo si existe)
+            current_path = st.session_state.get(path_key)
+            if current_path:
+                p = Path(current_path)
+                if p.exists():
+                    shown = st.session_state.get(name_key, p.name)
+                    st.caption(f"Archivo actual: `{shown}`")
+                else:
+                    st.warning("El archivo indicado ya no existe en disco. Se ha limpiado la referencia.")
+                    st.session_state.pop(path_key, None)
+                    st.session_state.pop(name_key, None)
+
+
+
+        # elif field_type == "Image":
+        #     st.markdown(
+        #         "<i>If too big or not readable, please indicate the figure number and attach it to the appendix",
+        #         unsafe_allow_html=True,
+        #     )
+        #     col1, col2 = st.columns([1, 2])
+        #     with col1:
+        #         st.text_input(
+        #             label=".",
+        #             placeholder="e.g., Fig. 1",
+        #             key=f"{full_key}_appendix_note",
+        #             label_visibility="collapsed",
+        #         )
+        #     with col2:
+        #         uploaded_image = st.file_uploader(
+        #             label=".",
+        #             type=[
+        #                 "png",
+        #                 "jpg",
+        #                 "jpeg",
+        #                 "gif",
+        #                 "bmp",
+        #                 "tiff",
+        #                 "webp",
+        #                 "svg",
+        #                 "dcm",
+        #                 "dicom",
+        #                 "nii",
+        #                 "nifti",
+        #                 "pdf",
+        #                 "docx",
+        #                 "doc",
+        #                 "pptx",
+        #                 "ppt",
+        #                 "txt",
+        #                 "xlsx",
+        #                 "xls",
+        #             ],
+        #             key=full_key,
+        #             label_visibility="collapsed",
+        #         )
+        #     if uploaded_image:
+        #         st.session_state[f"{full_key}_image"] = uploaded_image
 
         else:
             utils.load_value(full_key)

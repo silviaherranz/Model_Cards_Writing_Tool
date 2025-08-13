@@ -3,6 +3,7 @@ from io_utils import save_uploadedfile, upload_json_card, upload_readme_card
 from pathlib import Path
 import json
 from custom_pages.other_considerations import other_considerations_render
+from pack_io import build_zip_from_state
 from readme_builder import build_readme_from_card
 from template_base import SCHEMA
 import utils
@@ -299,6 +300,40 @@ def sidebar_render():
                             key="btn_download_pdf",
                         )
                     st.session_state.download_ready_pdf = False
+
+                with st.form("form_download_zip"):
+                    zip_submit = st.form_submit_button("Download Model Card as `.zip`")
+                    if zip_submit:
+                        if st.session_state.get("format_error"):
+                            st.error("Cannot download — there are fields with invalid format.")
+                        else:
+                            missing_required = validation_utils.validate_required_fields(
+                                model_card_schema,
+                                st.session_state,
+                                current_task=st.session_state.get("task"),
+                            )
+                            st.session_state.download_ready_zip = True
+                            if missing_required:
+                                st.error(
+                                    "Some required fields are missing. Check the Warnings section on the sidebar for details."
+                                )
+
+                if st.session_state.get("download_ready_zip"):
+                    # construimos el JSON actual y empaquetamos todo
+                    card_json = parse_into_json(SCHEMA)
+                    if isinstance(card_json, str):
+                        card_json = json.loads(card_json)
+
+                    zip_bytes = build_zip_from_state(card_json, st)
+                    st.download_button(
+                        "Your download is ready — click here (ZIP)",
+                        data=zip_bytes,
+                        file_name="model_card_package.zip",
+                        mime="application/zip",
+                        use_container_width=True,
+                        key="btn_download_zip",
+                    )
+                    st.session_state.download_ready_zip = False
 
         # ------------------------------
         # TAB 3 — Export to Hub
