@@ -27,22 +27,67 @@ def get_cached_data():
 
 
 def task_selector_page():
-    st.header("Select Model Task")
+    import streamlit as st
 
     if "task" not in st.session_state:
+        # CSS para estilizar y centrar
+        st.markdown("""
+            <style>
+            /* Centrar todo el bloque */
+            .radio-center {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            /* Contenedor del grupo de radios */
+            div[role="radiogroup"] {
+                background-color: #f9f9f9;
+                padding: 1rem 2rem;
+                border-radius: 10px;
+                border: 1px solid #ddd;
+                display: inline-block;
+                text-align: left; /* mantiene las viñetas alineadas aunque esté centrado */
+            }
+            /* Texto de las opciones */
+            label[data-baseweb="radio"] > div:first-child {
+                font-size: 16px !important;
+                padding: 4px 0;
+            }
+            /* Color y estilo para la opción seleccionada */
+            div[role="radiogroup"] input:checked + div {
+                color: #1E88E5 !important;
+                font-weight: bold;
+            }
+            /* Espaciado entre opciones */
+            label[data-baseweb="radio"] {
+                margin-bottom: 6px;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+        # Contenedor central
+        st.markdown("<div class='radio-center'>", unsafe_allow_html=True)
+
+        # Título centrado
+        st.markdown("## Select the task for your model card", unsafe_allow_html=True)
+
+        # Radio centrado
         selected_task = st.radio(
-            "Select the task for your model card",
+            ".",
             ["Image-to-Image translation", "Segmentation", "Dose prediction", "Other"],
             key="task_temp",
+            label_visibility="hidden"
         )
 
-        if st.button("Continue"):
-            st.session_state["task"] = selected_task
-            from custom_pages.card_metadata import card_metadata_render
+        st.markdown("</div>", unsafe_allow_html=True)
 
-            st.session_state.runpage = card_metadata_render
+        if st.button("Continue", use_container_width=True):
+            st.session_state["task"] = selected_task
+            from custom_pages.model_card_info import model_card_info_render
+
+            st.session_state.runpage = model_card_info_render
             st.rerun()
-        if st.button("Return to Main Page"):
+        if st.button("Return to Main Page", use_container_width=True):
             st.session_state.runpage = main
             st.rerun()
     else:
@@ -68,7 +113,7 @@ def load_model_card_page():
     if uploaded_file:
         st.success("File uploaded. Click the button below to load it.")
 
-        if st.button("Load Model Card"):
+        if st.button("Load Model Card", use_container_width=True):
             with st.spinner("Parsing and loading model card..."):
                 content = uploaded_file.read().decode("utf-8")
                 json_data = json.loads(content)
@@ -79,7 +124,7 @@ def load_model_card_page():
                 st.success("Model card loaded successfully!")
                 st.rerun()
 
-    if st.button("Return to Main Page"):
+    if st.button("Return to Main Page", use_container_width=True):
         st.session_state.runpage = main
         st.rerun()
 
@@ -239,37 +284,37 @@ def main_page():
 
     get_cached_data()
 
-    """ missing_required = utils.validate_required_fields(
-        model_card_schema, st.session_state, current_task=task
-    )
-
-    if missing_required:
-        st.warning(
-            "Warning: The following required fields are missing:\n\n"
-            + "\n".join([f"- {field}" for field in missing_required])
-        ) """
-
 
 def page_switcher(page):
     st.session_state.runpage = page
 
 
 def main():
-    st.header("About Model Cards")
-    about_path = Path("about.md")
-    if about_path.exists():
-        st.markdown(about_path.read_text(), unsafe_allow_html=True)
-    else:
-        st.error(
-            "The file 'about.md' is missing. Please ensure it exists in the current working directory."
-        )
-    col1, col2 = st.columns([3.4, 1])
-    with col1:
-        if st.button("Create a Model Card"):
+
+    st.markdown("""
+        <style>
+        .block-container p, .block-container li {
+            text-align: justify;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("## About Model Cards")
+
+    st.markdown("""
+    - This model card aims to **enhance transparency and standardize the reporting of artificial intelligence (AI)-based applications** in the field of **Radiation Therapy**. It is designed for use by professionals in both research and clinical settings to support these objectives. However it includes items useful for current regulatory requirements, **it does not replace or fulfill regulatory requirements such as the EU Medical Device Regulation or equivalent standards**.
+    """)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    center_col = st.columns([1, 2, 1])[1]  # columna central
+
+    with center_col:
+        if st.button("Create a Model Card", use_container_width=True):
             page_switcher(task_selector_page)
             st.rerun()
-    with col2:
-        if st.button("Load a Model Card"):
+
+        if st.button("Load a Model Card", use_container_width=True):
             page_switcher(load_model_card_page)
             st.rerun()
 

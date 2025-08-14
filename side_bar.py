@@ -1,4 +1,5 @@
 import streamlit as st
+from custom_pages.model_card_info import model_card_info_render
 from io_utils import save_uploadedfile, upload_json_card, upload_readme_card
 from pathlib import Path
 import json
@@ -55,6 +56,10 @@ def sidebar_render():
         """,
             unsafe_allow_html=True,
         )
+
+        if st.button("About Model Cards"):
+            st.session_state.runpage = model_card_info_render
+            st.rerun()
 
         st.markdown("## Menu")
 
