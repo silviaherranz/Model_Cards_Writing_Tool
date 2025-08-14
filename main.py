@@ -27,33 +27,32 @@ def get_cached_data():
 
 
 def task_selector_page():
-    import streamlit as st
-
     if "task" not in st.session_state:
-        # CSS para estilizar y centrar
         st.markdown("""
             <style>
-            /* Centrar todo el bloque */
+            /* Contenedor central de todo el bloque */
             .radio-center {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                width: 100%;
             }
-            /* Contenedor del grupo de radios */
+            /* Caja de opciones centrada */
             div[role="radiogroup"] {
                 background-color: #f9f9f9;
                 padding: 1rem 2rem;
                 border-radius: 10px;
                 border: 1px solid #ddd;
                 display: inline-block;
-                text-align: left; /* mantiene las viñetas alineadas aunque esté centrado */
+                text-align: left;
+                margin: auto; /* Centra horizontalmente */
             }
             /* Texto de las opciones */
             label[data-baseweb="radio"] > div:first-child {
                 font-size: 16px !important;
                 padding: 4px 0;
             }
-            /* Color y estilo para la opción seleccionada */
+            /* Opción seleccionada */
             div[role="radiogroup"] input:checked + div {
                 color: #1E88E5 !important;
                 font-weight: bold;
@@ -69,17 +68,25 @@ def task_selector_page():
         st.markdown("<div class='radio-center'>", unsafe_allow_html=True)
 
         # Título centrado
-        st.markdown("## Select the task for your model card", unsafe_allow_html=True)
-
-        # Radio centrado
-        selected_task = st.radio(
-            ".",
-            ["Image-to-Image translation", "Segmentation", "Dose prediction", "Other"],
-            key="task_temp",
-            label_visibility="hidden"
+        st.markdown(
+            "<h2 style='text-align: center;'>Select the task for your Model Card</h2>",
+            unsafe_allow_html=True
         )
 
+
+        left, center, right = st.columns([1, 2, 1])
+
+        with center:
+        # Radio centrado
+            selected_task = st.radio(
+                ".",
+                ["Image-to-Image translation", "Segmentation", "Dose prediction", "Other"],
+                key="task_temp",
+                label_visibility="hidden"
+            )
+
         st.markdown("</div>", unsafe_allow_html=True)
+
 
         if st.button("Continue", use_container_width=True):
             st.session_state["task"] = selected_task
@@ -302,21 +309,18 @@ def main():
     st.markdown("## About Model Cards")
 
     st.markdown("""
-    - This model card aims to **enhance transparency and standardize the reporting of artificial intelligence (AI)-based applications** in the field of **Radiation Therapy**. It is designed for use by professionals in both research and clinical settings to support these objectives. However it includes items useful for current regulatory requirements, **it does not replace or fulfill regulatory requirements such as the EU Medical Device Regulation or equivalent standards**.
+    This model card aims to **enhance transparency and standardize the reporting of artificial intelligence (AI)-based applications** in the field of **Radiation Therapy**. It is designed for use by professionals in both research and clinical settings to support these objectives. However it includes items useful for current regulatory requirements, **it does not replace or fulfill regulatory requirements such as the EU Medical Device Regulation or equivalent standards**.
     """)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    center_col = st.columns([1, 2, 1])[1]  # columna central
+    if st.button("Create a Model Card", use_container_width=True):
+        page_switcher(task_selector_page)
+        st.rerun()
 
-    with center_col:
-        if st.button("Create a Model Card", use_container_width=True):
-            page_switcher(task_selector_page)
-            st.rerun()
-
-        if st.button("Load a Model Card", use_container_width=True):
-            page_switcher(load_model_card_page)
-            st.rerun()
+    if st.button("Load a Model Card", use_container_width=True):
+        page_switcher(load_model_card_page)
+        st.rerun()
 
 
 if __name__ == "__main__":
