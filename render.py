@@ -47,6 +47,58 @@ def should_render(props, current_task):
         return current_task.strip().lower() in map(str.lower, model_types)
     return False
 
+def render_image_field(key, props, section_prefix):
+    full_key = f"{section_prefix}_{key}"
+    label = props.get("label") or key or "Field"
+    description = props.get("description", "")
+    example = props.get("example", "")
+    field_type = props.get("type", "")
+    required = props.get("required", False)
+
+    create_helpicon(label, description, field_type, example, required)
+
+    st.markdown(
+        "<i>If too big or not readable, please indicate the figure number and attach it to the appendix",
+        unsafe_allow_html=True,
+    )
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        st.text_input(
+            label=".",
+            placeholder="e.g., Fig. 1",
+            key=f"{full_key}_appendix_note",
+            label_visibility="collapsed",
+        )
+    with col2:
+        uploaded_image = st.file_uploader(
+            label=".",
+            type=[
+                "png",
+                "jpg",
+                "jpeg",
+                "gif",
+                "bmp",
+                "tiff",
+                "webp",
+                "svg",
+                "dcm",
+                "dicom",
+                "nii",
+                "nifti",
+                "pdf",
+                "docx",
+                "doc",
+                "pptx",
+                "ppt",
+                "txt",
+                "xlsx",
+                "xls",
+            ],
+            key=full_key,
+            label_visibility="collapsed",
+        )
+    if uploaded_image:
+        st.session_state[f"{full_key}_image"] = uploaded_image
 
 def render_field(key, props, section_prefix):
     full_key = f"{section_prefix}_{key}"
@@ -456,50 +508,6 @@ def render_field(key, props, section_prefix):
                     label_visibility="hidden",
                     placeholder="-Select an option-",
                 )
-
-        elif field_type == "Image":
-            st.markdown(
-                "<i>If too big or not readable, please indicate the figure number and attach it to the appendix",
-                unsafe_allow_html=True,
-            )
-            col1, col2 = st.columns([1, 2])
-            with col1:
-                st.text_input(
-                    label=".",
-                    placeholder="e.g., Fig. 1",
-                    key=f"{full_key}_appendix_note",
-                    label_visibility="collapsed",
-                )
-            with col2:
-                uploaded_image = st.file_uploader(
-                    label=".",
-                    type=[
-                        "png",
-                        "jpg",
-                        "jpeg",
-                        "gif",
-                        "bmp",
-                        "tiff",
-                        "webp",
-                        "svg",
-                        "dcm",
-                        "dicom",
-                        "nii",
-                        "nifti",
-                        "pdf",
-                        "docx",
-                        "doc",
-                        "pptx",
-                        "ppt",
-                        "txt",
-                        "xlsx",
-                        "xls",
-                    ],
-                    key=full_key,
-                    label_visibility="collapsed",
-                )
-            if uploaded_image:
-                st.session_state[f"{full_key}_image"] = uploaded_image
 
         else:
             utils.load_value(full_key)

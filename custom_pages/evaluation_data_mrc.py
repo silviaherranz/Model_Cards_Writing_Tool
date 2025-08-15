@@ -6,6 +6,7 @@ from render import (
     render_field,
     render_fields,
     has_renderable_fields,
+    render_image_field,
     should_render,
 )
 
@@ -386,7 +387,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         )
 
                     if should_render(schema_section["figure_ism"], task):
-                        render_field(
+                        render_image_field(
                             "figure_ism", schema_section["figure_ism"], sub_prefix
                         )
 
@@ -490,7 +491,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         )
 
                     if should_render(schema_section["figure_dm"], task):
-                        render_field(
+                        render_image_field(
                             "figure_dm", schema_section["figure_dm"], sub_prefix
                         )
 
@@ -552,7 +553,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         schema_section["mean_data_gm_seg"],
                         sub_prefix,
                     )
-                    render_field(
+                    render_image_field(
                         "figure_gm_seg", schema_section["figure_gm_seg"], sub_prefix
                     )
 
@@ -653,7 +654,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         )
 
                     if should_render(schema_section["figure_dm_seg"], task):
-                        render_field(
+                        render_image_field(
                             "figure_dm_seg", schema_section["figure_dm_seg"], sub_prefix
                         )
 
@@ -744,7 +745,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                         )
 
                     if should_render(schema_section["figure_dm_dp"], task):
-                        render_field(
+                        render_image_field(
                             "figure_dm_dp", schema_section["figure_dm_dp"], sub_prefix
                         )
 
@@ -785,7 +786,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                     render_field(
                         "mean_data_other", schema_section["mean_data_other"], sub_prefix
                     )
-                    render_field(
+                    render_image_field(
                         "figure_other", schema_section["figure_other"], sub_prefix
                     )
 

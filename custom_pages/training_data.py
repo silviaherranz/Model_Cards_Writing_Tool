@@ -1,6 +1,6 @@
 import streamlit as st
 import utils
-from render import render_field, should_render
+from render import render_field, render_image_field, should_render
 
 
 def training_data_render():
@@ -278,8 +278,9 @@ def training_data_render():
     with col3:
         render_field("learning_rate", section["learning_rate"], "training_data")
 
+    render_image_field("train_and_validation_loss_curves", section["train_and_validation_loss_curves"], "training_data")
+
     for field in [
-        "train_and_validation_loss_curves",
         "model_choice_criteria",
         "inference_method",
     ]:

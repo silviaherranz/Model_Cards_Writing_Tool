@@ -20,6 +20,8 @@
 
 We see the model card as a tool to be adapted to the needs of our community, which might change according to the evolution and implementation challenges of AI in Radiation Therapy, both in research and clinical environments. If you would like to propose changes or edits in the model card, please contact our group for further discussion. Also, please indicate any (open source) repository where the model card and/or model are available.
 
+---
+
 ### MODEL CARD STRUCTURE
 
 The provided model card is divided into 6 fields:  

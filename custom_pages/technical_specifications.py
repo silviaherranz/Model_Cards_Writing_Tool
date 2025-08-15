@@ -1,6 +1,6 @@
 import streamlit as st
 import utils
-from render import render_field
+from render import render_field, render_image_field
 
 
 def technical_specifications_render():
@@ -24,7 +24,7 @@ def technical_specifications_render():
         section["model_pipeline_summary"],
         "technical_specifications",
     )
-    render_field(
+    render_image_field(
         "model_pipeline_figure",
         section["model_pipeline_figure"],
         "technical_specifications",
@@ -171,8 +171,13 @@ def technical_specifications_render():
                 with col3:
                     render_field("regularisation", section["regularisation"], prefix)
 
-                for field in [
+                render_image_field(
                     "architecture_figure",
+                    section["architecture_figure"],
+                    prefix,
+                )
+
+                for field in [
                     "uncertainty_quantification_techniques",
                     "explainability_techniques",
                     "additional_information_ts",
