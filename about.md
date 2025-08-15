@@ -1,5 +1,9 @@
 ## About Model Cards
 
+---
+
+### IMPORTANT INFORMATION, DISCLAIMERS, and FAQs
+
 - This model card aims to **enhance transparency and standardize the reporting of artificial intelligence (AI)-based applications** in the field of **Radiation Therapy**. It is designed for use by professionals in both research and clinical settings to support these objectives. Although it includes items useful for current regulatory requirements, **it does not replace or fulfill regulatory requirements such as the EU Medical Device Regulation or equivalent standards**.
 
 - A **“model”** is defined as the whole set of chained operations that compose an AI-based application. This typically includes a main learning architecture (i.e., with trainable parameters) inserted into a pipeline with pre-processing and post-processing steps. Please note that for safety and transparency purposes, providing information about the full pipeline, including the pre-processing and post-processing steps, is equally important as for the learning architecture itself.
@@ -15,3 +19,18 @@
 - **Contact:** rtmodelcard@googlegroups.com
 
 We see the model card as a tool to be adapted to the needs of our community, which might change according to the evolution and implementation challenges of AI in Radiation Therapy, both in research and clinical environments. If you would like to propose changes or edits in the model card, please contact our group for further discussion. Also, please indicate any (open source) repository where the model card and/or model are available.
+
+### MODEL CARD STRUCTURE
+
+The provided model card is divided into 6 fields:  
+
+0) **Card metadata** – Relevant information about the model card itself  
+1) **Model basic information** – Main information to use the model  
+2) **Technical specifications** – Model pipeline, learning architecture, software, and hardware  
+3) **Training data, methodology, and information** – All information about training and validation data  
+4) **Evaluation data, methodology, and results / commissioning** – All information about the evaluation data and procedure.  
+   Because it is common to evaluate your model on a different dataset, this section can be repeated as many times as needed.  
+   We refer to **evaluation results** for models that are evaluated but not necessarily with a clinical implementation in mind, and **commissioning** for models that are specifically evaluated within a clinical environment with clinic-specific data.  
+5) **Other considerations**  
+
+**Status of a field:** `*` means **REQUIRED** element. If missing, the element is **OPTIONAL**.

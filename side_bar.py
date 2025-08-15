@@ -26,67 +26,81 @@ SIDEBAR_WIDTH_PX = 500
 def sidebar_render():
     with st.sidebar:
         st.markdown(
-            f"""
-        <style>
-        [data-testid="stSidebar"], [data-testid="stSidebar"] > div:first-child {{
-          width: {SIDEBAR_WIDTH_PX}px !important;
-        }}
+            """
+            <style>
+            /* Sidebar responsive que respeta el estado expandido/colapsado */
+            [data-testid="stSidebar"][aria-expanded="true"] {
+            width: clamp(260px, 26vw, 500px) !important;  /* entre 260 y 500 */
+            min-width: 260px !important;
+            }
+            [data-testid="stSidebar"][aria-expanded="false"] {
+            width: 0 !important;
+            min-width: 0 !important;
+            }
 
-        [data-testid="stSidebar"] .stButton > button,
-        [data-testid="stSidebar"] [data-testid="baseButton-primary"],
-        [data-testid="stSidebar"] [data-testid="baseButton-secondary"] {{
-          width: 100% !important;
-          text-align: left !important;
-          padding: 0.6rem 1rem !important;
-          border: 1px solid #d1d5db !important;
-          border-radius: 8px !important;
-          background: #ffffff !important;
-          color: #111827 !important;
-          margin-bottom: 10px !important;
-          box-shadow: none !important;
-        }}
+            /* Botones: ocupan todo el ancho disponible del sidebar */
+            [data-testid="stSidebar"] .stButton > button,
+            [data-testid="stSidebar"] [data-testid="baseButton-primary"],
+            [data-testid="stSidebar"] [data-testid="baseButton-secondary"] {
+            width: 100% !important;
+            text-align: left !important;
+            padding: 0.6rem 1rem !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 8px !important;
+            background: #ffffff !important;
+            color: #111827 !important;
+            margin-bottom: 10px !important;
+            box-shadow: none !important;
+            }
+            [data-testid="stSidebar"] .stButton > button:hover,
+            [data-testid="stSidebar"] [data-testid="baseButton-primary"]:hover,
+            [data-testid="stSidebar"] [data-testid="baseButton-secondary"]:hover {
+            background: #e0f0ff !important;
+            }
 
-        [data-testid="stSidebar"] .stButton > button:hover,
-        [data-testid="stSidebar"] [data-testid="baseButton-primary"]:hover,
-        [data-testid="stSidebar"] [data-testid="baseButton-secondary"]:hover {{
-          background: #e0f0ff !important;
-        }}
-        </style>
-        """,
+            /* En pantallas pequeñas, limita aún más el ancho */
+            @media (max-width: 1024px) {
+            [data-testid="stSidebar"][aria-expanded="true"] {
+                width: 260px !important;
+            }
+            }
+            </style>
+            """,
             unsafe_allow_html=True,
         )
 
-        if st.button("About Model Cards"):
+
+        if st.button("About Model Cards", use_container_width=True):
             st.session_state.runpage = model_card_info_render
             st.rerun()
 
         st.markdown("## Menu")
 
-        if st.button("Card Metadata"):
+        if st.button("Card Metadata", use_container_width=True):
             st.session_state.runpage = card_metadata_render
             st.rerun()
 
-        if st.button("Model Basic Information"):
+        if st.button("Model Basic Information", use_container_width=True):
             st.session_state.runpage = model_basic_information_render
             st.rerun()
 
-        if st.button("Technical Specifications"):
+        if st.button("Technical Specifications", use_container_width=True):
             st.session_state.runpage = technical_specifications_render
             st.rerun()
 
-        if st.button("Training Data Methodology and Information"):
+        if st.button("Training Data Methodology and Information", use_container_width=True):
             st.session_state.runpage = training_data_render
             st.rerun()
 
-        if st.button("Evaluation Data Methodology, Results and Commissioning"):
+        if st.button("Evaluation Data Methodology, Results and Commissioning", use_container_width=True):
             st.session_state.runpage = evaluation_data_mrc_render
             st.rerun()
 
-        if st.button("Other Considerations"):
+        if st.button("Other Considerations", use_container_width=True):
             st.session_state.runpage = other_considerations_render
             st.rerun()
 
-        if st.button("Appendix"):
+        if st.button("Appendix", use_container_width=True):
             st.session_state.runpage = appendix_render
             st.rerun()
 
