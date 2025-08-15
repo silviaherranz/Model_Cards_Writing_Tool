@@ -26,49 +26,33 @@ SIDEBAR_WIDTH_PX = 500
 def sidebar_render():
     with st.sidebar:
         st.markdown(
-            """
-            <style>
-            [data-testid="stSidebar"],
-            [data-testid="stSidebar"] > div:first-child {
-            min-width: 220px;      
-            max-width: 560px;      
+            f"""
+        <style>
+        [data-testid="stSidebar"], [data-testid="stSidebar"] > div:first-child {{
+          width: {SIDEBAR_WIDTH_PX}px !important;
+        }}
 
-            }
-            [data-testid="stSidebar"] > div:first-child { width: 560px; }
+        [data-testid="stSidebar"] .stButton > button,
+        [data-testid="stSidebar"] [data-testid="baseButton-primary"],
+        [data-testid="stSidebar"] [data-testid="baseButton-secondary"] {{
+          width: 100% !important;
+          text-align: left !important;
+          padding: 0.6rem 1rem !important;
+          border: 1px solid #d1d5db !important;
+          border-radius: 8px !important;
+          background: #ffffff !important;
+          color: #111827 !important;
+          margin-bottom: 10px !important;
+          box-shadow: none !important;
+        }}
 
-            [data-testid="stSidebar"] {
-            overflow-x: hidden;
-            }
-            [data-testid="stSidebar"] .stButton,
-            [data-testid="stSidebar"] [data-testid="baseButton-primary"],
-            [data-testid="stSidebar"] [data-testid="baseButton-secondary"] {
-            width: 100% !important;
-            max-width: 100% !important;
-            }
-
-            [data-testid="stSidebar"] .stButton > button,
-            [data-testid="stSidebar"] [data-testid="baseButton-primary"],
-            [data-testid="stSidebar"] [data-testid="baseButton-secondary"] {
-            width: 100% !important;
-            max-width: 100% !important;
-            box-sizing: border-box !important;  /* cuenta padding/borde en el 100% */
-            text-align: left !important;
-            padding: 0.6rem 1rem !important;
-            border: 1px solid #d1d5db !important;
-            border-radius: 8px !important;
-            background: #ffffff !important;
-            color: #111827 !important;
-            margin-bottom: 10px !important;
-            box-shadow: none !important;
-            }
-
-            [data-testid="stSidebar"] .stButton > button:hover,
-            [data-testid="stSidebar"] [data-testid="baseButton-primary"]:hover,
-            [data-testid="stSidebar"] [data-testid="baseButton-secondary"]:hover {
-            background: #e0f0ff !important;
-            }
-            </style>
-            """,
+        [data-testid="stSidebar"] .stButton > button:hover,
+        [data-testid="stSidebar"] [data-testid="baseButton-primary"]:hover,
+        [data-testid="stSidebar"] [data-testid="baseButton-secondary"]:hover {{
+          background: #e0f0ff !important;
+        }}
+        </style>
+        """,
             unsafe_allow_html=True,
         )
 

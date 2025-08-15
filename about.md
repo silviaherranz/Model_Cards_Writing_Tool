@@ -1,6 +1,6 @@
 ## About Model Cards
 
-- This model card aims to **enhance transparency and standardize the reporting of artificial intelligence (AI)-based applications** in the field of **Radiation Therapy**. It is designed for use by professionals in both research and clinical settings to support these objectives. However it includes items useful for current regulatory requirements, **it does not replace or fulfill regulatory requirements such as the EU Medical Device Regulation or equivalent standards**.
+- This model card aims to **enhance transparency and standardize the reporting of artificial intelligence (AI)-based applications** in the field of **Radiation Therapy**. It is designed for use by professionals in both research and clinical settings to support these objectives. Although it includes items useful for current regulatory requirements, **it does not replace or fulfill regulatory requirements such as the EU Medical Device Regulation or equivalent standards**.
 
 - A **“model”** is defined as the whole set of chained operations that compose an AI-based application. This typically includes a main learning architecture (i.e., with trainable parameters) inserted into a pipeline with pre-processing and post-processing steps. Please note that for safety and transparency purposes, providing information about the full pipeline, including the pre-processing and post-processing steps, is equally important as for the learning architecture itself.
 
