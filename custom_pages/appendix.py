@@ -12,7 +12,17 @@ def appendix_render():
 
     sidebar_render()
 
+    
     utils.title("Appendix")
+    st.info(
+        "Files uploaded in the **Appendix** as well as files added in other sections will **not** reappear when you load an incomplete model card.\n\n"
+        "They are included only when you download:\n"
+        "- the **ZIP with files**\n"
+        "- the **ZIP with Model Card (`.json`) + files**\n"
+        "- the **Model Card as `.pdf`**",
+        icon="ℹ",
+    )
+
     utils.subtitle(
         "Attach any additional files you want to include in your model card."
     )
@@ -22,6 +32,9 @@ def appendix_render():
 
     if "appendix_uploads" not in st.session_state:
         st.session_state.appendix_uploads = {}
+
+    if "all_uploaded_paths" not in st.session_state:
+        st.session_state.all_uploaded_paths = set()
 
     uploaded_files = st.file_uploader(
         "Upload files here",
@@ -33,6 +46,7 @@ def appendix_render():
     if uploaded_files:
         for file in uploaded_files:
             if file.name not in st.session_state.appendix_uploads:
+
                 save_path = f"appendix_{file.name}"
                 with open(save_path, "wb") as f:
                     f.write(file.getbuffer())
@@ -41,6 +55,10 @@ def appendix_render():
                     "custom_label": "",
                     "path": save_path,
                 }
+                try:
+                    st.session_state.all_uploaded_paths.add(save_path)
+                except Exception:
+                    pass
 
     deleted_files = []
     current_file_names = [f.name for f in uploaded_files] if uploaded_files else []
@@ -54,6 +72,16 @@ def appendix_render():
             os.remove(st.session_state.appendix_uploads[file_to_delete]["path"])
         except Exception:
             pass
+
+        try:
+            st.session_state.all_uploaded_paths.discard(
+                st.session_state.appendix_uploads[file_to_delete]["path"]
+            )
+        except Exception:
+            pass
+        # ---------------------------------------------------
+
+        # Borra metadatos
         del st.session_state.appendix_uploads[file_to_delete]
 
     if st.session_state.appendix_uploads:

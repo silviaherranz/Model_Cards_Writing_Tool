@@ -1,3 +1,7 @@
+import io
+import os
+from pathlib import Path
+import zipfile
 import streamlit as st
 from custom_pages.model_card_info import model_card_info_render
 from io_utils import save_uploadedfile, upload_json_card, upload_readme_card
@@ -317,15 +321,117 @@ def sidebar_render():
                             key="btn_download_pdf",
                         )
                     st.session_state.download_ready_pdf = False
+                
+            
+                def _get_uploaded_paths():
+                    paths = st.session_state.get("all_uploaded_paths", set())
+                    return [p for p in list(paths) if isinstance(p, str) and os.path.exists(p)]
+
+                # ========== FORM: Download files (.zip only) ==========
+                with st.form("form_download_files"):
+                    submit_files = st.form_submit_button("Download files (`.zip`)")
+                    if submit_files:
+                        files = _get_uploaded_paths()
+                        if not files:
+                            st.warning("No uploaded files to download.")
+                        else:
+                            st.session_state.download_files_ready = True
+
+                if st.session_state.get("download_files_ready"):
+                    files = _get_uploaded_paths()
+                    if not files:
+                        st.warning("No uploaded files to download.")
+                    else:
+                        buffer = io.BytesIO()
+                        with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+                            for fpath in files:
+                                try:
+                                    arcname = Path(fpath).name
+                                    zf.write(fpath, arcname=arcname)
+                                except Exception:
+                                    st.warning(f"Could not add: {fpath}")
+                        buffer.seek(0)
+
+                        st.download_button(
+                            label="Download all files (ZIP)",
+                            data=buffer,
+                            file_name="uploaded_files.zip",
+                            mime="application/zip",
+                            key="btn_download_files_zip",
+                            use_container_width=True,
+                        )
+
+                    st.session_state.download_files_ready = False
+
+                # ========== FORM: Download .zip (json + files) ==========
+                with st.form("form_download_zip_all"):
+                    zip_submit = st.form_submit_button("Download `.zip` (Model Card `.json` + files)")
+                    if zip_submit:
+                        files = _get_uploaded_paths()
+                        if not files:
+                            st.warning("No uploaded files to include in the ZIP.")
+                        else:
+                            if st.session_state.get("format_error"):
+                                st.error("Cannot download — there are fields with invalid format.")
+                            else:
+                                missing_required = validation_utils.validate_required_fields(
+                                    model_card_schema,
+                                    st.session_state,
+                                    current_task=st.session_state.get("task"),
+                                )
+                                st.session_state.download_zip_ready = True
+                                if missing_required:
+                                    st.error(
+                                        "Some required fields are missing. Check the Warnings section on the sidebar for details."
+                                    )
+
+                if st.session_state.get("download_zip_ready"):
+                    files = _get_uploaded_paths()
+                    if not files:
+                        st.warning("No uploaded files to include in the ZIP.")
+                    else:
+                        # 1) Generar JSON como en tu flujo actual
+                        card_content = parse_into_json(SCHEMA)  # usa los imports ya presentes
+
+                        # 2) Crear ZIP en memoria con JSON + files
+                        buffer = io.BytesIO()
+                        try:
+                            with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+                                # Añade el JSON
+                                zf.writestr("model_card.json", card_content)
+
+                                # Añade los ficheros subidos
+                                for fpath in files:
+                                    try:
+                                        arcname = f"files/{Path(fpath).name}"
+                                        zf.write(fpath, arcname=arcname)
+                                    except Exception:
+                                        st.warning(f"Could not add: {fpath}")
+                            buffer.seek(0)
+
+                            st.download_button(
+                                "Your download is ready — click here (ZIP)",
+                                data=buffer,
+                                file_name="model_card_with_files.zip",
+                                mime="application/zip",
+                                key="btn_download_zip_all",
+                                use_container_width=True,
+                            )
+                        finally:
+                            # Limpia el buffer si quieres evitar mantenerlo en sesión
+                            pass
+
+                    st.session_state.download_zip_ready = False
+
 
         # ------------------------------
         # TAB 3 — Export to Hub
         # ------------------------------
         with tab_export:
             uploaded_file = st.file_uploader(
-                "Choose a JSON file",
+                "Choose a `.json` file",
                 type=[".json"],
-                help="Choose a JSON (.json) file to upload",
+                help="Only `.json` files are supported.",
                 key="uploader_json_tab1",
             )
             if uploaded_file is not None:
@@ -333,7 +439,7 @@ def sidebar_render():
                 st.session_state.markdown_upload = name_of_uploaded_file
                 st.success(f"File {uploaded_file.name} saved successfully.")
 
-            st.markdown("## Export Loaded Model Card to Hub (.json)")
+            st.markdown("## Export Loaded Model Card to Hub (`.json`)")
             with st.form("form_upload_json_hub"):
                 st.markdown(
                     "Use a token with write access from [here](https://hf.co/settings/tokens)"

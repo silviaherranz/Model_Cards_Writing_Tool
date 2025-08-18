@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from tg263 import RTSTRUCT_SUBTYPES
 import html
@@ -57,10 +58,20 @@ def render_image_field(key, props, section_prefix):
 
     create_helpicon(label, description, field_type, example, required)
 
+    if "all_uploaded_paths" not in st.session_state:
+        st.session_state.all_uploaded_paths = set()
+    if "render_uploads" not in st.session_state:
+        # Mapa: full_key -> {"path": str, "name": str}
+        st.session_state.render_uploads = {}
+    had_file_flag = f"{full_key}__had_file"
+    if had_file_flag not in st.session_state:
+        st.session_state[had_file_flag] = False
+
     st.markdown(
         "<i>If too big or not readable, please indicate the figure number and attach it to the appendix",
         unsafe_allow_html=True,
     )
+
     col1, col2 = st.columns([1, 2])
     with col1:
         st.text_input(
@@ -69,36 +80,69 @@ def render_image_field(key, props, section_prefix):
             key=f"{full_key}_appendix_note",
             label_visibility="collapsed",
         )
+
     with col2:
         uploaded_image = st.file_uploader(
             label=".",
             type=[
-                "png",
-                "jpg",
-                "jpeg",
-                "gif",
-                "bmp",
-                "tiff",
-                "webp",
-                "svg",
-                "dcm",
-                "dicom",
-                "nii",
-                "nifti",
-                "pdf",
-                "docx",
-                "doc",
-                "pptx",
-                "ppt",
-                "txt",
-                "xlsx",
-                "xls",
+                "png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp", "svg",
+                "dcm", "dicom", "nii", "nifti", "pdf",
+                "docx", "doc", "pptx", "ppt", "txt", "xlsx", "xls", "DICOM"
             ],
             key=full_key,
             label_visibility="collapsed",
         )
-    if uploaded_image:
-        st.session_state[f"{full_key}_image"] = uploaded_image
+
+        def _delete_previous_for_field():
+            prev = st.session_state.render_uploads.get(full_key)
+            if prev:
+                try:
+                    if os.path.exists(prev["path"]):
+                        os.remove(prev["path"])
+                except Exception:
+                    pass
+                try:
+                    st.session_state.all_uploaded_paths.discard(prev["path"])
+                except Exception:
+                    pass
+                st.session_state.render_uploads.pop(full_key, None)
+
+        if uploaded_image is not None:
+            st.session_state[f"{full_key}_image"] = uploaded_image 
+            os.makedirs("uploads", exist_ok=True)
+            safe_name = uploaded_image.name
+            save_path = os.path.join("uploads", f"{full_key}_{safe_name}")
+
+            _delete_previous_for_field() 
+
+            with open(save_path, "wb") as f:
+                f.write(uploaded_image.getbuffer())
+
+            st.session_state.all_uploaded_paths.add(save_path)
+            st.session_state.render_uploads[full_key] = {
+                "path": save_path,
+                "name": safe_name,
+            }
+            st.session_state[had_file_flag] = True
+
+        if uploaded_image is None and st.session_state[had_file_flag]:
+            prev = st.session_state.render_uploads.get(full_key)
+            if prev:
+                try:
+                    if os.path.exists(prev["path"]):
+                        os.remove(prev["path"])
+                except Exception:
+                    pass
+                try:
+                    st.session_state.all_uploaded_paths.discard(prev["path"])
+                except Exception:
+                    pass
+                st.session_state.render_uploads.pop(full_key, None)
+            st.session_state.pop(f"{full_key}_image", None)
+            st.session_state[had_file_flag] = False
+
+        st.session_state.render_uploads.get(full_key)
+
 
 def render_field(key, props, section_prefix):
     full_key = f"{section_prefix}_{key}"
