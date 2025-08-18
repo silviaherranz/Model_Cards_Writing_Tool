@@ -51,3 +51,4 @@ def render_section_md(section_id: str) -> str:
 def render_full_model_card_md(master_template: str = "model_card_master.md.j2") -> str:
     sections_md = {sid: render_section_md(sid) for sid in SECTION_REGISTRY}
     return _env().get_template(master_template).render(sections=sections_md)
+
