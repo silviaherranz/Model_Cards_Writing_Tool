@@ -78,7 +78,7 @@ def parse_into_json(schema):
     for entry in modality_entries:
         clean = entry["modality"].strip().replace(" ", "_").lower()
         source = entry["source"]
-        detail = {"input_content": entry["modality"], "source": source}
+        detail = {"entry": entry["modality"], "source": source}
         for field in DATA_INPUT_OUTPUT_TS:
             key = f"training_data_{clean}_{source}_{field}"
             val = (

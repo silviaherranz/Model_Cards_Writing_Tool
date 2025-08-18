@@ -115,10 +115,10 @@ def populate_session_state_from_json(data):
 
             ios = content.get("inputs_outputs_technical_specifications", [])
             for io in ios:
-                clean = io["input_content"].strip().replace(" ", "_").lower()
+                clean = io["entry"].strip().replace(" ", "_").lower()
                 src = io["source"]
                 for io_key, io_val in io.items():
-                    if io_key not in ["input_content", "source"]:
+                    if io_key not in ["entry", "source"]:
                         io_full_key = f"training_data_{clean}_{src}_{io_key}"
                         st.session_state[io_full_key] = io_val
                         st.session_state["_" + io_full_key] = io_val  # <- Esto es CLAVE
@@ -135,11 +135,11 @@ def populate_session_state_from_json(data):
                     if key == "inputs_outputs_technical_specifications":
                         for io in value:
                             clean = (
-                                io["input_content"].strip().replace(" ", "_").lower()
+                                io["entry"].strip().replace(" ", "_").lower()
                             )
                             src = io["source"]
                             for io_key, io_val in io.items():
-                                if io_key not in ["input_content", "source"]:
+                                if io_key not in ["entry", "source"]:
                                     io_full_key = f"{prefix}{clean}_{src}_{io_key}"
                                     st.session_state[io_full_key] = io_val
                                     st.session_state["_" + io_full_key] = io_val

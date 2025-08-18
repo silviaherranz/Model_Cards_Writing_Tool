@@ -240,7 +240,7 @@ def extract_evaluations_from_state():
         for entry in modality_entries:
             clean = entry["modality"].strip().replace(" ", "_").lower()
             source = entry["source"]
-            detail = {"input_content": entry["modality"], "source": source}
+            detail = {"entry": entry["modality"], "source": source}
             for field in DATA_INPUT_OUTPUT_TS:
                 key = f"{prefix}{clean}_{source}_{field}"
                 val = (
