@@ -48,6 +48,7 @@ def should_render(props, current_task):
         return current_task.strip().lower() in map(str.lower, model_types)
     return False
 
+
 def render_image_field(key, props, section_prefix):
     full_key = f"{section_prefix}_{key}"
     label = props.get("label") or key or "Field"
@@ -85,9 +86,27 @@ def render_image_field(key, props, section_prefix):
         uploaded_image = st.file_uploader(
             label=".",
             type=[
-                "png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp", "svg",
-                "dcm", "dicom", "nii", "nifti", "pdf",
-                "docx", "doc", "pptx", "ppt", "txt", "xlsx", "xls", "DICOM"
+                "png",
+                "jpg",
+                "jpeg",
+                "gif",
+                "bmp",
+                "tiff",
+                "webp",
+                "svg",
+                "dcm",
+                "dicom",
+                "nii",
+                "nifti",
+                "pdf",
+                "docx",
+                "doc",
+                "pptx",
+                "ppt",
+                "txt",
+                "xlsx",
+                "xls",
+                "DICOM",
             ],
             key=full_key,
             label_visibility="collapsed",
@@ -108,12 +127,12 @@ def render_image_field(key, props, section_prefix):
                 st.session_state.render_uploads.pop(full_key, None)
 
         if uploaded_image is not None:
-            st.session_state[f"{full_key}_image"] = uploaded_image 
+            st.session_state[f"{full_key}_image"] = uploaded_image
             os.makedirs("uploads", exist_ok=True)
             safe_name = uploaded_image.name
             save_path = os.path.join("uploads", f"{full_key}_{safe_name}")
 
-            _delete_previous_for_field() 
+            _delete_previous_for_field()
 
             with open(save_path, "wb") as f:
                 f.write(uploaded_image.getbuffer())
@@ -199,15 +218,28 @@ def render_field(key, props, section_prefix):
                                 placeholder="-Select an option-",
                             )
                         with col2:
-                            st.selectbox(
+                            subtype_value = st.selectbox(
                                 label=".",
-                                options=RTSTRUCT_SUBTYPES,
+                                options=RTSTRUCT_SUBTYPES + ["Other"],
                                 key="_" + subtype_key,
                                 on_change=utils.store_value,
                                 args=[subtype_key],
                                 label_visibility="hidden",
                                 placeholder="-Select an option-",
                             )
+                            st.info(
+                                "If the RTSTRUCT subtype isn't in the dropdown menu, select **Other** and introduce the name manually."
+                            )
+                            if subtype_value == "Other":
+                                custom_key = f"{subtype_key}_custom"
+                                utils.load_value(custom_key, default="")
+                                st.text_input(
+                                    "Enter custom RTSTRUCT subtype",
+                                    value=st.session_state.get(custom_key, ""),
+                                    key=custom_key,
+                                    placeholder="Introduce custom value",
+                                )
+
                         with col3:
                             st.markdown(
                                 "<div style='margin-top: 26px;'>",
@@ -215,12 +247,17 @@ def render_field(key, props, section_prefix):
                             )
                             if st.button("➕", key=f"{full_key}_add_button"):
                                 subtype = st.session_state.get(subtype_key, "")
+                                if subtype == "Other":
+                                    subtype = st.session_state.get(
+                                        f"{subtype_key}_custom", ""
+                                    )
                                 entry = f"RTSTRUCT_{subtype}"
                                 st.session_state[content_list_key].append(entry)
                                 st.session_state[full_key] = st.session_state[
                                     content_list_key
                                 ]
                             st.markdown("</div>", unsafe_allow_html=True)
+
                     else:
                         col1, col2, col3 = st.columns([2, 1, 0.5])
 

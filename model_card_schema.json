@@ -368,6 +368,7 @@
       "type": "select",
       "label": "RTSTRUCT Subtype",
       "options": [
+        "Other",
         "A_Aorta",
         "A_Aorta_Asc",
         "A_Brachiocephls",
@@ -1093,6 +1094,7 @@
       "type": "select",
       "label": "RTSTRUCT Subtype",
       "options": [
+        "Other",
         "A_Aorta",
         "A_Aorta_Asc",
         "A_Brachiocephls",
@@ -2640,6 +2642,7 @@
         "Image-to-Image translation"
       ],
       "options": [
+        "Other",
         "A_Aorta",
         "A_Aorta_Asc",
         "A_Brachiocephls",
@@ -3442,6 +3445,7 @@
         "Image-to-Image translation"
       ],
       "options": [
+        "Other",
         "A_Aorta",
         "A_Aorta_Asc",
         "A_Brachiocephls",
@@ -4307,6 +4311,7 @@
         "Segmentation"
       ],
       "options": [
+        "Other",
         "A_Aorta",
         "A_Aorta_Asc",
         "A_Brachiocephls",
@@ -5093,6 +5098,7 @@
         "Segmentation"
       ],
       "options": [
+        "Other",
         "A_Aorta",
         "A_Aorta_Asc",
         "A_Brachiocephls",
@@ -6015,6 +6021,7 @@
         "Dose prediction"
       ],
       "options": [
+        "Other",
         "A_Aorta",
         "A_Aorta_Asc",
         "A_Brachiocephls",
