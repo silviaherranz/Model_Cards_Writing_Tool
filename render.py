@@ -228,7 +228,7 @@ def render_field(key, props, section_prefix):
                                 placeholder="-Select an option-",
                             )
                             st.info(
-                                "If the RTSTRUCT subtype isn't in the dropdown menu, select **Other** and introduce the name manually."
+                                "If the structure name isn't in the dropdown menu, select **Other** and introduce the name manually."
                             )
                             if subtype_value == "Other":
                                 custom_key = f"{subtype_key}_custom"

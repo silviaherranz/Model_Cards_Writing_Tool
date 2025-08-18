@@ -7,8 +7,9 @@ from custom_pages.model_card_info import model_card_info_render
 from io_utils import save_uploadedfile, upload_json_card, upload_readme_card
 import json
 from custom_pages.other_considerations import other_considerations_render
+from md_renderer import render_full_model_card_md
 from readme_builder import build_readme_from_card
-from template_base import SCHEMA
+from json_template import SCHEMA
 import utils
 import validation_utils
 from middleMan import parse_into_json
@@ -321,6 +322,51 @@ def sidebar_render():
                             key="btn_download_pdf",
                         )
                     st.session_state.download_ready_pdf = False
+
+                def parse_into_markdown(schema) -> str:
+                    """Return the complete Model Card as Markdown via your renderer."""
+                    # You can ignore `schema` if your renderer doesn't need it yet.
+                    return render_full_model_card_md()
+
+                # --- MD download form (mirrors your JSON structure) ---
+                with st.form("form_download_md"):
+                    download_submit_md = st.form_submit_button("Download Model Card as `.md`")
+                    if download_submit_md:
+                        if st.session_state.get("format_error"):
+                            st.error("Cannot download — there are fields with invalid format.")
+                        else:
+                            missing_required = validation_utils.validate_required_fields(
+                                model_card_schema,                   # or SCHEMA if that’s your variable
+                                st.session_state,
+                                current_task=st.session_state.get("task"),
+                            )
+                            st.session_state.download_ready_md = True
+                            if missing_required:
+                                st.error(
+                                    "Some required fields are missing. Check the Warnings section on the sidebar for details."
+                                )
+
+                # --- When flagged as ready, render + offer the MD ---
+                if st.session_state.get("download_ready_md"):
+                    try:
+                        md_text = parse_into_markdown(model_card_schema)  # or SCHEMA
+                        # Optional: quick preview
+                        with st.expander("Preview (.md)", expanded=False):
+                            st.code(md_text, language="markdown")
+
+                        st.download_button(
+                            "Your download is ready — click here (Markdown)",
+                            data=md_text.encode("utf-8"),
+                            file_name="model_card.md",
+                            mime="text/markdown",
+                            key="btn_download_md",
+                        )
+                    except Exception as e:
+                        st.error(f"Error while generating Markdown: {e}")
+                    finally:
+                        # Always reset the flag so the button doesn't persist
+                        st.session_state.download_ready_md = False
+
                 
             
                 def _get_uploaded_paths():

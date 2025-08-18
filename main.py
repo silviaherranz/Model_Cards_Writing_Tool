@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from template_base import (
+from json_template import (
     SCHEMA,
     DATA_INPUT_OUTPUT_TS,
     TASK_METRIC_MAP,

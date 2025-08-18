@@ -15,7 +15,7 @@ def appendix_render():
     
     utils.title("Appendix")
     st.info(
-        "Files uploaded in the **Appendix** as well as files added in other sections will **not** reappear when you load an incomplete model card.\n\n"
+        "Files uploaded in the **Appendix** as well as files added in other sections will **not** appear when you load an incomplete model card.\n\n"
         "They are included only when you download:\n"
         "- the **ZIP with files**\n"
         "- the **ZIP with Model Card (`.json`) + files**\n"

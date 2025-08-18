@@ -2,7 +2,7 @@ import streamlit as st
 import json
 from collections import OrderedDict
 from main import extract_evaluations_from_state
-from template_base import (
+from json_template import (
     LEARNING_ARCHITECTURE,
     DATA_INPUT_OUTPUT_TS,
     TASK_METRIC_MAP,
