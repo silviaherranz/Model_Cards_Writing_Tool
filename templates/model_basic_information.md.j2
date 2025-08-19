@@ -1,0 +1,87 @@
+## 1. Model Basic Information
+**Name**: {{ model_basic_information_name | default("") }}
+**Creation date**: {{ model_basic_information_creation_date | default("YYYY/MM/DD") }}
+
+### Versioning
+
+- **Version number**: {{ model_basic_information_version_number | default("0.00") }}
+- **Version changes**: {{ model_basic_information_version_changes | default("") }}
+
+{% if model_basic_information_doi %}
+
+**DOI**: {{ model_basic_information_doi | default("") }}
+
+{% endif %}
+
+### Model scope
+
+- **Summary**: {{ model_basic_information_model_scope_summary | default("") }}
+
+- **Anatomical site**: {{ model_basic_information_model_scope_anatomical_site | default("") }}
+
+### Clearance 
+
+- **Type**: {{ model_basic_information_clearance_type | default("") }}
+
+#### Approved by
+
+- **Name(s)**: {{ model_basic_information_clearance_approved_by_name | default("") }}
+- **Institution(s)**: {{ model_basic_information_clearance_approved_by_institution | default("") }}
+- **Contact email(s)**: {{ model_basic_information_clearance_approved_by_contact_email | default("") }}
+
+{% if model_basic_information_clearance_additional_information %}
+
+#### Additional Information
+{{ model_basic_information_clearance_additional_information | default("") }}
+
+{% endif %}
+
+{% if model_basic_information_intended_users %}
+
+**Intended users**: {{ model_basic_information_intended_users | default("") }}
+
+{% endif %}
+
+**Observed limitations**: {{ model_basic_information_observed_limitations | default("") }}
+
+{% if model_basic_information_potential_limitations %}
+
+**Potential limitations**: {{ model_basic_information_potential_limitations | default("") }}
+
+{% endif %}
+
+**Type of learning architecture**: {{ model_basic_information_type_of_learning_architecture | default("") }}
+
+### Developed by
+
+- **Name**: {{ model_basic_information_developed_by_name | default("") }}
+- **Institution(s)**: {{ model_basic_information_developed_by_institution | default("") }}
+- **Contact email(s)**: {{ model_basic_information_developed_by_contact_email | default("") }}
+
+**Conflict of interest**: {{ model_basic_information_conflict_of_interest | default("") }}
+
+**Software licence**: {{ model_basic_information_software_license | default("") }}
+
+{% if model_basic_information_code_source %}
+
+**Code source**: {{ model_basic_information_code_source | default("") }}
+
+{% endif %}
+
+{% if model_basic_information_model_source %}
+
+**Model source**: {{ model_basic_information_model_source | default("") }}
+
+{% endif %}
+
+{% if model_basic_information_citation_details %}
+
+**Citation details**: {{ model_basic_information_citation_details | default("") }}
+
+{% endif %}
+
+{% if model_basic_information_url_info %}
+
+**URL info**: {{ model_basic_information_url_info | default("") }}
+
+{% endif %}

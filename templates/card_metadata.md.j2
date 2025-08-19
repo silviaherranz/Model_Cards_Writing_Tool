@@ -1,14 +1,18 @@
-# 0. Card Metadata
-
-**Creation Date**: {{ card_metadata_card_creation_date | default("YYYY/MM/DD") }}
+#  Model Card {{card_metadata_version_number }}
 
 ---
 
-## Versioning
+## 0. Card Metadata
 
-**Version Number**: `{{ card_metadata_version_number | default("0.00") }}`
-**Version Changes**: {{ card_metadata_version_changes | default("") }}
+**Creation date**: {{ card_metadata_card_creation_date | default("YYYY/MM/DD") }}
 
----
+### Versioning
+
+- **Version number**: {{ card_metadata_version_number | default("0.00") }}
+- **Version changes**: {{ card_metadata_version_changes | default("") }}
+
+{%if card_metadata_doi %}
 
 **DOI**: {{ card_metadata_doi | default("") }}
+
+{%endif %}

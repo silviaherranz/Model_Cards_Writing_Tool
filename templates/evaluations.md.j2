@@ -1,0 +1,238 @@
+{% import "components.md.j2" as C %}
+{% set metrics_schema = {
+  "type_ism": {
+    "title": "Image Similarity Metrics",
+    "columns": {
+      "name": "Type",
+      "on_volume_ism": "On Volume",
+      "registration_ism": "Registration",
+      "sample_data_ism": "Sample Data",
+      "mean_data_ism": "Mean Data",
+      "figure_ism_appendix_note": "Figure Appendix Label"
+    }
+  },
+  "type_dose_dm": {
+    "title": "Dose Metrics",
+    "columns": {
+      "name": "Type",
+      "metric_specifications_dm": "Metric Specifications",
+      "on_volume_dm": "On Volume",
+      "registration_dm": "Registration",
+      "treatment_modality_dm": "Treatment Modality",
+      "dose_engine_dm": "Dose Engine",
+      "dose_grid_resolution_dm": "Dose Grid Resolution",
+      "tps_vendor_dm": "TPS Vendor",
+      "sample_data_dm": "Sample Data",
+      "mean_data_dm": "Mean Data",
+      "figure_dm_appendix_note": "Figure Appendix Label"
+    }
+  },
+  "type_gm_seg": {
+    "title": "Geometric Metrics",
+    "columns": {
+      "name": "Type",
+      "metric_specifications_gm_seg": "Metric Specifications",
+      "on_volume_gm_seg": "On Volume",
+      "sample_data_gm_seg": "Sample Data",
+      "mean_data_gm_seg": "Mean Data",
+      "figure_gm_seg_appendix_note": "Figure Appendix Label"
+    }
+  },
+  "type_dose_dm_seg": {
+    "title": "Dose Metrics",
+    "columns": {
+      "name": "Type",
+      "metric_specifications_dm_seg": "Metric Specifications",
+      "on_volume_dm_seg": "On Volume",
+      "treatment_modality_dm_seg": "Treatment Modality",
+      "dose_engine_dm_seg": "Dose Engine",
+      "dose_grid_resolution_dm_seg": "Dose Grid Resolution",
+      "tps_vendor_dm_seg": "TPS Vendor",
+      "sample_data_dm_seg": "Sample Data",
+      "mean_data_dm_seg": "Mean Data",
+      "figure_dm_seg_appendix_note": "Figure DM Seg Appendix Label"
+    }
+  },
+  "type_dose_dm_dp": {
+    "title": "Dose Metrics",
+    "columns": {
+      "name": "Type",
+      "metric_specifications_dm_dp": "Metric Specifications",
+      "on_volume_dm_dp": "On Volume",
+      "sample_data_dm_dp": "Sample Data",
+      "mean_data_dm_dp": "Mean Data",
+      "figure_dm_dp_appendix_note": "Figure DM DP Appendix Label"
+    }
+  },
+  "type_metrics_other": {
+    "title": "Other Metrics",
+    "columns": {
+      "name": "Type",
+      "additional_info_other": "Additional information",
+      "sample_data_other": "Sample Data",
+      "mean_data_other": "Mean Data",
+      "figure_other_appendix_note": "Figure Other Appendix Label"
+    }
+  }
+} %}
+
+
+## 4. Evaluation Data Methodology, Results and Commissioning
+
+{% set ev_list = evaluations | default([], true) %}
+{% if ev_list | length == 0 %}
+_No evaluations provided._
+{% else %}
+{% for ev in ev_list %}
+### {{ loop.index }} {{ ev.name | default("") }}
+
+**Evaluation date:** {{ ev.evaluation_date | default("YYYY/MM/DD") }}
+#### Evaluated by
+- **Name(s):** {{ ev.evaluated_by_name | default("") }}
+- **Institution(s):** {{ ev.evaluated_by_institution | default("") }}
+- **Contact email(s):** {{ ev.evaluated_by_contact_email | default("") }}
+- **Same as 'Approved by':** {{ 'Yes' if ev.evaluated_same_as_approved else 'No' }}
+
+
+**Evaluation frame:** {{ ev.evaluation_frame | default("") }}
+{% if ev.sanity_check %} **Sanity check:** {{ ev.sanity_check }}{% endif %}
+
+#### Evaluation dataset 
+##### General information
+- **Total size:** {{ ev.total_size | default("") }}
+- **Number of patients:** {{ ev.number_of_patients | default("") }}
+- **Source:** {{ ev.source | default("") }}
+- **Acquisition period:** {{ ev.acquisition_period | default("") }}
+- **Inclusion / Exclusion criteria:** {{ ev.inclusion_exclusion_criteria | default("") }}
+- **URL info:** {{ ev.url_info | default("") }}
+
+##### Technical specifications
+{# --- Inputs/Outputs (TS) per modality, if present --- #}
+{% set io_list = ev.inputs_outputs_technical_specifications | default([], true) %}
+{% if io_list | length > 0 %}
+{% for item in io_list %}
+- **{{ item.entry | default("") }}** ({{ item.source | default("") }})
+  {% for k, v in item.items() %}
+    {% if k not in ['entry','source'] and v %}
+    - **{{ k | replace('_',' ') | capitalize }}:** {{ v }}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+{% endif %}
+
+{% if ev.treatment_modality %} - **Treatment modality:** {{ ev.treatment_modality | default("") }} {% endif %}
+{% if ev.beam_configuration_and_energy %} - **Beam configuration and energy:** {{ ev.beam_configuration_and_energy | default("") }} {% endif %}
+{% if ev.dose_engine %} - **Dose engine:** {{ ev.dose_engine | default("") }} {% endif %}
+{% if ev.target_volumes_and_prescription %} - **Target volumes and prescription:** {{ ev.target_volumes_and_prescription | default("") }} {% endif %}
+{% if ev.number_of_fractions %} - **Number of fractions:** {{ ev.number_of_fractions | default("") }} {% endif %}
+- **Reference standard:** {{ ev.reference_standard | default("") }}
+- **Reference standard QA:** {{ ev.reference_standard_qa | default("") }}
+{% if ev.reference_standard_qa_additional_information %} - **Additional information:** {{ ev.reference_standard_qa_additional_information | default("") }} {% endif %}
+
+##### Patient demographics and clinical characteristics
+{% if ev.icd10_11_ev %} - **ICD10/11:** {{ ev.icd10_11_ev | default("") }} {% endif %}
+{% if ev.tnm_staging_ev %} - **TNM staging:** {{ ev.tnm_staging_ev | default("") }} {% endif %}
+- **Age:** {{ ev.age_ev | default("") }}
+- **Sex:** {{ ev.sex_ev | default("") }}
+{% if ev.target_volume_cm3_ev %} - **Target volume (cm³):** {{ ev.target_volume_cm3_ev | default("") }} {% endif %}
+{% if ev.bmi_ev %} - **BMI:** {{ ev.bmi_ev | default("") }} {% endif %}
+{% if ev.additional_patient_info_ev %} - **Additional information:** {{ ev.additional_patient_info_ev | default("") }} {% endif %}
+
+{% import "components.md.j2" as C %}
+
+#### Quantitative evaluation
+{# 1) Decide which groups to render #}
+{% set groups_in = metric_groups | default([], true) %}
+{% if groups_in | length == 0 %}
+  {# Fallback: infer groups from ev keys #}
+  {% set ns = namespace(items=[]) %}
+  {% for k, v in ev.items() %}
+    {% if v is iterable and (v is not string) and (v|length > 0) %}
+      {% set _ = ns.items.append(k) %}
+    {% endif %}
+  {% endfor %}
+  {% set groups = ns.items %}
+{% else %}
+  {% set groups = groups_in %}
+{% endif %}
+
+{# 2) Render each group if it has rows #}
+{% for group_name in groups %}
+  {% set rows = ev[group_name] | default([], true) %}
+  {% if rows | length > 0 %}
+
+    {% set schema = metrics_schema.get(group_name) %}
+    {% if schema %}
+##### {{ schema.title }}
+
+| {% for c, v in schema.columns.items() %}{{ v }}{% if not loop.last %} | {% endif %}{% endfor %} |
+| {% for c, v in schema.columns.items() %}---{% if not loop.last %}|{% endif %}{% endfor %} |
+{% for r in rows %}
+| {% for c, v in schema.columns.items() %}{{ r[c] | default('') }}{% if not loop.last %} | {% endif %}{% endfor %} |
+{% endfor %}
+    {% else %}
+#### {{ group_name | replace('_',' ') | title }}
+
+{# Auto columns (excluding none) #}
+{% set ns = namespace(cols=['name']) %}
+{% for r in rows %}
+  {% for k, _ in r.items() %}
+    {% if k not in ns.cols %}
+      {% set _ = ns.cols.append(k) %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+
+| {% for c in ns.cols %}{{ c | replace('_',' ') | title }}{% if not loop.last %} | {% endif %}{% endfor %} |
+| {% for c in ns.cols %}---{% if not loop.last %}|{% endif %}{% endfor %} |
+{% for r in rows %}
+| {% for c in ns.cols %}{{ (r[c] if r[c] is defined else (r.get(c) if r.get is defined else '')) | default('') }}{% if not loop.last %} | {% endif %}{% endfor %} |
+{% endfor %}
+    {% endif %}
+
+    {% set fig_field = FIG_FIELD.get(group_name) %}
+    {% if fig_field %}
+    {% for r in rows %}
+        {% if r[fig_field] %}
+    **Figure {{ r.name | default('') }}**
+    {{ C.render_file(r[fig_field], label=((schema.title ~ " Figure") if schema else "Figure")) }}
+        {% if r[fig_field ~ '_appendix_note'] %}
+    *Appendix label:* {{ r[fig_field ~ '_appendix_note'] }}
+        {% endif %}
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+
+
+  {% endif %}
+{% endfor %}
+
+#### Qualitative evaluation
+{% set q = ev.qualitative_evaluation | default({}, true) %}
+- **Evaluators information:** {{ q.evaluators_information | default("") }}
+
+- **Likert scoring**
+  - Method: {{ (q.likert_scoring.method if q.likert_scoring is defined and q.likert_scoring.method is defined else '') | default("") }}
+  - Results: {{ (q.likert_scoring.results if q.likert_scoring is defined and q.likert_scoring.results is defined else '') | default("") }}
+
+- **Turing test**
+  - Method: {{ (q.turing_test.method if q.turing_test is defined and q.turing_test.method is defined else '') | default("") }}
+  - Results: {{ (q.turing_test.results if q.turing_test is defined and q.turing_test.results is defined else '') | default("") }}
+
+- **Time saving**
+  - Method: {{ (q.time_saving.method if q.time_saving is defined and q.time_saving.method is defined else '') | default("") }}
+  - Results: {{ (q.time_saving.results if q.time_saving is defined and q.time_saving.results is defined else '') | default("") }}
+
+- **Other**
+  - Method: {{ (q.other.method if q.other is defined and q.other.method is defined else '') | default("") }}
+  - Results: {{ (q.other.results if q.other is defined and q.other.results is defined else '') | default("") }}
+
+- **Explainability:** {{ q.explainability | default("") }}
+- **Citation details:** {{ q.citation_details | default("") }}
+
+{% if not loop.last %}
+---
+{% endif %}
+
+{% endfor %}
+{% endif %}

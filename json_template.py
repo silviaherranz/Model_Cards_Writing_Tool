@@ -171,7 +171,8 @@ EVALUATION_METRIC_FIELDS = {
         "registration_ism",
         "sample_data_ism",
         "mean_data_ism",
-        "figure_ism_appendix_note",
+        "figure_ism",
+        "figure_ism_appendix_note"
     ],
     "type_dose_dm": [
         "metric_specifications_dm",
@@ -183,14 +184,16 @@ EVALUATION_METRIC_FIELDS = {
         "tps_vendor_dm",
         "sample_data_dm",
         "mean_data_dm",
-        "figure_dm_appendix_note",
+        "figure_dm",
+        "figure_dm_appendix_note"
     ],
     "type_gm_seg": [
         "metric_specifications_gm_seg",
         "on_volume_gm_seg",
         "sample_data_gm_seg",
         "mean_data_gm_seg",
-        "figure_gm_seg_appendix_note",
+        "figure_gm_seg",
+        "figure_gm_seg_appendix_note"
     ],
     "type_dose_dm_seg": [
         "metric_specifications_dm_seg",
@@ -201,20 +204,23 @@ EVALUATION_METRIC_FIELDS = {
         "tps_vendor_dm_seg",
         "sample_data_dm_seg",
         "mean_data_dm_seg",
-        "figure_dm_seg_appendix_note",
+        "figure_dm_seg",
+        "figure_dm_seg_appendix_note"
     ],
     "type_dose_dm_dp": [
         "metric_specifications_dm_dp",
         "on_volume_dm_dp",
         "sample_data_dm_dp",
         "mean_data_dm_dp",
-        "figure_dm_dp_appendix_note",
+        "figure_dm_dp",
+        "figure_dm_dp_appendix_note"
     ],
     "type_metrics_other": [
         "additional_info_other",
         "sample_data_other",
         "mean_data_other",
-        "figure_other_appendix_note",
+        "figure_other",
+        "figure_other_appendix_note"
     ],
 }
 TASK_METRIC_MAP = {

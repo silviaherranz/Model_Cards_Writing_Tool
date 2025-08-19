@@ -182,7 +182,7 @@
     },
     "software_license": {
       "type": "String, Free text format",
-      "label": "Software License",
+      "label": "Software Licence",
       "description": "Software licence or copyright governing the use or redistribution of the model, source code and associated software to run it. Types include free and open (e.g. permissive, copyleft) and non-free (i.e. proprietary licence)",
       "required": true,
       "example": "Apache 2.0, GPL, MIT"

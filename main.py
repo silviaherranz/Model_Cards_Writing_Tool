@@ -265,13 +265,24 @@ def extract_evaluations_from_state():
             metric_entries = st.session_state.get(type_list_key, [])
             metric_dic[metric_key] = []
 
+            # for metric_name in metric_entries:
+            #     entry = {"name": metric_name}
+            #     for field in EVALUATION_METRIC_FIELDS[metric_key]:
+            #         full_key = f"{nested_prefix}{metric_name}_{field}"
+            #         entry[field] = st.session_state.get(full_key, "")
+            #     metric_dic[metric_key].append(entry)
+
             for metric_name in metric_entries:
                 entry = {"name": metric_name}
                 for field in EVALUATION_METRIC_FIELDS[metric_key]:
                     full_key = f"{nested_prefix}{metric_name}_{field}"
-                    entry[field] = st.session_state.get(full_key, "")
+                    if field.startswith("figure_"):
+                        entry[field] = _get_figure_value(full_key)
+                    else:
+                        entry[field] = st.session_state.get(full_key, "")
                 metric_dic[metric_key].append(entry)
-        
+
+                
         evaluation = utils.insert_dict_after(
             evaluation,
             metric_dic,
