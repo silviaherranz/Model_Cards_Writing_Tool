@@ -129,26 +129,18 @@ LEARNING_ARCHITECTURE = {
     "total_number_trainable_parameters": "",
     "number_of_inputs": "",
     "input_content_list": [],
-    # No hace falta mostrarlos pues se agrupan y se muestran en input_content_list
-    # "input_content_custom_text":"",
-    # "input_content_new_type":None,
-    # "input_content_new_subtype":None,
     "additional_information_input_content": "",
     "input_format": "",
     "input_size": "",
     "number_of_outputs": "",
     "output_content_list": [],
-    # No hace falta mostrarlos pues se agrupan y se muestran en output_content_list
-    # "output_content_custom_text":"",
-    # "output_content_new_type":None,
-    # "output_content_new_subtype":None,
     "additional_information_output_content": "",
     "output_format": "",
     "output_size": "",
     "loss_function": "",
     "batch_size": "",
     "regularisation": "",
-    "architecture_figure": None,
+    #"architecture_figure": None,
     "architecture_figure_appendix_note": "",
     "uncertainty_quantification_techniques": "",
     "explainability_techniques": "",
@@ -171,7 +163,6 @@ EVALUATION_METRIC_FIELDS = {
         "registration_ism",
         "sample_data_ism",
         "mean_data_ism",
-        "figure_ism",
         "figure_ism_appendix_note"
     ],
     "type_dose_dm": [
@@ -184,7 +175,6 @@ EVALUATION_METRIC_FIELDS = {
         "tps_vendor_dm",
         "sample_data_dm",
         "mean_data_dm",
-        "figure_dm",
         "figure_dm_appendix_note"
     ],
     "type_gm_seg": [
@@ -192,7 +182,6 @@ EVALUATION_METRIC_FIELDS = {
         "on_volume_gm_seg",
         "sample_data_gm_seg",
         "mean_data_gm_seg",
-        "figure_gm_seg",
         "figure_gm_seg_appendix_note"
     ],
     "type_dose_dm_seg": [
@@ -200,11 +189,10 @@ EVALUATION_METRIC_FIELDS = {
         "on_volume_dm_seg",
         "treatment_modality_dm_seg",
         "dose_engine_dm_seg",
-        "dose_grid_resolution_dm_seg",
+        "dose_grid_resolution_dm_seg"
         "tps_vendor_dm_seg",
         "sample_data_dm_seg",
         "mean_data_dm_seg",
-        "figure_dm_seg",
         "figure_dm_seg_appendix_note"
     ],
     "type_dose_dm_dp": [
@@ -212,14 +200,12 @@ EVALUATION_METRIC_FIELDS = {
         "on_volume_dm_dp",
         "sample_data_dm_dp",
         "mean_data_dm_dp",
-        "figure_dm_dp",
         "figure_dm_dp_appendix_note"
     ],
     "type_metrics_other": [
         "additional_info_other",
         "sample_data_other",
         "mean_data_other",
-        "figure_other",
         "figure_other_appendix_note"
     ],
 }

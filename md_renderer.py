@@ -8,6 +8,8 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNot
 from json_template import DATA_INPUT_OUTPUT_TS
 from templates.sections import SECTION_REGISTRY, TEMPLATES_DIR
 from main import extract_evaluations_from_state  
+import markdown
+from weasyprint import HTML, CSS
 
 
 def _format_date(raw, in_fmt="%Y%m%d", out_fmt="%Y/%m/%d"):
@@ -233,7 +235,7 @@ def build_context_for_prefix(prefix: str) -> dict:
 
         if prefix == "evaluations_":
             _prime_normalized_uploads()
-            
+
             ev = extract_evaluations_from_state()
             ctx["evaluations"] = ev if isinstance(ev, list) else []
             for e in ctx["evaluations"]:
@@ -249,19 +251,8 @@ def build_context_for_prefix(prefix: str) -> dict:
                 ctx["metric_groups"] = TASK_METRIC_MAP.get(task_key, [])
             except Exception:
                 ctx["metric_groups"] = []
-            
-        if prefix == "appendix_":
-            appendix_files = []
-            for key, info in st.session_state.appendix_uploads.items():
-                norm = _normalize_file_from_key(f"appendix_{key}")
-                if norm:
-                    appendix_files.append({
-                        "label": info.get("custom_label") or "",
-                        "file": norm,
-                    })
-            ctx["appendix_files"] = appendix_files
 
-
+            ctx["normalized_uploads"] = st.session_state.get("normalized_uploads", {})
 
     except Exception:
         pass
@@ -314,3 +305,161 @@ def render_full_model_card_md(master_template: str = "model_card_master.md.j2") 
         appendix_files=appendix_ctx.get("appendix_files", []),
     )
 
+
+DEFAULT_PDF_CSS = """
+/* --- Page setup --- */
+@page {
+  size: A4;
+  margin: 20mm 16mm 22mm 16mm; /* top right bottom left */
+  @bottom-center {
+    content: "Page " counter(page) " of " counter(pages);
+    font-size: 10px;
+    color: #666;
+  }
+}
+
+/* --- Base typography --- */
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, "Noto Sans", sans-serif;
+  font-size: 12.25pt;
+  line-height: 1.45;
+  color: #222;
+}
+h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; margin: 1.2em 0 0.4em; }
+h1 { font-size: 24pt; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px; }
+h2 { font-size: 18pt; border-left: 4px solid #111827; padding-left: 8px; }
+h3 { font-size: 14.5pt; color: #111827; }
+p { margin: 0.5em 0 0.8em; }
+
+/* --- Lists --- */
+ul, ol { margin: 0.4em 0 0.8em 1.4em; }
+li { margin: 0.2em 0; }
+
+/* --- Tables (Markdown) --- */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.6em 0 1.2em;
+  table-layout: fixed;
+}
+thead th {
+  background: #111827;
+  color: #fff;
+  font-weight: 700;
+}
+th, td {
+  border: 1px solid #e5e7eb;
+  padding: 6px 8px;
+  vertical-align: top;
+  word-wrap: break-word;
+}
+
+/* --- Code --- */
+code, pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 11pt;
+}
+pre {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  padding: 10px;
+  border-radius: 6px;
+  overflow: auto;
+}
+
+/* --- Figures & images --- */
+img {
+  max-width: 100%;
+  height: auto;
+  page-break-inside: avoid;
+}
+figure { margin: 0.8em 0 1.2em; }
+figcaption { font-size: 10.5pt; color: #4b5563; }
+
+/* --- Horizontal rule and blockquotes --- */
+hr { border: none; border-top: 1px solid #e5e7eb; margin: 1.4em 0; }
+blockquote {
+  margin: 0.8em 0;
+  padding: 0.6em 1em;
+  border-left: 4px solid #93c5fd;
+  background: #f1f5f9;
+  color: #1f2937;
+}
+
+/* --- Avoid awkward page breaks --- */
+h1, h2, h3 { page-break-after: avoid; }
+table, pre, blockquote, figure { page-break-inside: avoid; }
+"""
+
+def render_markdown_to_html(md_text: str, extra_css: str = None) -> str:
+    """
+    Convert Markdown to HTML, lightly styled. Returns a complete HTML string.
+    You can inline <style>CSS</style> for WeasyPrint consumption.
+    """
+    # Enable tables and sane Markdown features
+    html_body = markdown.markdown(
+        md_text,
+        extensions=[
+            "tables",
+            "fenced_code",
+            "toc",
+            "attr_list",
+            "sane_lists",
+            # add "md_in_html" if you embed HTML in Markdown
+        ],
+        output_format="html5",
+    )
+
+    css_block = f"<style>{DEFAULT_PDF_CSS}</style>"
+    if extra_css:
+        css_block += f"<style>{extra_css}</style>"
+
+    # Simple HTML skeleton
+    html = f"""<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Model Card</title>
+{css_block}
+</head>
+<body>
+{html_body}
+</body>
+</html>"""
+    return html
+
+
+def save_model_card_pdf(
+    path: str = "model_card.pdf",
+    *,
+    css_text: str = None,
+    css_file: str = None,
+    base_url: str = None,
+) -> str:
+    """
+    Render the current model card to a styled PDF.
+
+    Args:
+        path: output PDF path
+        css_text: optional extra CSS string to override/extend DEFAULT_PDF_CSS
+        css_file: optional path to a CSS file for additional rules
+        base_url: base path for resolving relative images/links, e.g., os.getcwd()
+
+    Returns:
+        The output PDF path.
+    """
+    md = render_full_model_card_md()
+    html = render_markdown_to_html(md, extra_css=css_text)
+
+    # Build CSS objects list for WeasyPrint
+    css_list = []
+    if css_file:
+        css_list.append(CSS(filename=css_file))
+    # DEFAULT_PDF_CSS and css_text are already inlined in <style>, so no need to add here.
+    # But you can also provide them as external CSS objects if you prefer:
+    # css_list.append(CSS(string=DEFAULT_PDF_CSS))
+    # if css_text: css_list.append(CSS(string=css_text))
+
+    # base_url lets WeasyPrint resolve relative URLs (e.g., local images)
+    HTML(string=html, base_url=base_url).write_pdf(path, stylesheets=css_list)
+    return path

@@ -86,7 +86,7 @@ _No evaluations provided._
 {% for ev in ev_list %}
 ### {{ loop.index }} {{ ev.name | default("") }}
 
-**Evaluation date:** {{ ev.evaluation_date | default("YYYY/MM/DD") }}
+**Evaluation date:** {{ ev.evaluation_date | default("") }}
 #### Evaluated by
 - **Name(s):** {{ ev.evaluated_by_name | default("") }}
 - **Institution(s):** {{ ev.evaluated_by_institution | default("") }}
@@ -190,18 +190,24 @@ _No evaluations provided._
 {% endfor %}
     {% endif %}
 
-    {% set fig_field = FIG_FIELD.get(group_name) %}
-    {% if fig_field %}
-    {% for r in rows %}
-        {% if r[fig_field] %}
-    **Figure {{ r.name | default('') }}**
-    {{ C.render_file(r[fig_field], label=((schema.title ~ " Figure") if schema else "Figure")) }}
-        {% if r[fig_field ~ '_appendix_note'] %}
-    *Appendix label:* {{ r[fig_field ~ '_appendix_note'] }}
-        {% endif %}
-        {% endif %}
-    {% endfor %}
+{% set fig_field = FIG_FIELD.get(group_name) %}
+{% if fig_field %}
+  {% set slug = ev.name | default('') | replace(' ', '_') %}
+  {% for r in rows %}
+    {% set metric = r.name | default('') %}
+    {# full upload key used by render_image_field: evaluation_<slug>.<metric>_<figurefield> #}
+    {% set full_key = 'evaluation_' ~ slug ~ '.' ~ metric ~ '_' ~ fig_field %}
+    {% set file = (normalized_uploads[full_key] if normalized_uploads is defined and full_key in normalized_uploads else None) %}
+
+    {% if file %}
+**Figure {{ r.name | default('') }}**
+{{ C.render_file(file, label=((schema.title ~ " Figure") if schema else "Figure")) }}
+      {% if r[fig_field ~ '_appendix_note'] %}
+*Appendix label:* {{ r[fig_field ~ '_appendix_note'] }}
+      {% endif %}
     {% endif %}
+  {% endfor %}
+{% endif %}
 
 
   {% endif %}

@@ -291,26 +291,16 @@ def sidebar_render():
                     pdf_submit = st.form_submit_button("Download Model Card as `.pdf`")
                     if pdf_submit:
                         if st.session_state.get("format_error"):
-                            st.error(
-                                "Cannot download — there are fields with invalid format."
-                            )
+                            st.error("Cannot download — there are fields with invalid format.")
                         else:
-                            missing_required = (
-                                validation_utils.validate_required_fields(
-                                    model_card_schema,
-                                    st.session_state,
-                                    current_task=st.session_state.get("task"),
-                                )
-                            )
-                            card_data = parse_into_json(SCHEMA)
-                            if isinstance(card_data, str):
-                                card_data = json.loads(card_data)
-                            utils.export_json_pretty_to_pdf("model_card_schema.json")
-                            st.session_state.download_ready_pdf = True
-                            if missing_required:
-                                st.error(
-                                    "Some required fields are missing. Check the Warnings section on the sidebar for details."
-                                )
+                            # Generate PDF using your updated function
+                            try:
+                                from md_renderer import save_model_card_pdf
+                                save_model_card_pdf("output.pdf", base_url=os.getcwd())
+                                st.session_state.download_ready_pdf = True
+                            except Exception as e:
+                                st.error(f"Failed to generate PDF: {e}")
+                                st.session_state.download_ready_pdf = False
 
                 if st.session_state.get("download_ready_pdf"):
                     with open("output.pdf", "rb") as f:
@@ -323,9 +313,9 @@ def sidebar_render():
                         )
                     st.session_state.download_ready_pdf = False
 
+
                 def parse_into_markdown(schema) -> str:
                     """Return the complete Model Card as Markdown via your renderer."""
-                    # You can ignore `schema` if your renderer doesn't need it yet.
                     return render_full_model_card_md()
 
                 # --- MD download form (mirrors your JSON structure) ---
@@ -346,7 +336,6 @@ def sidebar_render():
                                     "Some required fields are missing. Check the Warnings section on the sidebar for details."
                                 )
 
-                # --- When flagged as ready, render + offer the MD ---
                 if st.session_state.get("download_ready_md"):
                     try:
                         md_text = parse_into_markdown(model_card_schema)  # or SCHEMA
@@ -364,7 +353,6 @@ def sidebar_render():
                     except Exception as e:
                         st.error(f"Error while generating Markdown: {e}")
                     finally:
-                        # Always reset the flag so the button doesn't persist
                         st.session_state.download_ready_md = False
 
                 

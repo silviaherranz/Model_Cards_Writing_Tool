@@ -4,7 +4,7 @@
 
 ## 0. Card Metadata
 
-**Creation date**: YYYY/MM/DD
+**Creation date**: 
 
 ### Versioning
 
@@ -17,7 +17,7 @@
 
 ## 1. Model Basic Information
 **Name**: 
-**Creation date**: YYYY/MM/DD
+**Creation date**: 
 
 ### Versioning
 
@@ -71,19 +71,38 @@
 ### 2.1 Model overview
 
 #### Model pipeline
-- **Summary:** 
+- **Summary:** None
 
 
-- **Model inputs:** 
+- **Model inputs:** ['MR T2']
 - **Model outputs:** 
-- **Pre-processing:** 
-- **Post-processing:** 
+- **Pre-processing:** None
+- **Post-processing:** None
 
 ---
 
 ### 2.2 Learning architecture(s)
 
-_No learning architectures provided._
+#### Learning architecture 1 
+
+- **Total number of trainable parameters:** None
+- **Number of inputs:** None
+- **Input content:** 
+- **Input size:** None
+
+- **Number of outputs:** None
+- **Output content:** 
+- **Output size:** None
+
+- **Loss function:** None
+- **Batch size:** None
+- **Regularisation:** None
+
+
+- **Uncertainty quantification techniques:** None
+- **Explainability techniques:** None
+
+
 
 ---
 
@@ -115,7 +134,7 @@ _No hardware and software details specified._
 - **Strategy for data augmentation:** 
 
 ##### Technical specifications
-_No input/output technical specifications provided._
+- **MR T2** (model_inputs)
 
 - **Reference standard:** 
 - **Reference standard QA:** 
@@ -137,7 +156,7 @@ _No input/output technical specifications provided._
 
 ## 4. Evaluation Data Methodology, Results and Commissioning
 
-### 1 1
+### 1 ssss
 
 **Evaluation date:** None
 #### Evaluated by
@@ -159,6 +178,7 @@ _No input/output technical specifications provided._
 - **URL info:** None
 
 ##### Technical specifications
+- **MR T2** (model_inputs)
 
 - **Reference standard:** None
 - **Reference standard QA:** None
@@ -169,14 +189,6 @@ _No input/output technical specifications provided._
 
 
 #### Quantitative evaluation
-
-
-##### Image Similarity Metrics
-
-| Type | On Volume | Registration | Sample Data | Mean Data | Figure Appendix Label |
-| ---|---|---|---|---|--- |
-| SSIM (Structural Similarity Index) | None | None | None | None |  |
-
 
 
 #### Qualitative evaluation
@@ -206,7 +218,7 @@ _No input/output technical specifications provided._
 
 ---
 
-### 6. Other considerations
+### 5. Other considerations
 
 _No other considerations provided._
 
