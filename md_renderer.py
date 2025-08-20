@@ -354,10 +354,6 @@ def render_full_model_card_md(master_template: str = "model_card_master.md.j2") 
 
 
 DEFAULT_PDF_CSS = """
-/* ============================
-   PDF HEADERS: H1 normal, H2 bloque azul
-   ============================ */
-
 /* --- Page setup --- */
 @page {
   size: A4;

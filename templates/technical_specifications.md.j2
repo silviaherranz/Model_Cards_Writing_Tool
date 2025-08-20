@@ -32,74 +32,48 @@ _No learning architectures provided._
 {% for la in la_list %}
 #### Learning architecture {{ loop.index }} {{ la.name or '' }}
 
-- **Total number of trainable parameters:** {{ la.total_number_trainable_parameters | default("—", true) }}
-
-- **Number of inputs:** {{ la.number_of_inputs | default("—", true) }}
-
-- **Input content:** {{ la.input_content | default("—") }}
-
+| Field | Value |
+|----------|-------|
+| **Total number of trainable parameters** | {{ la.total_number_trainable_parameters | default("—", true) }} |
+| **Number of inputs** | {{ la.number_of_inputs | default("—", true) }} |
+| **Input content** | {{ la.input_content | default("—") }} |
 {% if la.additional_information_input_content %}
-
-- **Additional information regarding input content:** {{ la.additional_information_input_content | default("—") }}
-
+| **Additional information regarding input content** | {{ la.additional_information_input_content | default("—") }} |
 {% endif %}
-
 {% if la.input_format %}
-
-- **Input format:** {{ la.input_format | default("—") }}
-
+| **Input format** | {{ la.input_format | default("—") }} |
 {% endif %}
-
-- **Input size:** {{ la.input_size | default("—", true) }}
-
-- **Number of outputs:** {{ la.number_of_outputs | default("—", true) }}
-
-- **Output content:** {{ la.output_content | default("—") }}
-
+| **Input size** | {{ la.input_size | default("—", true) }} |
+| **Number of outputs** | {{ la.number_of_outputs | default("—", true) }} |
+| **Output content** | {{ la.output_content | default("—") }} |
 {% if la.additional_information_output_content %}
-
-- **Additional information regarding output content:** {{ la.additional_information_output_content | default("—") }}
-
+| **Additional information regarding output content** | {{ la.additional_information_output_content | default("—") }} |
 {% endif %}
-
 {% if la.output_format %}
-
-- **Output format:** {{ la.output_format | default("—") }}
-
+| **Output format** | {{ la.output_format | default("—") }} |
 {% endif %}
-
-- **Output size:** {{ la.output_size | default("—", true) }}
-
-- **Loss function:** {{ la.loss_function | default("—", true) }}
-
-- **Batch size:** {{ la.batch_size | default("—", true) }}
-
-- **Regularisation:** {{ la.regularisation | default("—", true) }}
-
+| **Output size** | {{ la.output_size | default("—", true) }} |
+| **Loss function** | {{ la.loss_function | default("—", true) }} |
+| **Batch size** | {{ la.batch_size | default("—", true) }} |
+| **Regularisation** | {{ la.regularisation | default("—", true) }} |
 {% set f = la.architecture_figure %}
 {% if f %}
-- **Architecture figure:** {{ (f.name if f is defined and f.name is defined else (f.get("name") if f.get is defined else "—")) }}
-{{ C.render_file(f, label="Architecture figure") }}
+| **Architecture figure** | {{ (f.name if f is defined and f.name is defined else (f.get("name") if f.get is defined else "—")) }}<br>{{ C.render_file(f, label="Architecture figure") }} |
 {% endif %}
-
-- **Uncertainty quantification techniques:** {{ la.uncertainty_quantification_techniques | default("—", true) }}
-
-- **Explainability techniques:** {{ la.explainability_techniques | default("—", true) }}
-
-{% if la.additional_information_ts %}**Additional info:** {{ la.additional_information_ts | default("—") }}{% endif %}
-
-{% if la.citation_details_ts %}**Citation(s):** {{ la.citation_details_ts | default("—") }}{% endif %}
+| **Uncertainty quantification techniques** | {{ la.uncertainty_quantification_techniques | default("—", true) }} |
+| **Explainability techniques** | {{ la.explainability_techniques | default("—", true) }} |
+{% if la.additional_information_ts %}
+| **Additional info** | {{ la.additional_information_ts | default("—") }} |
+{% endif %}
+{% if la.citation_details_ts %}
+| **Citation(s)** | {{ la.citation_details_ts | default("—") }} |
+{% endif %}
 
 {% if not loop.last %}
 ---
-{#                 #}
 {% endif %}
-
 {% endfor %}
 {% endif %}
-
----
-
 
 
 ### 2.3 Hardware & software
