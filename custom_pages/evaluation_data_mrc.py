@@ -104,6 +104,9 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
     utils.section_divider()
 
     utils.title_header("Evaluation Dataset", size="1.2rem")
+    utils.light_header_italics(
+        "Note that all fields refer to the raw evaluation data used in 'Model inputs' (i.e. before  pre-processing steps) and raw 'Model outputs' for supervised models (i.e. after post-processing)."
+    )
     utils.title_header("1. General information")
 
     col1, col2 = st.columns([1, 1])

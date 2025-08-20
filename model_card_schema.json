@@ -292,7 +292,7 @@
         "OT (Other)"
       ],
       "example": "CT, MR T2",
-      "description": "Information about the outputs of the model pipeline, after post-processing. This may include the format, content, and eventually other relevant (but short) information, like size. Further details should go in the pre-processing field.",
+      "description": "Information about the outputs of the model pipeline, after post-processing. This may include the format, content, and eventually other relevant (but short) information, like size. Further details should go in the post-processing field.",
       "required": true
     },
     "pre-processing": {
@@ -2095,12 +2095,9 @@
     "image_resolution": {
       "type": "list[float]",
       "label": "Image resolution",
-      "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Provide the values that correspond to the specific image you are currently filling in. Remember that this field refers to images before pre-processing steps.",
+      "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Use a list of arrays, one for each image type defined in both 'model inputs' and 'model outputs' fields. Remember that this field refers to images before/after pre- and post- processing steps, respectively.",
       "required": true,
-      "example": "[1.0, 1.0, 2.0]",
-      "format": "^(?i:N/?A|\\[\\s*[0-9]+\\.[0-9]+(?:[eE][+-]?[0-9]+)?\\s*,\\s*[0-9]+\\.[0-9]+(?:[eE][+-]?[0-9]+)?\\s*,\\s*[0-9]+\\.[0-9]+(?:[eE][+-]?[0-9]+)?\\s*\\])$",
-      "format_description": "Must be 'NA' or 'N/A' (any case), or a list of exactly three decimal numbers (with optional scientific notation) in square brackets (e.g. [1.0, 2.5, 3.14], [1.0e-3, 2.5E2, 3.14e+10]). Integers must include '.0'."
-
+      "example": "[1.0, 1.0, 2.0]"
     },
     "patient_positioning": {
       "type": "String, Free text format",
@@ -2440,11 +2437,9 @@
     "image_resolution": {
       "type": "list[float]",
       "label": "Image resolution",
-      "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Remember that this field refers to images before pre-processing steps.",
+      "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Use a list of arrays, one for each image type defined in both 'model inputs' and 'model outputs' fields. Remember that this field refers to images before/after pre- and post- processing steps, respectively.",
       "required": true,
-      "example": "[1.0, 1.0, 2.0]",
-      "format": "^(?i:N/?A|\\[\\s*[0-9]+\\.[0-9]+(?:[eE][+-]?[0-9]+)?\\s*,\\s*[0-9]+\\.[0-9]+(?:[eE][+-]?[0-9]+)?\\s*,\\s*[0-9]+\\.[0-9]+(?:[eE][+-]?[0-9]+)?\\s*\\])$",
-      "format_description": "Must be 'NA' or 'N/A' (any case), or a list of exactly three decimal numbers (with optional scientific notation) in square brackets (e.g. [1.0, 2.5, 3.14], [1.0e-3, 2.5E2, 3.14e+10]). Integers must include '.0'."
+      "example": "[1.0, 1.0, 2.0]"
     },
     "patient_positioning": {
       "type": "String, Free text format",

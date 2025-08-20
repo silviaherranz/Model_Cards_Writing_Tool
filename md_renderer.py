@@ -193,6 +193,13 @@ def build_context_for_prefix(prefix: str) -> dict:
                     ctx.get("card_metadata_card_creation_date")
                 )
 
+            ctx["model_basic_information_name"] = st.session_state.get(
+                "model_basic_information_name", ""
+            )
+
+            ctx["task"] = st.session_state.get("task", "")
+
+
         if prefix == "model_basic_information_":
             if "model_basic_information_creation_date" in ctx:
                 ctx["model_basic_information_creation_date"] = _format_date(
@@ -332,7 +339,7 @@ def render_section_md(section_id: str) -> str:
 
 def render_full_model_card_md(master_template: str = "model_card_master.md.j2") -> str:
     sections_md = {sid: render_section_md(sid) for sid in SECTION_REGISTRY}
-
+    
     appendix_files = build_appendix_files_context()
 
     return (
@@ -355,11 +362,6 @@ DEFAULT_PDF_CSS = """
 @page {
   size: A4;
   margin: 18mm 14mm 20mm 14mm;
-  @top-center {
-    content: string(section);
-    font-size: 8.6px;
-    color: #6b7280;
-  }
   @bottom-center {
     content: "Página " counter(page) " de " counter(pages);
     font-size: 8.6px;
@@ -488,7 +490,6 @@ tbody tr:hover td {
 }
 
 """
-
 
 def render_markdown_to_html(md_text: str, extra_css: str = None) -> str:
     """

@@ -43,7 +43,7 @@ def training_data_render():
 
     utils.title_header("Training Dataset", size="1.2rem")
     utils.light_header_italics(
-        "Note that all fields refer to the raw training data used in 'Model inputs' (i.e. before pre-processing steps)."
+        "Note that all fields refer to the raw training data used in 'Model inputs' (i.e. before  pre-processing steps) and raw 'Model outputs' for supervised models (i.e. after post-processing)."
     )
     utils.title_header("1. General information")
 
