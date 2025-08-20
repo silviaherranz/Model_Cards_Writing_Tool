@@ -1840,8 +1840,9 @@
       "description": "Size of each input, separated by commas. If only one entry while the number of inputs> 1, all inputs have the same size. If the size of the learning model inputs is not known or may vary according to the input data (e.g. it is extracted after an AutoML pre-process like in nnUnet), indicate “NA” (not applicable)",
       "required": true,
       "example": "[[128], [128, 128, 128], [64, 64, 64]]",
-      "format": "^(?i:NA|\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\]|\\[\\s*\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\](?:\\s*,\\s*\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\])*\\s*\\]|\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\](?:\\s*,\\s*\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\])*)$",
-      "format_description": "Must be 'NA', a list of numbers (e.g. [128, 64, 64]), several lists separated by commas (e.g. [12], [89, 50]), or a list of lists (e.g. [[128], [64, 64]])."
+      "format": "^(?i:N/?A|\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\]|\\[\\s*\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\](?:\\s*,\\s*\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\])*\\s*\\]|\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\](?:\\s*,\\s*\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\])*)$",
+      "format_description": "Must be 'NA' or 'N/A' (any case), a list of numbers (e.g. [128, 64, 64]), several lists separated by commas (e.g. [12], [89, 50]), or a list of lists (e.g. [[128], [64, 64]])."
+
     },
     "number_of_outputs": {
       "type": "Integer",
@@ -1910,8 +1911,9 @@
       "description": "Size of each output, separated by commas. If only one entry while the number of outputs > 1, all outputs have the same size.",
       "required": true,
       "example": "[[128], [128, 128, 128], [64, 64, 64]]",
-      "format": "^(?i:NA|\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\]|\\[\\s*\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\](?:\\s*,\\s*\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\])*\\s*\\]|\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\](?:\\s*,\\s*\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\])*)$",
-      "format_description": "Must be 'NA', a list of numbers (e.g. [128, 64, 64]), several lists separated by commas (e.g. [12], [89, 50]), or a list of lists (e.g. [[128], [64, 64]])."
+      "format": "^(?i:N/?A|\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\]|\\[\\s*\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\](?:\\s*,\\s*\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\])*\\s*\\]|\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\](?:\\s*,\\s*\\[\\s*\\d+(?:\\.\\d+)?(?:\\s*,\\s*\\d+(?:\\.\\d+)?)*\\s*\\])*)$",
+      "format_description": "Must be 'NA' or 'N/A' (any case), a list of numbers (e.g. [128, 64, 64]), several lists separated by commas (e.g. [12], [89, 50]), or a list of lists (e.g. [[128], [64, 64]])."
+
     },
     "loss_function": {
       "type": "String, Free text format",
@@ -2081,9 +2083,8 @@
       "description": "Strategy for data augmentation. Whenever possible and relevant, report the number of augmented samples per real ones. If none applied say NA (Not Applicable).",
       "required": true,
       "example": "[random, on-the-fly during training, all], [prior-to-training, 5 augmented per real image]",
-      "format": "^(?i:NA|\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\](?:\\s*,\\s*\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\])*)$",
-      "format_description": "Must be NA or one or more lists of strings in square brackets (e.g. [random, on-the-fly during training, all], [prior-to-training, 5 augmented per real image]), separated by commas if multiple."
-
+      "format": "^(?i:N/?A|\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\](?:\\s*,\\s*\\[\\s*[A-Za-z0-9 _\\-]+\\s*\\])*)$",
+      "format_description": "Must be 'NA' or 'N/A' (any case), or one or more lists of strings in square brackets (e.g. [random, on-the-fly during training, all], [prior-to-training, 5 augmented per real image]), separated by commas if multiple."
     },
     "url_info": {
       "label": "URL info",
@@ -2097,8 +2098,9 @@
       "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Provide the values that correspond to the specific image you are currently filling in. Remember that this field refers to images before pre-processing steps.",
       "required": true,
       "example": "[1.0, 1.0, 2.0]",
-      "format": "^(?i:NA|\\[\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*\\])$",
-      "format_description": "Must be NA or a list of exactly three decimal numbers in square brackets (e.g. [1.0, 2.5, 3.14]). Integers must include '.0'."
+      "format": "^(?i:N/?A|\\[\\s*[0-9]+\\.[0-9]+(?:[eE][+-]?[0-9]+)?\\s*,\\s*[0-9]+\\.[0-9]+(?:[eE][+-]?[0-9]+)?\\s*,\\s*[0-9]+\\.[0-9]+(?:[eE][+-]?[0-9]+)?\\s*\\])$",
+      "format_description": "Must be 'NA' or 'N/A' (any case), or a list of exactly three decimal numbers (with optional scientific notation) in square brackets (e.g. [1.0, 2.5, 3.14], [1.0e-3, 2.5E2, 3.14e+10]). Integers must include '.0'."
+
     },
     "patient_positioning": {
       "type": "String, Free text format",
@@ -2290,9 +2292,8 @@
       "example": [
         "20%"
       ],
-      "format": "^(?i:NA|[0-9]+(?:\\.[0-9]+)?%|\\[\\s*[0-9]+(?:\\.[0-9]+)?%\\s*(?:,\\s*[0-9]+(?:\\.[0-9]+)?%\\s*)*\\])$",
-      "format_description": "Must be NA, a single percentage (e.g. 15%, 12.5%), or a bracketed list of percentages (e.g. [15%], [20%, 30%])."
-
+      "format": "^(?i:N/?A|[0-9]+(?:\\.[0-9]+)?%|\\[\\s*[0-9]+(?:\\.[0-9]+)?%\\s*(?:,\\s*[0-9]+(?:\\.[0-9]+)?%\\s*)*\\])$",
+      "format_description": "Must be 'NA' or 'N/A' (any case), a single percentage (e.g. 15%, 12.5%), or a bracketed list of percentages (e.g. [15%], [20%, 30%])."
     },
     "weights_initialization": {
       "type": "String, Free text format",
@@ -2442,8 +2443,8 @@
       "description": "Pixel (if 2D images) or voxel (if 3D images) resolution (e.g. DICOM tags Pixel Spacing and Slice thickness), in millimetres. If images of several resolutions have been used, insert the median and range of them. Remember that this field refers to images before pre-processing steps.",
       "required": true,
       "example": "[1.0, 1.0, 2.0]",
-      "format": "^(?i:NA|\\[\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*,\\s*[0-9]+\\.[0-9]+\\s*\\])$",
-      "format_description": "Must be NA or a list of exactly three decimal numbers in square brackets (e.g. [1.0, 2.5, 3.14]). Integers must include '.0'."
+      "format": "^(?i:N/?A|\\[\\s*[0-9]+\\.[0-9]+(?:[eE][+-]?[0-9]+)?\\s*,\\s*[0-9]+\\.[0-9]+(?:[eE][+-]?[0-9]+)?\\s*,\\s*[0-9]+\\.[0-9]+(?:[eE][+-]?[0-9]+)?\\s*\\])$",
+      "format_description": "Must be 'NA' or 'N/A' (any case), or a list of exactly three decimal numbers (with optional scientific notation) in square brackets (e.g. [1.0, 2.5, 3.14], [1.0e-3, 2.5E2, 3.14e+10]). Integers must include '.0'."
     },
     "patient_positioning": {
       "type": "String, Free text format",

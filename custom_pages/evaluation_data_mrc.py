@@ -182,7 +182,7 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                 }
 
                 for f in field_keys.values():
-                    f["placeholder"] = f.get("placeholder", "NA if Not Applicable")
+                    f["placeholder"] = f.get("placeholder", "N/A or NA if Not Applicable")
 
                 col1, col2 = st.columns([1, 1])
                 with col1:

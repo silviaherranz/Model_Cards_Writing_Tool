@@ -347,129 +347,145 @@ def render_full_model_card_md(master_template: str = "model_card_master.md.j2") 
 
 
 DEFAULT_PDF_CSS = """
+/* ============================
+   PDF HEADERS: H1 normal, H2 bloque azul
+   ============================ */
+
 /* --- Page setup --- */
 @page {
   size: A4;
   margin: 18mm 14mm 20mm 14mm;
+  @top-center {
+    content: string(section);
+    font-size: 8.6px;
+    color: #6b7280;
+  }
   @bottom-center {
-    content: "Page " counter(page) " of " counter(pages);
-    font-size: 9px;
-    color: #666;
+    content: "Página " counter(page) " de " counter(pages);
+    font-size: 8.6px;
+    color: #6b7280;
   }
 }
 
-/* --- Theme --- */
+/* --- Palette --- */
 :root{
-  --brand-dark: #042c5b; /* deep blue */
-  --brand-light: #c7d6ea; /* pale blue */
-  --text: #222;
-  --muted: #555;
-  --border: #dbe2eb;
+  --brand: #0a2e5d;     /* azul corporativo */
+  --accent: #c7d6ea;    /* azul claro para acentos */
+  --text: #1f2937;
+  --muted: #4b5563;
+  --muted-2: #6b7280;
+  --border: #e5e7eb;
   --bg-soft: #f8fafc;
+  --bg-soft-2: #f3f4f6;
 }
 
-/* --- Base typography --- */
+/* --- Base text (-0.4pt) --- */
 html, body {
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, "Noto Sans", sans-serif;
-  font-size: 10pt;     
-  line-height: 1.45;
+  font-size: 9.6pt;  
+  line-height: 1.5;
   color: var(--text);
 }
+p, li { hyphens: auto; margin: 0.35em 0 0.6em; }
 
-/* --- Headings: larger than body, but compact & professional --- */
-h1, h2, h3, h4, h5, h6 {
-  font-family: inherit;
+/* --- H1 (normal, solo texto) --- */
+h1 {
+  font-size: 15.6pt;
   font-weight: 700;
-  line-height: 1.25;
-  color: var(--brand-dark);
-  margin: 1em 0 0.4em;
+  color: var(--brand);
+  margin: 1em 0 0.6em;
+  string-set: section content();
 }
-h1 { font-size: 15pt; border-bottom: 2px solid var(--brand-light); padding-bottom: 4px; }
-h2 { font-size: 14.5pt; border-left: 4px solid var(--brand-dark); padding-left: 8px; }
-h3 { font-size: 13.5pt; }
-h4 { font-size: 12.5pt; color: var(--muted); }
-h5 { font-size: 11.5pt; color: var(--muted); }
 
-/* Paragraphs & lists */
-p { margin: 0.4em 0 0.7em; }
-ul, ol { margin: 0.3em 0 0.7em 1.2em; }
-li { margin: 0.15em 0; }
+/* --- H2 (bloque sólido azul) --- */
+h2 {
+  font-size: 13.6pt;
+  font-weight: 700;
+  color: #fff;
+  background: var(--brand);
+  border-radius: 4px;
+  padding: 6px 10px;
+  margin: 0.9em 0 0.55em;
+  string-set: section content();
+}
 
-/* --- Tables (Markdown) --- */
+/* --- H3–H5 (tipográficos simples) --- */
+h3 { font-size: 12.1pt; font-weight: 600; color: var(--text); }
+h4 { font-size: 10.9pt; font-weight: 600; color: var(--muted); }
+h5 { font-size: 10.1pt; font-weight: 600; color: var(--muted-2); }
+
+/* --- Lists con guiones elegantes --- */
+ul { 
+  margin: 0.3em 0 0.7em 1.2em; 
+  list-style: none;
+  padding-left: 0;
+}
+ul li {
+  margin: 0.2em 0;
+  padding-left: 1em;
+  position: relative;
+}
+ul li::before {
+  content: "–"; 
+  position: absolute;
+  left: 0;
+  color: var(--brand);
+  font-weight: 600;
+}
+
+/* --- Tables (versión profesional limpia) --- */
 table {
   border-collapse: collapse;
   width: 100%;
   margin: 0.5em 0 1em;
   table-layout: fixed;
   font-size: 9.8pt;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
 }
+
+caption { 
+  caption-side: top; 
+  text-align: left; 
+  font-weight: 700; 
+  color: var(--brand); 
+  padding: 6px 0; 
+}
+
 thead th {
-  background: var(--brand-dark);
+  background: var(--brand); /* azul corporativo sólido */
   color: #fff;
   font-weight: 600;
+  text-align: left;
 }
+
 th, td {
   border: 1px solid var(--border);
-  padding: 5px 7px;
+  padding: 6px 8px;
   vertical-align: top;
   word-wrap: break-word;
 }
-tbody tr:nth-child(even) td { background: #f9fafb; }
 
-/* --- Code --- */
-code, pre {
-  font-family: inherit; /* unify font across everything */
-  font-size: 9.5pt;
+tbody tr:nth-child(even) td { 
+  background: #f9fafb; /* gris muy claro */
 }
-pre {
-  background: var(--bg-soft);
+
+tbody tr:hover td { 
+  background: #f3f6fb; /* hover suave, solo digital */
+}
+
+/* --- Badges con acento --- */
+.badge {
+  display: inline-block;
+  font-size: 8.8pt;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 999px;
   border: 1px solid var(--border);
-  padding: 8px 10px;
-  border-radius: 4px;
-  overflow: auto;
-  margin: 0.6em 0 1em;
+  background: var(--accent);
+  color: var(--brand);
 }
-
-/* --- Figures & images: smaller and centered --- */
-img, figure img {
-  display: block;
-  max-width: 50%;        /* smaller than page width */
-  height: auto;
-  margin: 0.4em auto;    /* center horizontally */
-  page-break-inside: avoid;
-  border: 1px solid var(--brand-light);
-  border-radius: 4px;
-}
-figure { 
-  margin: 0.7em auto 1em; 
-  text-align: center;
-}
-figcaption { font-size: 9pt; color: var(--muted); margin-top: 0.3em; }
-
-/* --- Horizontal rule and blockquotes --- */
-hr { border: none; border-top: 1px solid var(--brand-light); margin: 1.2em 0; }
-blockquote {
-  margin: 0.7em 0 1em;
-  padding: 0.5em 0.9em;
-  border-left: 3px solid var(--brand-dark);
-  background: #eef3f9;
-  color: #333;
-  border-radius: 3px;
-  font-size: 10pt;
-}
-
-/* --- Links --- */
-a { color: var(--brand-dark); text-decoration: none; border-bottom: 1px solid var(--brand-light); }
-a:hover { text-decoration: underline; }
-
-/* --- Appendix: force new page --- */
-h1[id*="appendix" i], h2[id*="appendix" i], h3[id*="appendix" i] {
-  page-break-before: always;
-}
-
-/* --- Page-break rules --- */
-h1, h2, h3 { page-break-after: avoid; }
-table, pre, blockquote, figure { page-break-inside: avoid; }
 
 """
 

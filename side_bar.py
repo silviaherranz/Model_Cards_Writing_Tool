@@ -8,7 +8,7 @@ from io_utils import save_uploadedfile, upload_json_card, upload_readme_card
 import json
 from custom_pages.other_considerations import other_considerations_render
 from md_renderer import render_full_model_card_md
-from readme_builder import build_readme_from_card
+from readme_builder import render_hf_readme, upload_readme_to_hub
 from json_template import SCHEMA
 import utils
 import validation_utils
@@ -177,22 +177,19 @@ def sidebar_render():
             if "last_readme_text" not in st.session_state:
                 st.session_state.last_readme_text = None
 
+            # -------------------------
+            # Generate README.md (text)
+            # -------------------------
             with st.form("form_generate_readme"):
                 gen_readme = st.form_submit_button("Generate README.md")
                 if gen_readme:
                     try:
-                        card_content = parse_into_json(SCHEMA)
-                        card_obj = (
-                            json.loads(card_content)
-                            if isinstance(card_content, str)
-                            else card_content
-                        )
-                        st.session_state.last_readme_text = build_readme_from_card(
-                            card_obj
-                        )
-                        st.success(
-                            "README built successfully. Use the download button below."
-                        )
+                        # You can still parse/validate your card; not strictly required for README rendering
+                        _ = parse_into_json(SCHEMA)
+
+                        # Use our new renderer (auto-fills from session_state as discussed)
+                        st.session_state.last_readme_text = render_hf_readme()
+                        st.success("README built successfully. Use the download button below.")
                     except Exception as e:
                         st.session_state.last_readme_text = None
                         st.error(f"Could not build README: {e}")
@@ -214,29 +211,38 @@ def sidebar_render():
                         key="ta_readme_preview",
                     )
 
+            # -------------------------
+            # Push README.md to the Hub
+            # -------------------------
             st.markdown("## Export README.md to Hub")
 
             with st.form("form_upload_readme_hub"):
-                st.markdown(
-                    "Use a token with write access from [here](https://hf.co/settings/tokens)"
-                )
+                st.markdown("Use a token with write access from [here](https://hf.co/settings/tokens)")
                 token_rm = st.text_input("Token", type="password", key="token_rm_hub")
-                repo_id_rm = st.text_input(
-                    "Repo ID (e.g. user/repo)", key="repo_id_rm_hub"
-                )
+                repo_id_rm = st.text_input("Repo ID (e.g. user/repo)", key="repo_id_rm_hub")
                 push_rm = st.form_submit_button("Upload README.md to Hub")
 
             if push_rm:
                 if len(repo_id_rm.split("/")) == 2:
                     try:
-                        card_content = parse_into_json(SCHEMA)
-                        card_obj = (
-                            json.loads(card_content)
-                            if isinstance(card_content, str)
-                            else card_content
+                        # Ensure we have fresh README text if user skipped the Generate step
+                        if not st.session_state.last_readme_text:
+                            st.session_state.last_readme_text = render_hf_readme()
+
+                        # Write a temp file (upload_file API expects a path or fileobj)
+                        tmp_path = "README.md"
+                        with open(tmp_path, "w", encoding="utf-8") as f:
+                            f.write(st.session_state.last_readme_text)
+
+                        # Upload to Hub (creates repo if missing)
+                        upload_readme_to_hub(
+                            repo_id=repo_id_rm,
+                            token=token_rm or None,
+                            readme_path=tmp_path,
+                            create_if_missing=True,
                         )
-                        readme_text = build_readme_from_card(card_obj)
-                        new_url = upload_readme_card(readme_text, repo_id_rm, token_rm)
+
+                        new_url = f"https://huggingface.co/{repo_id_rm}"
                         st.success(f"Pushed the README to the repo [here]({new_url})!")
                     except Exception as e:
                         st.error(f"Error: {str(e)}")

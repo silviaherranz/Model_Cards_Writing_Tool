@@ -4,15 +4,15 @@
 
 ## 0. Card Metadata
 
-**Creation date**: {{ card_metadata_card_creation_date | default("") }}
+**Creation date**: {{ card_metadata_card_creation_date | default("—") }}
 
 ### Versioning
 
 - **Version number**: {{ card_metadata_version_number | default("0.00") }}
-- **Version changes**: {{ card_metadata_version_changes | default("") }}
+- **Version changes**: {{ card_metadata_version_changes | default("—") }}
 
 {%if card_metadata_doi %}
 
-**DOI**: {{ card_metadata_doi | default("") }}
+**DOI**: {{ card_metadata_doi | default("—") }}
 
 {%endif %}
