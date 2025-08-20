@@ -64,6 +64,19 @@ def card_metadata_render():
                 props.get("required", False),
             )
             utils.load_value("card_metadata_version_number", 0)
+            k = "_card_metadata_version_number"
+            v = st.session_state.get(k, 0)
+
+            try:
+                if isinstance(v, str):
+                    v = v.strip()
+                    if v == "":
+                        flt = float(0.0)
+                flt = float(v)
+            except (TypeError, ValueError):
+                flt = float(0.0)
+
+            st.session_state[k] = flt
             st.number_input(
                 label=".",
                 min_value=0.0,
