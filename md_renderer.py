@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import re
 import base64
 import mimetypes
@@ -7,9 +8,31 @@ from datetime import datetime
 from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateNotFound
 from json_template import DATA_INPUT_OUTPUT_TS
 from templates.sections import SECTION_REGISTRY, TEMPLATES_DIR
-from main import extract_evaluations_from_state  
+from main import extract_evaluations_from_state
 import markdown
 from weasyprint import HTML, CSS
+
+def build_appendix_files_context():
+    items = []
+    uploads = getattr(st.session_state, "appendix_uploads", {}) or {}
+    for original_name, data in uploads.items():
+        stored_key = data.get("stored_name")
+        norm = _normalize_render_key_to_fileobj(stored_key) if stored_key else None
+        mime = (norm or {}).get("type")
+        is_image = bool(mime and mime.lower().startswith("image/"))
+        items.append(
+            {
+                "label": (data.get("custom_label") or "").strip(),
+                "file": {
+                    "name": original_name,
+                    "key": stored_key,
+                    "type": mime,
+                    "url": (norm or {}).get("url"),  # data URI for images
+                    "is_image": is_image,
+                },
+            }
+        )
+    return items
 
 
 def _format_date(raw, in_fmt="%Y%m%d", out_fmt="%Y/%m/%d"):
@@ -60,7 +83,11 @@ def _normalize_file_from_key(full_key):
     # Best-effort MIME detection
     mime, _ = mimetypes.guess_type(name or "")
     # Generate data URI if it's an image and file exists
-    url = _file_to_data_uri(path, fallback_mime=mime) if path and os.path.exists(path) else None
+    url = (
+        _file_to_data_uri(path, fallback_mime=mime)
+        if path and os.path.exists(path)
+        else None
+    )
 
     return {"name": name, "type": mime, "url": url}
 
@@ -71,7 +98,7 @@ def _collect_hw_sw_from_state():
     prefix = "hw_and_sw_"
     for key, val in st.session_state.items():
         if key.startswith(prefix):
-            hw[key[len(prefix):]] = val
+            hw[key[len(prefix) :]] = val
     return hw
 
 
@@ -86,11 +113,10 @@ def _collect_learning_architectures_from_state():
     """
     grouped = {}
     patterns = [
-        re.compile(r'^learning_architecture_(\d+)_(.+)$'),
-        re.compile(r'^technical_specifications_learning_architecture_(\d+)_(.+)$'),
+        re.compile(r"^learning_architecture_(\d+)_(.+)$"),
+        re.compile(r"^technical_specifications_learning_architecture_(\d+)_(.+)$"),
     ]
 
-    # Gather all keys that match either pattern
     for key, val in st.session_state.items():
         for pat in patterns:
             m = pat.match(key)
@@ -132,10 +158,13 @@ def _normalize_render_key_to_fileobj(full_key: str):
     path = info.get("path")
     name = info.get("name") or (os.path.basename(path) if path else None)
     mime, _ = mimetypes.guess_type(name or "")
-    url = _file_to_data_uri(path, fallback_mime=mime) if path and os.path.exists(path) else None
+    url = (
+        _file_to_data_uri(path, fallback_mime=mime)
+        if path and os.path.exists(path)
+        else None
+    )
     return {"name": name, "type": mime, "url": url}
 
-# render_ui.py (or wherever your render helpers live)
 
 def _prime_normalized_uploads():
     uploads = st.session_state.get("render_uploads", {}) or {}
@@ -148,7 +177,6 @@ def _prime_normalized_uploads():
         except Exception:
             pass
     st.session_state["normalized_uploads"] = norm
-
 
 
 def build_context_for_prefix(prefix: str) -> dict:
@@ -179,9 +207,13 @@ def build_context_for_prefix(prefix: str) -> dict:
                 ctx["hw_and_sw"] = hw
 
             if "technical_specifications_pre-processing" in ctx:
-                ctx["technical_specifications_pre_processing"] = ctx["technical_specifications_pre-processing"]
+                ctx["technical_specifications_pre_processing"] = ctx[
+                    "technical_specifications_pre-processing"
+                ]
             if "technical_specifications_post-processing" in ctx:
-                ctx["technical_specifications_post_processing"] = ctx["technical_specifications_post-processing"]
+                ctx["technical_specifications_post_processing"] = ctx[
+                    "technical_specifications_post-processing"
+                ]
 
             for k in ["technical_specifications_model_pipeline_figure"]:
                 norm = _normalize_file_from_key(k)
@@ -191,32 +223,38 @@ def build_context_for_prefix(prefix: str) -> dict:
             for i, la in enumerate(ctx.get("learning_architectures", [])):
                 la_key1 = f"learning_architecture_{i}_architecture_figure"
                 la_key2 = f"technical_specifications_learning_architecture_{i}_architecture_figure"
-                norm = _normalize_file_from_key(la_key1) or _normalize_file_from_key(la_key2)
+                norm = _normalize_file_from_key(la_key1) or _normalize_file_from_key(
+                    la_key2
+                )
                 if norm:
                     la["architecture_figure"] = norm
 
         if prefix == "training_data_":
-            # Make labels available to the template
             ctx["DATA_INPUT_OUTPUT_TS"] = DATA_INPUT_OUTPUT_TS
 
-            # Normalize the uploaded loss figure
-            norm = _normalize_file_from_key("training_data_train_and_validation_loss_curves")
+            norm = _normalize_file_from_key(
+                "training_data_train_and_validation_loss_curves"
+            )
             if norm:
                 ctx["training_data_train_and_validation_loss_curves"] = norm
             modality_entries = []
             for key, value in st.session_state.items():
                 if key.endswith("model_inputs") and isinstance(value, list):
                     for item in value:
-                        modality_entries.append({"modality": item, "source": "model_inputs"})
+                        modality_entries.append(
+                            {"modality": item, "source": "model_inputs"}
+                        )
                 elif key.endswith("model_outputs") and isinstance(value, list):
                     for item in value:
-                        modality_entries.append({"modality": item, "source": "model_outputs"})
+                        modality_entries.append(
+                            {"modality": item, "source": "model_outputs"}
+                        )
             io_details = []
             for entry in modality_entries:
                 clean = entry["modality"].strip().replace(" ", "_").lower()
                 source = entry["source"]
                 detail = {"entry": entry["modality"], "source": source}
-                for field_key in DATA_INPUT_OUTPUT_TS: 
+                for field_key in DATA_INPUT_OUTPUT_TS:
                     per_mod_key = f"training_data_{clean}_{source}_{field_key}"
                     val = (
                         st.session_state.get(per_mod_key)
@@ -247,6 +285,7 @@ def build_context_for_prefix(prefix: str) -> dict:
 
             try:
                 from main import TASK_METRIC_MAP
+
                 task_key = (task_val or "").strip()
                 ctx["metric_groups"] = TASK_METRIC_MAP.get(task_key, [])
             except Exception:
@@ -259,13 +298,7 @@ def build_context_for_prefix(prefix: str) -> dict:
 
     return ctx
 
-""" def _env():
-    return Environment(
-        loader=FileSystemLoader(str(TEMPLATES_DIR)),
-        autoescape=select_autoescape(enabled_extensions=(), default_for_string=False),
-        trim_blocks=True,
-        lstrip_blocks=True,
-    ) """
+
 def _env():
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATES_DIR)),
@@ -275,7 +308,6 @@ def _env():
     )
     env.globals["DATA_INPUT_OUTPUT_TS"] = DATA_INPUT_OUTPUT_TS
 
-    # Figure field per metric group
     env.globals["FIG_FIELD"] = {
         "type_ism": "figure_ism",
         "type_dose_dm": "figure_dm",
@@ -285,6 +317,7 @@ def _env():
         "type_metrics_other": "figure_other",
     }
     return env
+
 
 def render_section_md(section_id: str) -> str:
     cfg = SECTION_REGISTRY[section_id]
@@ -299,97 +332,147 @@ def render_section_md(section_id: str) -> str:
 
 def render_full_model_card_md(master_template: str = "model_card_master.md.j2") -> str:
     sections_md = {sid: render_section_md(sid) for sid in SECTION_REGISTRY}
-    appendix_ctx = build_context_for_prefix("appendix_") or {}
-    return _env().get_template(master_template).render(
-        sections=sections_md,
-        appendix_files=appendix_ctx.get("appendix_files", []),
+
+    appendix_files = build_appendix_files_context()
+
+    return (
+        _env()
+        .get_template(master_template)
+        .render(
+            sections=sections_md,
+            appendix_files=appendix_files,
+        )
     )
+
 
 
 DEFAULT_PDF_CSS = """
 /* --- Page setup --- */
 @page {
   size: A4;
-  margin: 20mm 16mm 22mm 16mm; /* top right bottom left */
+  margin: 18mm 14mm 20mm 14mm;
   @bottom-center {
     content: "Page " counter(page) " of " counter(pages);
-    font-size: 10px;
+    font-size: 9px;
     color: #666;
   }
 }
 
+/* --- Theme --- */
+:root{
+  --brand-dark: #042c5b; /* deep blue */
+  --brand-light: #c7d6ea; /* pale blue */
+  --text: #222;
+  --muted: #555;
+  --border: #dbe2eb;
+  --bg-soft: #f8fafc;
+}
+
 /* --- Base typography --- */
 html, body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, "Noto Sans", sans-serif;
-  font-size: 12.25pt;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, "Noto Sans", sans-serif;
+  font-size: 10pt;     
   line-height: 1.45;
-  color: #222;
+  color: var(--text);
 }
-h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; margin: 1.2em 0 0.4em; }
-h1 { font-size: 24pt; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px; }
-h2 { font-size: 18pt; border-left: 4px solid #111827; padding-left: 8px; }
-h3 { font-size: 14.5pt; color: #111827; }
-p { margin: 0.5em 0 0.8em; }
 
-/* --- Lists --- */
-ul, ol { margin: 0.4em 0 0.8em 1.4em; }
-li { margin: 0.2em 0; }
+/* --- Headings: larger than body, but compact & professional --- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: inherit;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--brand-dark);
+  margin: 1em 0 0.4em;
+}
+h1 { font-size: 15pt; border-bottom: 2px solid var(--brand-light); padding-bottom: 4px; }
+h2 { font-size: 14.5pt; border-left: 4px solid var(--brand-dark); padding-left: 8px; }
+h3 { font-size: 13.5pt; }
+h4 { font-size: 12.5pt; color: var(--muted); }
+h5 { font-size: 11.5pt; color: var(--muted); }
+
+/* Paragraphs & lists */
+p { margin: 0.4em 0 0.7em; }
+ul, ol { margin: 0.3em 0 0.7em 1.2em; }
+li { margin: 0.15em 0; }
 
 /* --- Tables (Markdown) --- */
 table {
   border-collapse: collapse;
   width: 100%;
-  margin: 0.6em 0 1.2em;
+  margin: 0.5em 0 1em;
   table-layout: fixed;
+  font-size: 9.8pt;
 }
 thead th {
-  background: #111827;
+  background: var(--brand-dark);
   color: #fff;
-  font-weight: 700;
+  font-weight: 600;
 }
 th, td {
-  border: 1px solid #e5e7eb;
-  padding: 6px 8px;
+  border: 1px solid var(--border);
+  padding: 5px 7px;
   vertical-align: top;
   word-wrap: break-word;
 }
+tbody tr:nth-child(even) td { background: #f9fafb; }
 
 /* --- Code --- */
 code, pre {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-  font-size: 11pt;
+  font-family: inherit; /* unify font across everything */
+  font-size: 9.5pt;
 }
 pre {
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
-  padding: 10px;
-  border-radius: 6px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 4px;
   overflow: auto;
+  margin: 0.6em 0 1em;
 }
 
-/* --- Figures & images --- */
-img {
-  max-width: 100%;
+/* --- Figures & images: smaller and centered --- */
+img, figure img {
+  display: block;
+  max-width: 50%;        /* smaller than page width */
   height: auto;
+  margin: 0.4em auto;    /* center horizontally */
   page-break-inside: avoid;
+  border: 1px solid var(--brand-light);
+  border-radius: 4px;
 }
-figure { margin: 0.8em 0 1.2em; }
-figcaption { font-size: 10.5pt; color: #4b5563; }
+figure { 
+  margin: 0.7em auto 1em; 
+  text-align: center;
+}
+figcaption { font-size: 9pt; color: var(--muted); margin-top: 0.3em; }
 
 /* --- Horizontal rule and blockquotes --- */
-hr { border: none; border-top: 1px solid #e5e7eb; margin: 1.4em 0; }
+hr { border: none; border-top: 1px solid var(--brand-light); margin: 1.2em 0; }
 blockquote {
-  margin: 0.8em 0;
-  padding: 0.6em 1em;
-  border-left: 4px solid #93c5fd;
-  background: #f1f5f9;
-  color: #1f2937;
+  margin: 0.7em 0 1em;
+  padding: 0.5em 0.9em;
+  border-left: 3px solid var(--brand-dark);
+  background: #eef3f9;
+  color: #333;
+  border-radius: 3px;
+  font-size: 10pt;
 }
 
-/* --- Avoid awkward page breaks --- */
+/* --- Links --- */
+a { color: var(--brand-dark); text-decoration: none; border-bottom: 1px solid var(--brand-light); }
+a:hover { text-decoration: underline; }
+
+/* --- Appendix: force new page --- */
+h1[id*="appendix" i], h2[id*="appendix" i], h3[id*="appendix" i] {
+  page-break-before: always;
+}
+
+/* --- Page-break rules --- */
 h1, h2, h3 { page-break-after: avoid; }
 table, pre, blockquote, figure { page-break-inside: avoid; }
+
 """
+
 
 def render_markdown_to_html(md_text: str, extra_css: str = None) -> str:
     """
@@ -432,7 +515,7 @@ def render_markdown_to_html(md_text: str, extra_css: str = None) -> str:
 def save_model_card_pdf(
     path: str = "model_card.pdf",
     *,
-    css_text: str = None,
+    css_text: str = DEFAULT_PDF_CSS,
     css_file: str = None,
     base_url: str = None,
 ) -> str:
@@ -455,6 +538,9 @@ def save_model_card_pdf(
     css_list = []
     if css_file:
         css_list.append(CSS(filename=css_file))
+
+    if css_text:
+        css_list.append(CSS(string=css_text))
     # DEFAULT_PDF_CSS and css_text are already inlined in <style>, so no need to add here.
     # But you can also provide them as external CSS objects if you prefer:
     # css_list.append(CSS(string=DEFAULT_PDF_CSS))

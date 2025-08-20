@@ -141,10 +141,10 @@ _No evaluations provided._
 {% import "components.md.j2" as C %}
 
 #### Quantitative evaluation
-{# 1) Decide which groups to render #}
+
+{# 1) Decide which groups to render (same as before) #}
 {% set groups_in = metric_groups | default([], true) %}
 {% if groups_in | length == 0 %}
-  {# Fallback: infer groups from ev keys #}
   {% set ns = namespace(items=[]) %}
   {% for k, v in ev.items() %}
     {% if v is iterable and (v is not string) and (v|length > 0) %}
@@ -156,7 +156,7 @@ _No evaluations provided._
   {% set groups = groups_in %}
 {% endif %}
 
-{# 2) Render each group if it has rows #}
+{# 2) Render each group #}
 {% for group_name in groups %}
   {% set rows = ev[group_name] | default([], true) %}
   {% if rows | length > 0 %}
@@ -164,77 +164,87 @@ _No evaluations provided._
     {% set schema = metrics_schema.get(group_name) %}
     {% if schema %}
 ##### {{ schema.title }}
+      {% for r in rows %}
+**{{ r.name | default('Metric ' ~ loop.index) }}**
 
-| {% for c, v in schema.columns.items() %}{{ v }}{% if not loop.last %} | {% endif %}{% endfor %} |
-| {% for c, v in schema.columns.items() %}---{% if not loop.last %}|{% endif %}{% endfor %} |
-{% for r in rows %}
-| {% for c, v in schema.columns.items() %}{{ r[c] | default('') }}{% if not loop.last %} | {% endif %}{% endfor %} |
-{% endfor %}
+| Field | Value |
+|---|---|
+        {# show columns in schema order; skip purely decorative keys if you have any #}
+        {% for c, v in schema.columns.items() %}
+| {{ v }} | {{ r[c] | default('') }} |
+        {% endfor %}
+
+      {% endfor %}
     {% else %}
 #### {{ group_name | replace('_',' ') | title }}
+      {% for r in rows %}
+**{{ r.name | default('Metric ' ~ loop.index) }}**
 
-{# Auto columns (excluding none) #}
-{% set ns = namespace(cols=['name']) %}
-{% for r in rows %}
-  {% for k, _ in r.items() %}
-    {% if k not in ns.cols %}
-      {% set _ = ns.cols.append(k) %}
-    {% endif %}
-  {% endfor %}
+{# Auto-build the list of keys, keeping "name" out of the rows #}
+{% set cols = [] %}
+{% for k,_ in r.items() %}
+  {% if k != 'name' %}
+    {% set _ = cols.append(k) %}
+  {% endif %}
 {% endfor %}
 
-| {% for c in ns.cols %}{{ c | replace('_',' ') | title }}{% if not loop.last %} | {% endif %}{% endfor %} |
-| {% for c in ns.cols %}---{% if not loop.last %}|{% endif %}{% endfor %} |
-{% for r in rows %}
-| {% for c in ns.cols %}{{ (r[c] if r[c] is defined else (r.get(c) if r.get is defined else '')) | default('') }}{% if not loop.last %} | {% endif %}{% endfor %} |
+| Field | Value |
+|---|---|
+{% for c in cols %}
+| {{ c | replace('_',' ') | title }} | {{ r[c] | default('') }} |
 {% endfor %}
+
+      {% endfor %}
     {% endif %}
 
-{% set fig_field = FIG_FIELD.get(group_name) %}
-{% if fig_field %}
-  {% set slug = ev.name | default('') | replace(' ', '_') %}
-  {% for r in rows %}
-    {% set metric = r.name | default('') %}
-    {# full upload key used by render_image_field: evaluation_<slug>.<metric>_<figurefield> #}
-    {% set full_key = 'evaluation_' ~ slug ~ '.' ~ metric ~ '_' ~ fig_field %}
-    {% set file = (normalized_uploads[full_key] if normalized_uploads is defined and full_key in normalized_uploads else None) %}
-
-    {% if file %}
+    {# Optional figures per row (unchanged from your logic) #}
+    {% set fig_field = FIG_FIELD.get(group_name) %}
+    {% if fig_field %}
+      {% set slug = ev.name | default('') | replace(' ', '_') %}
+      {% for r in rows %}
+        {% set metric = r.name | default('') %}
+        {% set full_key = 'evaluation_' ~ slug ~ '.' ~ metric ~ '_' ~ fig_field %}
+        {% set file = (normalized_uploads[full_key] if normalized_uploads is defined and full_key in normalized_uploads else None) %}
+        {% if file %}
 **Figure {{ r.name | default('') }}**
 {{ C.render_file(file, label=((schema.title ~ " Figure") if schema else "Figure")) }}
-      {% if r[fig_field ~ '_appendix_note'] %}
+          {% if r[fig_field ~ '_appendix_note'] %}
 *Appendix label:* {{ r[fig_field ~ '_appendix_note'] }}
-      {% endif %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
     {% endif %}
-  {% endfor %}
-{% endif %}
-
 
   {% endif %}
 {% endfor %}
 
 #### Qualitative evaluation
 {% set q = ev.qualitative_evaluation | default({}, true) %}
-- **Evaluators information:** {{ q.evaluators_information | default("") }}
+**Evaluators information:** {{ q.evaluators_information | default("") }}
 
-- **Likert scoring**
-  - Method: {{ (q.likert_scoring.method if q.likert_scoring is defined and q.likert_scoring.method is defined else '') | default("") }}
-  - Results: {{ (q.likert_scoring.results if q.likert_scoring is defined and q.likert_scoring.results is defined else '') | default("") }}
+**Likert scoring**
 
-- **Turing test**
-  - Method: {{ (q.turing_test.method if q.turing_test is defined and q.turing_test.method is defined else '') | default("") }}
-  - Results: {{ (q.turing_test.results if q.turing_test is defined and q.turing_test.results is defined else '') | default("") }}
+- Method: {{ (q.likert_scoring.method if q.likert_scoring is defined and q.likert_scoring.method is defined else '') | default("") }}
+- Results: {{ (q.likert_scoring.results if q.likert_scoring is defined and q.likert_scoring.results is defined else '') | default("") }}
 
-- **Time saving**
-  - Method: {{ (q.time_saving.method if q.time_saving is defined and q.time_saving.method is defined else '') | default("") }}
-  - Results: {{ (q.time_saving.results if q.time_saving is defined and q.time_saving.results is defined else '') | default("") }}
+**Turing test**
 
-- **Other**
-  - Method: {{ (q.other.method if q.other is defined and q.other.method is defined else '') | default("") }}
-  - Results: {{ (q.other.results if q.other is defined and q.other.results is defined else '') | default("") }}
+- Method: {{ (q.turing_test.method if q.turing_test is defined and q.turing_test.method is defined else '') | default("") }}
+- Results: {{ (q.turing_test.results if q.turing_test is defined and q.turing_test.results is defined else '') | default("") }}
 
-- **Explainability:** {{ q.explainability | default("") }}
-- **Citation details:** {{ q.citation_details | default("") }}
+**Time saving**
+
+- Method: {{ (q.time_saving.method if q.time_saving is defined and q.time_saving.method is defined else '') | default("") }}
+- Results: {{ (q.time_saving.results if q.time_saving is defined and q.time_saving.results is defined else '') | default("") }}
+
+**Other**
+
+- Method: {{ (q.other.method if q.other is defined and q.other.method is defined else '') | default("") }}
+- Results: {{ (q.other.results if q.other is defined and q.other.results is defined else '') | default("") }}
+
+**Explainability:** {{ q.explainability | default("") }}
+
+**Citation details:** {{ q.citation_details | default("") }}
 
 {% if not loop.last %}
 ---

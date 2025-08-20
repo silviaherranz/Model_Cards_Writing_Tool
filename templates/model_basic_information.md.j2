@@ -1,5 +1,6 @@
 ## 1. Model Basic Information
 **Name**: {{ model_basic_information_name | default("") }}
+
 **Creation date**: {{ model_basic_information_creation_date | default("") }}
 
 ### Versioning
@@ -26,7 +27,9 @@
 #### Approved by
 
 - **Name(s)**: {{ model_basic_information_clearance_approved_by_name | default("") }}
+
 - **Institution(s)**: {{ model_basic_information_clearance_approved_by_institution | default("") }}
+
 - **Contact email(s)**: {{ model_basic_information_clearance_approved_by_contact_email | default("") }}
 
 {% if model_basic_information_clearance_additional_information %}
@@ -55,7 +58,9 @@
 ### Developed by
 
 - **Name**: {{ model_basic_information_developed_by_name | default("") }}
+
 - **Institution(s)**: {{ model_basic_information_developed_by_institution | default("") }}
+
 - **Contact email(s)**: {{ model_basic_information_developed_by_contact_email | default("") }}
 
 **Conflict of interest**: {{ model_basic_information_conflict_of_interest | default("") }}

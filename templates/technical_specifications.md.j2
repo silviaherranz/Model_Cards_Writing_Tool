@@ -14,8 +14,11 @@
 {% endif %}
 
 - **Model inputs:** {{ technical_specifications_model_inputs | default("") }}
+
 - **Model outputs:** {{ technical_specifications_model_outputs | default("") }}
+
 - **Pre-processing:** {{ technical_specifications_pre_processing | default("") }}
+
 - **Post-processing:** {{ technical_specifications_post_processing | default("") }}
 
 ---
@@ -30,28 +33,47 @@ _No learning architectures provided._
 #### Learning architecture {{ loop.index }} {{ la.name or "" }}
 
 - **Total number of trainable parameters:** {{ la.total_number_trainable_parameters | default("") }}
+
 - **Number of inputs:** {{ la.number_of_inputs | default("") }}
+
 - **Input content:** {{ la.input_content | default("") }}
+
 {% if la.additional_information_input_content %}
+
 - **Additional information regarding input content:** {{ la.additional_information_input_content | default("") }}
+
 {% endif %}
+
 {% if la.input_format %}
+
 - **Input format:** {{ la.input_format | default("") }}
+
 {% endif %}
+
 - **Input size:** {{ la.input_size | default("") }}
 
 - **Number of outputs:** {{ la.number_of_outputs | default("") }}
+
 - **Output content:** {{ la.output_content | default("") }}
+
 {% if la.additional_information_output_content %}
+
 - **Additional information regarding output content:** {{ la.additional_information_output_content | default("") }}
+
 {% endif %}
+
 {% if la.output_format %}
+
 - **Output format:** {{ la.output_format | default("") }}
+
 {% endif %}
+
 - **Output size:** {{ la.output_size | default("") }}
 
 - **Loss function:** {{ la.loss_function | default("") }}
+
 - **Batch size:** {{ la.batch_size | default("") }}
+
 - **Regularisation:** {{ la.regularisation | default("") }}
 
 {% set f = la.architecture_figure %}
@@ -61,8 +83,11 @@ _No learning architectures provided._
 {% endif %}
 
 - **Uncertainty quantification techniques:** {{ la.uncertainty_quantification_techniques | default("") }}
+
 - **Explainability techniques:** {{ la.explainability_techniques | default("") }}
+
 {% if la.additional_information_ts %}**Additional info:** {{ la.additional_information_ts | default("") }}{% endif %}
+
 {% if la.citation_details_ts %}**Citation(s):** {{ la.citation_details_ts | default("") }}{% endif %}
 
 {% if not loop.last %}
@@ -82,21 +107,39 @@ _No learning architectures provided._
 
 {% if hw.libraries_and_dependencies or hw.hardware_recommended or hw.inference_time_for_recommended_hw 
    or hw.installation_getting_started or hw.environmental_impact %}
+
   {% if hw.libraries_and_dependencies %}
+
 - **Libraries and dependencies:** {{ hw.libraries_and_dependencies }}
+
   {% endif %}
+
   {% if hw.hardware_recommended %}
+
 - **Hardware (recommended):** {{ hw.hardware_recommended }}
+
   {% endif %}
+
   {% if hw.inference_time_for_recommended_hw %}
+
 - **Inference time (s) for recommended hardware:** {{ hw.inference_time_for_recommended_hw }}
+
   {% endif %}
+
   {% if hw.installation_getting_started %}
+
 - **Installation / Getting started:** {{ hw.installation_getting_started }}
+
   {% endif %}
+
   {% if hw.environmental_impact %}
+
 - **Environmental impact:** {{ hw.environmental_impact }}
+
   {% endif %}
+
 {% else %}
+
 _No hardware and software details specified._
+
 {% endif %}

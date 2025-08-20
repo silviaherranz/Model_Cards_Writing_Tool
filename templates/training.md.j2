@@ -1,21 +1,33 @@
 {% import "components.md.j2" as C %}
 
-### 3. Training Data Methodology and Information
+## 3. Training Data Methodology and Information
 
 #### Fine tuned form
+
 - **Model name:** {{ training_data_model_name | default("") }}
+
 - **URL/DOI to model card:** {{ training_data_url_doi_to_model_card | default("") }}
+
 - **Tuning technique:** {{ training_data_tuning_technique | default("") }}
 
 #### Training Dataset
+
 ##### General information
+
 - **Total size:** {{ training_data_total_size | default("") }}
+
 - **Number of patients:** {{ training_data_number_of_patients | default("") }}
+
 - **Source:** {{ training_data_source | default("") }}
+
 - **Acquisition period:** {{ training_data_acquisition_period | default("") }}
+
 - **Inclusion / exclusion criteria:** {{ training_data_inclusion_exclusion_criteria | default("") }}
+
 - **Type of data augmentation:** {{ training_data_type_of_data_augmentation | default("") }}
+
 - **Strategy for data augmentation:** {{ training_data_strategy_for_data_augmentation | default("") }}
+
 {% if training_data_url_info %}- **URL info:** {{ training_data_url_info }}{% endif %}
 
 ##### Technical specifications
@@ -34,33 +46,57 @@ _No input/output technical specifications provided._
 {% endif %}
 
 {% if training_data_treatment_modality_train %}- **Treatment modality:** {{ training_data_treatment_modality_train }}{% endif %}
+
 {% if training_data_beam_configuration_energy %}- **Beam configuration and energy:** {{ training_data_beam_configuration_energy }}{% endif %}
+
 {% if training_data_dose_engine %}- **Dose engine:** {{ training_data_dose_engine }}{% endif %}
+
 {% if training_data_target_volumes_and_prescription %}- **Target volumes and prescription:** {{ training_data_target_volumes_and_prescription }}{% endif %}
+
 {% if training_data_number_of_fractions %}- **Number of fractions:** {{ training_data_number_of_fractions }}{% endif %}
+
 - **Reference standard:** {{ training_data_reference_standard | default("") }}
+
 - **Reference standard QA:** {{ training_data_reference_standard_qa | default("") }}
+
 {% if training_data_reference_standard_qa_additional_information %}
+
 - **Additional information:** {{ training_data_reference_standard_qa_additional_information }}
+
 {% endif %}
 
 ##### Patient demographics and clinical characteristics
+
 {% if training_data_icd10_11 %}- **ICD10/11:** {{ training_data_icd10_11 | default("") }}{% endif %}
+
 {% if training_data_tnm_staging %}- **TNM staging:** {{ training_data_tnm_staging | default("") }}{% endif %}
+
 {% if training_data_age %}- **Age:** {{ training_data_age | default("") }}{% endif %}
+
 {% if training_data_icd10_11 %}- **ICD10/11:** {{ training_data_icd10_11 }}{% endif %}
+
 {% if training_data_tnm_staging %}- **TNM staging:** {{ training_data_tnm_staging }}{% endif %}
+
 - **Age:** {{ training_data_age }}
+
 - **Sex:** {{ training_data_sex }}
+
 {% if training_data_target_volume_cm3 %}- **Target volume (cm³):** {{ training_data_target_volume_cm3 }}{% endif %}
+
 {% if training_data_bmi %}- **BMI:** {{ training_data_bmi }}{% endif %}
+
 {% if training_data_additional_patient_info %}- **Additional patient info:** {{ training_data_additional_patient_info }}{% endif %}
 
 **Validation strategy:** {{ training_data_validation_strategy | default("") }}
+
 **Validation data partition:** {{ training_data_validation_data_partition | default("") }}
+
 {% if training_data_weights_initialization %} **Weights initialization:** {{ training_data_weights_initialization }}{% endif %}
+
 {% if training_data_epochs %} **Epochs:** {{ training_data_epochs }}{% endif %}
+
 {% if training_data_optimiser %} **Optimiser:** {{ training_data_optimiser }}{% endif %}
+
 {% if training_data_learning_rate %} **Learning rate:** {{ training_data_learning_rate }}{% endif %}
 
 {% if training_data_train_and_validation_loss_curves %}
@@ -69,4 +105,5 @@ _No input/output technical specifications provided._
 {% endif %}
 
 **Model choice criteria:** {{ training_data_model_choice_criteria | default("") }}
+
 **Inference method:** {{ training_data_inference_method | default("") }}

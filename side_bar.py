@@ -293,17 +293,18 @@ def sidebar_render():
                         if st.session_state.get("format_error"):
                             st.error("Cannot download — there are fields with invalid format.")
                         else:
-                            # Generate PDF using your updated function
                             try:
                                 from md_renderer import save_model_card_pdf
-                                save_model_card_pdf("output.pdf", base_url=os.getcwd())
+                                pdf_path = save_model_card_pdf("model_card.pdf", base_url=os.getcwd())
                                 st.session_state.download_ready_pdf = True
+                                st.session_state.generated_pdf_path = pdf_path  # <- guarda la ruta
                             except Exception as e:
                                 st.error(f"Failed to generate PDF: {e}")
                                 st.session_state.download_ready_pdf = False
 
                 if st.session_state.get("download_ready_pdf"):
-                    with open("output.pdf", "rb") as f:
+                    pdf_path = st.session_state.get("generated_pdf_path", "model_card.pdf")
+                    with open(pdf_path, "rb") as f:  # <- usa la misma ruta
                         st.download_button(
                             "Your download is ready — click here (PDF)",
                             f,
@@ -312,6 +313,7 @@ def sidebar_render():
                             key="btn_download_pdf",
                         )
                     st.session_state.download_ready_pdf = False
+
 
 
                 def parse_into_markdown(schema) -> str:
