@@ -2010,7 +2010,7 @@
       "example": "10.8 kg of CO2eq."
     }
   },
-  "training_data_methodology_results_commisioning": {
+  "training_data": {
     "model_name": {
       "type": "String, Free text format",
       "label": "Model Name",

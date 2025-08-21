@@ -5,15 +5,17 @@ from json_template import (
     TASK_METRIC_MAP,
 )
 
+import streamlit as st
 
-def validate_static_fields(schema, session_state, current_task):
+def is_empty(value):
+        return value in ("", None, [], {})
+
+def validate_static_fields(schema, current_task):
     from json_template import DATA_INPUT_OUTPUT_TS
 
     missing = []
 
-    def is_empty(value):
-        return value in ("", None, [], {})
-
+    
     skip_fields = set(DATA_INPUT_OUTPUT_TS.keys())
     skip_keys = {
         "input_content_rtstruct_subtype",
@@ -22,43 +24,41 @@ def validate_static_fields(schema, session_state, current_task):
     skip_sections = {
         "evaluation_data_methodology_results_commisioning",
         "learning_architecture",
+        "qualitative_evaluation",
     }
 
     for section, fields in schema.items():
-        if section in skip_sections:
-            continue
-        if not isinstance(fields, dict):
-            continue
-        for key, props in fields.items():
-            if key in skip_fields and section in [
-                "training_data_methodology_results_commisioning",
-                "evaluation_data_methodology_results_commisioning",
-            ]:
-                continue
-        for key, props in fields.items():
-            if key in skip_keys:
-                continue
 
+        if section in skip_sections or not isinstance(fields, dict):
+            continue
+        for key, props in fields.items():
+
+            if key in skip_keys or (key in skip_fields and section in [
+                "training_data",
+                "evaluation_data_methodology_results_commisioning",
+            ]):
+                continue
+            
             full_key = f"{section}_{key}"
             if props.get("required", False):
                 model_types = props.get("model_types")
                 if model_types is None or (
                     current_task and current_task in model_types
                 ):
-                    value = session_state.get(full_key)
+                    value = st.session_state.get(full_key)
                     if is_empty(value):
                         label = props.get("label", key) or key.replace("_", " ").title()
                         missing.append((section, label))
     return missing
 
 
-def validate_learning_architectures(schema, session_state):
+def validate_learning_architectures(schema):
     missing = []
 
     def is_empty(value):
         return value in ("", None, [], {})
 
-    forms = session_state.get("learning_architecture_forms", {})
+    forms = st.session_state.get("learning_architecture_forms", {})
     schema_fields = schema.get("learning_architecture", {})
 
     for i in range(len(forms)):
@@ -71,7 +71,7 @@ def validate_learning_architectures(schema, session_state):
 
             if props.get("required", False):
                 full_key = f"{prefix}{field}"
-                value = session_state.get(full_key)
+                value = st.session_state.get(full_key)
 
                 if is_empty(value):
                     label = props.get("label", field.replace("_", " ").title())
@@ -81,18 +81,17 @@ def validate_learning_architectures(schema, session_state):
                             f"{label} (Learning Architecture {i + 1})",
                         )
                     )
-
     return missing
 
 
-def validate_modalities_fields(schema, session_state, current_task):
+def validate_modalities_fields(schema, current_task):
     missing = []
 
     def is_empty(value):
         return value in ("", None, [], {})
 
     modalities = []
-    for key, value in session_state.items():
+    for key, value in st.session_state.items():
         if key.endswith("model_inputs") and isinstance(value, list):
             for item in value:
                 modalities.append((item, "model_inputs"))
@@ -106,38 +105,44 @@ def validate_modalities_fields(schema, session_state, current_task):
         prefix_train = f"training_data_{clean}_{source}_"
         for field, label in DATA_INPUT_OUTPUT_TS.items():
             full_key = f"{prefix_train}{field}"
-            value = session_state.get(full_key)
+            value = st.session_state.get(full_key)
             if is_empty(value):
                 missing.append(
                     (
-                        "training_data_methodology_results_commisioning",
+                        "training_data",
                         f"{label} ({modality} - {source})",
                     )
                 )
+        eval_forms = st.session_state.get("evaluation_forms", [])
+        for name in eval_forms:
+            slug = name.replace(" ", "_")
+            prefix = f"evaluation_{slug}_"
 
-        prefix_eval = f"evaluation_data_{clean}_{source}_"
-        for field, label in DATA_INPUT_OUTPUT_TS.items():
-            full_key = f"{prefix_eval}{field}"
-            value = session_state.get(full_key)
-            if is_empty(value):
-                missing.append(
-                    (
-                        "evaluation_data_methodology_results_commisioning",
-                        f"{label} ({modality} - {source})",
+            prefix_eval = f"{prefix}{clean}_"
+            for field, label in DATA_INPUT_OUTPUT_TS.items():
+                full_key = f"{prefix_eval}{source}_{field}"
+                print(f"Checking {full_key}")
+                value = st.session_state.get(full_key)
+                if is_empty(value):
+                    missing.append(
+                        (
+                            "evaluation_data_methodology_results_commisioning",
+                            f"{label} ({modality} - {source})(Eval: {name})",
+                        )
                     )
-                )
 
     return missing
 
 
-def validate_evaluation_forms(schema, session_state, current_task):
+def validate_evaluation_forms(schema, current_task):
     missing = []
 
     def is_empty(value):
         return value in ("", None, [], {})
 
-    eval_forms = session_state.get("evaluation_forms", [])
+    eval_forms = st.session_state.get("evaluation_forms", [])
     eval_section = schema.get("evaluation_data_methodology_results_commisioning", {})
+    qual_eval_section = schema.get("qualitative_evaluation", {})
     metric_fields = TASK_METRIC_MAP.get(current_task, [])
 
     metric_field_keys = set()
@@ -148,7 +153,7 @@ def validate_evaluation_forms(schema, session_state, current_task):
         slug = name.replace(" ", "_")
         prefix = f"evaluation_{slug}_"
         approved_same_key = f"{prefix}evaluated_same_as_approved"
-        approved_same = session_state.get(approved_same_key, False)
+        approved_same = st.session_state.get(approved_same_key, False)
 
         for key, props in eval_section.items():
             if key in metric_field_keys:
@@ -165,7 +170,7 @@ def validate_evaluation_forms(schema, session_state, current_task):
                 if model_types is None or (
                     current_task and current_task in model_types
                 ):
-                    value = session_state.get(f"{prefix}{key}")
+                    value = st.session_state.get(f"{prefix}{key}")
                     if is_empty(value):
                         label = props.get("label", key) or key.replace("_", " ").title()
                         missing.append(
@@ -176,7 +181,7 @@ def validate_evaluation_forms(schema, session_state, current_task):
                         )
 
         for type_field in metric_fields:
-            entry_list = session_state.get(f"{prefix}{type_field}_list", [])
+            entry_list = st.session_state.get(f"{prefix}{type_field}_list", [])
             for metric_name in entry_list:
                 metric_short = metric_name.split(" (")[0]
                 metric_prefix = f"evaluation_{slug}.{metric_name}"
@@ -187,7 +192,7 @@ def validate_evaluation_forms(schema, session_state, current_task):
                         continue
 
                     full_key = f"{metric_prefix}_{field_key}"
-                    value = session_state.get(full_key)
+                    value = st.session_state.get(full_key)
                     if is_empty(value):
                         label = props.get("label", field_key.replace("_", " ").title())
                         missing.append(
@@ -196,15 +201,25 @@ def validate_evaluation_forms(schema, session_state, current_task):
                                 f"{label} (Metric: {metric_short}, Eval: {name})",
                             )
                         )
+
+        for key, props in qual_eval_section.items():
+            if props.get("required", False):
+                value = st.session_state.get(f"evaluation_{name}_qualitative_evaluation_{key}")
+                if is_empty(value):
+                    label = props.get("label", key) or key.replace("_", " ").title()
+                    missing.append(
+                        (
+                            "evaluation_data_methodology_results_commisioning",
+                            f"{label} (Eval: {name})",
+                        )
+                    )
+
     return missing
 
 
-def validate_required_fields(schema, session_state, current_task=None):
-    missing_fields = []
-
-    missing_fields += validate_static_fields(schema, session_state, current_task)
-    missing_fields += validate_learning_architectures(schema, session_state)
-    missing_fields += validate_modalities_fields(schema, session_state, current_task)
-    missing_fields += validate_evaluation_forms(schema, session_state, current_task)
-
-    return missing_fields
+def validate_required_fields(schema, current_task=None):
+    res1 = validate_static_fields(schema, current_task)
+    res2 = validate_learning_architectures(schema)
+    res3 = validate_modalities_fields(schema, current_task)
+    res4 = validate_evaluation_forms(schema, current_task)
+    return res1 + res2 + res3 + res4

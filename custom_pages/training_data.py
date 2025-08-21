@@ -10,7 +10,7 @@ def training_data_render():
 
     sidebar_render()
     model_card_schema = utils.get_model_card_schema()
-    section = model_card_schema["training_data_methodology_results_commisioning"]
+    section = model_card_schema["training_data"]
     utils.title("Training data, methodology, and information")
     utils.subtitle(
         "containing all information about training and validation data (in case of a fine-tuned model, this section contains information about the tuning dataset)"
@@ -43,7 +43,7 @@ def training_data_render():
 
     utils.title_header("Training Dataset", size="1.2rem")
     utils.light_header_italics(
-        "Note that all fields refer to the raw training data used in 'Model inputs' (i.e. before  pre-processing steps) and raw 'Model outputs' for supervised models (i.e. after post-processing)."
+        "Note that all fields refer to the raw training data used in 'Model inputs' (i.e. before pre-processing steps)."
     )
     utils.title_header("1. General information")
 
@@ -96,7 +96,7 @@ def training_data_render():
     )
 
     tech_section_prefix = "training_data"
-    section = model_card_schema["training_data_methodology_results_commisioning"]
+    section = model_card_schema["training_data"]
 
     modality_entries = []
 
@@ -147,45 +147,45 @@ def training_data_render():
                 col1, col2 = st.columns([1, 1])
                 with col1:
                     render_field(
-                        f"{tech_section_prefix}_{clean_modality}_{source}_image_resolution",
+                        f"{clean_modality}_{source}_image_resolution",
                         field_keys["image_resolution"],
-                        "",
+                        tech_section_prefix,
                     )
                 with col2:
                     render_field(
-                        f"{tech_section_prefix}_{clean_modality}_{source}_patient_positioning",
+                        f"{clean_modality}_{source}_patient_positioning",
                         field_keys["patient_positioning"],
-                        "",
+                        tech_section_prefix,
                     )
 
                 render_field(
-                    f"{tech_section_prefix}_{clean_modality}_{source}_scanner_model",
+                    f"{clean_modality}_{source}_scanner_model",
                     field_keys["scanner_model"],
-                    "",
+                    tech_section_prefix,
                 )
 
                 col1, col2 = st.columns([1, 1])
                 with col1:
                     render_field(
-                        f"{tech_section_prefix}_{clean_modality}_{source}_scan_acquisition_parameters",
+                        f"{clean_modality}_{source}_scan_acquisition_parameters",
                         field_keys["scan_acquisition_parameters"],
-                        "",
+                        tech_section_prefix,
                     )
                 with col2:
                     render_field(
-                        f"{tech_section_prefix}_{clean_modality}_{source}_scan_reconstruction_parameters",
+                        f"{clean_modality}_{source}_scan_reconstruction_parameters",
                         field_keys["scan_reconstruction_parameters"],
-                        "",
+                        tech_section_prefix,
                     )
 
                 render_field(
-                    f"{tech_section_prefix}_{clean_modality}_{source}_fov",
+                    f"{clean_modality}_{source}_fov",
                     field_keys["fov"],
-                    "",
+                    tech_section_prefix,
                 )
 
     model_card_schema = utils.get_model_card_schema()
-    section = model_card_schema["training_data_methodology_results_commisioning"]
+    section = model_card_schema["training_data"]
     task = st.session_state.get("task").strip().lower()
 
     if should_render(section["treatment_modality_train"], task):

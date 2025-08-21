@@ -190,41 +190,41 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
                 col1, col2 = st.columns([1, 1])
                 with col1:
                     render_field(
-                        f"{tech_section_prefix}_{clean_modality}_{source}_image_resolution",
+                        f"{clean_modality}_{source}_image_resolution",
                         field_keys["image_resolution"],
-                        "",
+                        tech_section_prefix,
                     )
                 with col2:
                     render_field(
-                        f"{tech_section_prefix}_{clean_modality}_{source}_patient_positioning",
+                        f"{clean_modality}_{source}_patient_positioning",
                         field_keys["patient_positioning"],
-                        "",
+                        tech_section_prefix,
                     )
 
                 render_field(
-                    f"{tech_section_prefix}_{clean_modality}_{source}_scanner_model",
+                    f"{clean_modality}_{source}_scanner_model",
                     field_keys["scanner_model"],
-                    "",
+                    tech_section_prefix,
                 )
 
                 col1, col2 = st.columns([1, 1])
                 with col1:
                     render_field(
-                        f"{tech_section_prefix}_{clean_modality}_{source}_scan_acquisition_parameters",
+                        f"{clean_modality}_{source}_scan_acquisition_parameters",
                         field_keys["scan_acquisition_parameters"],
-                        "",
+                        tech_section_prefix,
                     )
                 with col2:
                     render_field(
-                        f"{tech_section_prefix}_{clean_modality}_{source}_scan_reconstruction_parameters",
+                        f"{clean_modality}_{source}_scan_reconstruction_parameters",
                         field_keys["scan_reconstruction_parameters"],
-                        "",
+                        tech_section_prefix,
                     )
 
                 render_field(
-                    f"{tech_section_prefix}_{clean_modality}_{source}_fov",
+                    f"{clean_modality}_{source}_fov",
                     field_keys["fov"],
-                    "",
+                    tech_section_prefix,
                 )
 
     ####################################

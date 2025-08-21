@@ -9,7 +9,7 @@ SECTION_NAMES = {
     "Model Basic Information": ["model_basic_information"],
     "Technical Specifications": ["technical_specifications", "learning_architecture"],
     "Training data, methodology, and information": [
-        "training_data_methodology_results_commisioning"
+        "training_data"
     ],
     "Evaluation data, methodology, and results / commissioning": [
         "evaluation_data_methodology_results_commisioning",
@@ -26,7 +26,7 @@ def warnings_render():
     task = st.session_state.get("task", "Image-to-Image translation")
 
     missing_required = validation_utils.validate_required_fields(
-        model_card_schema, st.session_state, current_task=task
+        model_card_schema, current_task=task
     )
 
     grouped_missing = {}

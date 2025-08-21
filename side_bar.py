@@ -111,7 +111,7 @@ def sidebar_render():
 
         task = st.session_state.get("task", "Image-to-Image translation")
         if validation_utils.validate_required_fields(
-            model_card_schema, st.session_state, current_task=task
+            model_card_schema, current_task=task
         ):
             if st.button("Warnings"):
                 st.session_state.runpage = warnings_render
@@ -171,7 +171,7 @@ def sidebar_render():
         with tab_readme:
             task = st.session_state.get("task")
             _ = validation_utils.validate_required_fields(
-                SCHEMA, st.session_state, current_task=task
+                SCHEMA, current_task=task
             )
 
             if "last_readme_text" not in st.session_state:
