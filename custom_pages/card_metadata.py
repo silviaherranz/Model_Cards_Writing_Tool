@@ -5,6 +5,7 @@ from render import create_helpicon, render_field
 
 
 def card_metadata_render():
+    utils.hide_streamlit_chrome()
     st.markdown("""
     <style>
     /* hide Streamlit Cloud’s top-right toolbar (includes the GitHub icon) */

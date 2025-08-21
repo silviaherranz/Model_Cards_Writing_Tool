@@ -5,6 +5,7 @@ from render import create_helpicon, render_field
 
 
 def model_basic_information_render():
+    utils.hide_streamlit_chrome()
     st.markdown("""
     <style>
     /* hide Streamlit Cloud’s top-right toolbar (includes the GitHub icon) */

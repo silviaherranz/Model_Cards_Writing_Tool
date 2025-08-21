@@ -1,7 +1,10 @@
 from pathlib import Path
 import streamlit as st
 
+from utils import hide_streamlit_chrome
+
 def model_card_info_render():
+    hide_streamlit_chrome()
     st.markdown("""
     <style>
     /* hide Streamlit Cloud’s top-right toolbar (includes the GitHub icon) */
