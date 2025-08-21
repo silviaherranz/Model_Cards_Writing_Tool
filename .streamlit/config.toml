@@ -1,9 +1,0 @@
-[client]
-showSidebarNavigation = false
-
-[menuItems]
-reportABug = null
-about = null
-getHelp = null
-# This removes the GitHub link
-gitHub = null
