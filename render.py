@@ -62,16 +62,15 @@ def render_image_field(key, props, section_prefix):
     if "all_uploaded_paths" not in st.session_state:
         st.session_state.all_uploaded_paths = set()
     if "render_uploads" not in st.session_state:
-        # Mapa: full_key -> {"path": str, "name": str}
+        # Map: full_key -> {"path": str, "name": str}
         st.session_state.render_uploads = {}
-    had_file_flag = f"{full_key}__had_file"
-    if had_file_flag not in st.session_state:
-        st.session_state[had_file_flag] = False
 
     st.markdown(
         "<i>If too big or not readable, please indicate the figure number and attach it to the appendix",
         unsafe_allow_html=True,
     )
+
+    st.info("To remove a file, please use the **Delete** button below — the cross in the uploader is disabled.")
 
     col1, col2 = st.columns([1, 2])
     with col1:
@@ -86,29 +85,11 @@ def render_image_field(key, props, section_prefix):
         uploaded_image = st.file_uploader(
             label=".",
             type=[
-                "png",
-                "jpg",
-                "jpeg",
-                "gif",
-                "bmp",
-                "tiff",
-                "webp",
-                "svg",
-                "dcm",
-                "dicom",
-                "nii",
-                "nifti",
-                "pdf",
-                "docx",
-                "doc",
-                "pptx",
-                "ppt",
-                "txt",
-                "xlsx",
-                "xls",
-                "DICOM",
+                "png","jpg","jpeg","gif","bmp","tiff","webp","svg",
+                "dcm","dicom","nii","nifti","pdf","docx","doc",
+                "pptx","ppt","txt","xlsx","xls","DICOM",
             ],
-            key=full_key,
+            key=f"{full_key}__uploader",  # keep a stable, unique key per field
             label_visibility="collapsed",
         )
 
@@ -120,18 +101,17 @@ def render_image_field(key, props, section_prefix):
                         os.remove(prev["path"])
                 except Exception:
                     pass
-                try:
-                    st.session_state.all_uploaded_paths.discard(prev["path"])
-                except Exception:
-                    pass
+                st.session_state.all_uploaded_paths.discard(prev["path"])
                 st.session_state.render_uploads.pop(full_key, None)
+                st.session_state.pop(f"{full_key}_image", None)
 
+        # 1) If user uploaded a new file this run, save & overwrite previous.
         if uploaded_image is not None:
-            st.session_state[f"{full_key}_image"] = uploaded_image
             os.makedirs("uploads", exist_ok=True)
             safe_name = uploaded_image.name
             save_path = os.path.join("uploads", f"{full_key}_{safe_name}")
 
+            # replace previous if existed
             _delete_previous_for_field()
 
             with open(save_path, "wb") as f:
@@ -142,25 +122,25 @@ def render_image_field(key, props, section_prefix):
                 "path": save_path,
                 "name": safe_name,
             }
-            st.session_state[had_file_flag] = True
+            st.session_state[f"{full_key}_image"] = uploaded_image
 
-        if uploaded_image is None and st.session_state[had_file_flag]:
-            prev = st.session_state.render_uploads.get(full_key)
-            if prev:
-                try:
-                    if os.path.exists(prev["path"]):
-                        os.remove(prev["path"])
-                except Exception:
-                    pass
-                try:
-                    st.session_state.all_uploaded_paths.discard(prev["path"])
-                except Exception:
-                    pass
-                st.session_state.render_uploads.pop(full_key, None)
-            st.session_state.pop(f"{full_key}_image", None)
-            st.session_state[had_file_flag] = False
+        # 2) If no new upload this run, DO NOT delete anything.
+        #    Instead, show what's persisted (if anything).
+        existing = st.session_state.render_uploads.get(full_key)
 
-        st.session_state.render_uploads.get(full_key)
+        # Small UI to show current file and allow explicit removal
+        if existing:
+            st.caption(f"Current file: **{existing['name']}**")
+            remove_clicked = st.button(
+                "Remove file",
+                key=f"{full_key}__remove_btn",
+            )
+            if remove_clicked:
+                _delete_previous_for_field()
+                st.rerun()
+        else:
+            st.caption("No file selected yet.")
+
 
 
 def render_field(key, props, section_prefix):

@@ -121,7 +121,7 @@ def validate_modalities_fields(schema, current_task):
             prefix_eval = f"{prefix}{clean}_"
             for field, label in DATA_INPUT_OUTPUT_TS.items():
                 full_key = f"{prefix_eval}{source}_{field}"
-                print(f"Checking {full_key}")
+                #print(f"Checking {full_key}")
                 value = st.session_state.get(full_key)
                 if is_empty(value):
                     missing.append(
