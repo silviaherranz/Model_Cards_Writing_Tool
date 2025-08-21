@@ -4,6 +4,17 @@ from render import render_field
 
 
 def other_considerations_render():
+    st.markdown("""
+    <style>
+    /* hide Streamlit Cloud’s top-right toolbar (includes the GitHub icon) */
+    div[data-testid="stToolbar"] { visibility: hidden; height: 0; }
+
+    /* optional: also hide the 'Manage app' badge and footer */
+    a[data-testid="viewerBadge_link"] { display: none !important; }
+    div[data-testid="stStatusWidget"] { display: none !important; }
+    footer { visibility: hidden; }
+    </style>
+    """, unsafe_allow_html=True)
     from side_bar import sidebar_render
 
     sidebar_render()
