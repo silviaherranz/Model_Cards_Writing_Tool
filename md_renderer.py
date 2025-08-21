@@ -10,7 +10,13 @@ from json_template import DATA_INPUT_OUTPUT_TS
 from templates.sections import SECTION_REGISTRY, TEMPLATES_DIR
 from main import extract_evaluations_from_state
 import markdown
-from weasyprint import HTML, CSS
+try:
+    from weasyprint import HTML, CSS
+    _HAS_WEASYPRINT = True
+    _WEASYPRINT_ERR = None
+except Exception as e:
+    _HAS_WEASYPRINT = False
+    _WEASYPRINT_ERR = e
 
 def build_appendix_files_context():
     items = []
@@ -337,7 +343,7 @@ def render_section_md(section_id: str) -> str:
         raise FileNotFoundError(f"Template not found: {cfg['template']}")
 
 
-def render_full_model_card_md(master_template: str = "model_card_master.md.j2") -> str:
+""" def render_full_model_card_md(master_template: str = "model_card_master.md.j2") -> str:
     sections_md = {sid: render_section_md(sid) for sid in SECTION_REGISTRY}
     
     appendix_files = build_appendix_files_context()
@@ -349,9 +355,20 @@ def render_full_model_card_md(master_template: str = "model_card_master.md.j2") 
             sections=sections_md,
             appendix_files=appendix_files,
         )
+    ) """
+
+def render_full_model_card_md(master_template: str = "model_card_master.md.j2") -> str:
+    sections_md = {sid: render_section_md(sid) for sid in SECTION_REGISTRY}
+    appendix_files = build_appendix_files_context()
+
+    return (
+        _env()
+        .get_template(master_template)
+        .render(
+            sections=sections_md,
+            appendix_files=appendix_files,
+        )
     )
-
-
 
 DEFAULT_PDF_CSS = """
 /* --- Page setup --- */
@@ -487,31 +504,92 @@ tbody tr:hover td {
 
 """
 
+# def render_markdown_to_html(md_text: str, extra_css: str = None) -> str:
+#     """
+#     Convert Markdown to HTML, lightly styled. Returns a complete HTML string.
+#     You can inline <style>CSS</style> for WeasyPrint consumption.
+#     """
+#     # Enable tables and sane Markdown features
+#     html_body = markdown.markdown(
+#         md_text,
+#         extensions=[
+#             "tables",
+#             "fenced_code",
+#             "toc",
+#             "attr_list",
+#             "sane_lists",
+#             # add "md_in_html" if you embed HTML in Markdown
+#         ],
+#         output_format="html5",
+#     )
+
+#     css_block = f"<style>{DEFAULT_PDF_CSS}</style>"
+#     if extra_css:
+#         css_block += f"<style>{extra_css}</style>"
+
+#     # Simple HTML skeleton
+#     html = f"""<!doctype html>
+# <html>
+# <head>
+# <meta charset="utf-8">
+# <title>Model Card</title>
+# {css_block}
+# </head>
+# <body>
+# {html_body}
+# </body>
+# </html>"""
+#     return html
+
+
+# def save_model_card_pdf(
+#     path: str = "model_card.pdf",
+#     *,
+#     css_text: str = DEFAULT_PDF_CSS,
+#     css_file: str = None,
+#     base_url: str = None,
+# ) -> str:
+#     """
+#     Render the current model card to a styled PDF.
+
+#     Args:
+#         path: output PDF path
+#         css_text: optional extra CSS string to override/extend DEFAULT_PDF_CSS
+#         css_file: optional path to a CSS file for additional rules
+#         base_url: base path for resolving relative images/links, e.g., os.getcwd()
+
+#     Returns:
+#         The output PDF path.
+#     """
+#     md = render_full_model_card_md()
+#     html = render_markdown_to_html(md, extra_css=css_text)
+
+#     # Build CSS objects list for WeasyPrint
+#     css_list = []
+#     if css_file:
+#         css_list.append(CSS(filename=css_file))
+
+#     if css_text:
+#         css_list.append(CSS(string=css_text))
+#     # DEFAULT_PDF_CSS and css_text are already inlined in <style>, so no need to add here.
+#     # But you can also provide them as external CSS objects if you prefer:
+#     # css_list.append(CSS(string=DEFAULT_PDF_CSS))
+#     # if css_text: css_list.append(CSS(string=css_text))
+
+#     # base_url lets WeasyPrint resolve relative URLs (e.g., local images)
+#     HTML(string=html, base_url=base_url).write_pdf(path, stylesheets=css_list)
+#     return path
 def render_markdown_to_html(md_text: str, extra_css: str = None) -> str:
-    """
-    Convert Markdown to HTML, lightly styled. Returns a complete HTML string.
-    You can inline <style>CSS</style> for WeasyPrint consumption.
-    """
-    # Enable tables and sane Markdown features
     html_body = markdown.markdown(
         md_text,
-        extensions=[
-            "tables",
-            "fenced_code",
-            "toc",
-            "attr_list",
-            "sane_lists",
-            # add "md_in_html" if you embed HTML in Markdown
-        ],
+        extensions=["tables", "fenced_code", "toc", "attr_list", "sane_lists"],
         output_format="html5",
     )
-
     css_block = f"<style>{DEFAULT_PDF_CSS}</style>"
     if extra_css:
         css_block += f"<style>{extra_css}</style>"
 
-    # Simple HTML skeleton
-    html = f"""<!doctype html>
+    return f"""<!doctype html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -522,8 +600,6 @@ def render_markdown_to_html(md_text: str, extra_css: str = None) -> str:
 {html_body}
 </body>
 </html>"""
-    return html
-
 
 def save_model_card_pdf(
     path: str = "model_card.pdf",
@@ -534,31 +610,23 @@ def save_model_card_pdf(
 ) -> str:
     """
     Render the current model card to a styled PDF.
-
-    Args:
-        path: output PDF path
-        css_text: optional extra CSS string to override/extend DEFAULT_PDF_CSS
-        css_file: optional path to a CSS file for additional rules
-        base_url: base path for resolving relative images/links, e.g., os.getcwd()
-
-    Returns:
-        The output PDF path.
+    Returns the output PDF path.
     """
+    if not _HAS_WEASYPRINT:
+        raise RuntimeError(
+            "PDF export unavailable: WeasyPrint not installed or missing system libraries.\n"
+            f"Underlying error: {_WEASYPRINT_ERR}"
+        )
+
     md = render_full_model_card_md()
     html = render_markdown_to_html(md, extra_css=css_text)
 
-    # Build CSS objects list for WeasyPrint
     css_list = []
     if css_file:
         css_list.append(CSS(filename=css_file))
-
     if css_text:
         css_list.append(CSS(string=css_text))
-    # DEFAULT_PDF_CSS and css_text are already inlined in <style>, so no need to add here.
-    # But you can also provide them as external CSS objects if you prefer:
-    # css_list.append(CSS(string=DEFAULT_PDF_CSS))
-    # if css_text: css_list.append(CSS(string=css_text))
 
-    # base_url lets WeasyPrint resolve relative URLs (e.g., local images)
     HTML(string=html, base_url=base_url).write_pdf(path, stylesheets=css_list)
     return path
+

@@ -272,7 +272,6 @@ def sidebar_render():
                             missing_required = (
                                 validation_utils.validate_required_fields(
                                     model_card_schema,
-                                    st.session_state,
                                     current_task=st.session_state.get("task"),
                                 )
                             )
@@ -335,7 +334,6 @@ def sidebar_render():
                         else:
                             missing_required = validation_utils.validate_required_fields(
                                 model_card_schema,                   # or SCHEMA if that’s your variable
-                                st.session_state,
                                 current_task=st.session_state.get("task"),
                             )
                             st.session_state.download_ready_md = True
@@ -418,7 +416,6 @@ def sidebar_render():
                             else:
                                 missing_required = validation_utils.validate_required_fields(
                                     model_card_schema,
-                                    st.session_state,
                                     current_task=st.session_state.get("task"),
                                 )
                                 st.session_state.download_zip_ready = True
