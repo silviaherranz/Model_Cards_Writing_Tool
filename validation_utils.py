@@ -1,3 +1,4 @@
+import os
 from json_template import (
     DATA_INPUT_OUTPUT_TS,
     EVALUATION_METRIC_FIELDS,
@@ -9,6 +10,18 @@ import streamlit as st
 
 def is_empty(value):
         return value in ("", None, [], {})
+
+
+def _has_required_image(full_key: str) -> bool:
+    """Return True iff the uploader for `full_key` has a saved file."""
+    rec = st.session_state.get("render_uploads", {}).get(full_key)
+    if not rec:
+        return False
+    # If you want to be strict and ensure the file still exists on disk:
+    try:
+        return os.path.exists(rec.get("path", ""))
+    except Exception:
+        return False
 
 def validate_static_fields(schema, current_task):
     from json_template import DATA_INPUT_OUTPUT_TS
@@ -45,6 +58,13 @@ def validate_static_fields(schema, current_task):
                 if model_types is None or (
                     current_task and current_task in model_types
                 ):
+                    field_type = (props.get("type") or "").lower()
+                    if field_type == "image":
+                        if not _has_required_image(full_key):
+                            label = props.get("label", key) or key.replace("_", " ").title()
+                            missing.append((section, label))
+                        continue
+                    
                     value = st.session_state.get(full_key)
                     if is_empty(value):
                         label = props.get("label", key) or key.replace("_", " ").title()
