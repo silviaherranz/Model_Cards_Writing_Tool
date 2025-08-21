@@ -4,3 +4,4 @@ pandas
 lxml
 altair<5
 fpdf
+Markdown==3.6
