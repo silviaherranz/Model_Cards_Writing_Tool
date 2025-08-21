@@ -1,7 +1,21 @@
+[theme]
+primaryColor = "#F63366"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F0F2F6"
+textColor = "#262730"
+
+[server]
+headless = true
+
 [client]
-toolbarMode = "minimal"
+showSidebarNavigation = false
+
+[browser]
+gatherUsageStats = false
 
 [menuItems]
-getHelp = ""
-reportBug = ""
-about = ""
+reportABug = null
+about = null
+getHelp = null
+# This removes the GitHub link
+gitHub = null
