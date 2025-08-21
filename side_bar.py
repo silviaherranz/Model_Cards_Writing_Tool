@@ -319,8 +319,6 @@ def sidebar_render():
                         )
                     st.session_state.download_ready_pdf = False
 
-
-
                 def parse_into_markdown(schema) -> str:
                     """Return the complete Model Card as Markdown via your renderer."""
                     return render_full_model_card_md()
