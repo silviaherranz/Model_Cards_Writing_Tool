@@ -135,7 +135,10 @@ def validate_modalities_fields(schema, current_task):
 
 
 def validate_evaluation_forms(schema, current_task):
+    from json_template import DATA_INPUT_OUTPUT_TS
     missing = []
+
+    skip_fields = set(DATA_INPUT_OUTPUT_TS.keys())
 
     def is_empty(value):
         return value in ("", None, [], {})
@@ -156,10 +159,12 @@ def validate_evaluation_forms(schema, current_task):
         approved_same = st.session_state.get(approved_same_key, False)
 
         for key, props in eval_section.items():
-            if key in metric_field_keys:
+
+            if key in metric_field_keys or key in skip_fields:
                 continue
 
             if approved_same and key in [
+                "evaluated_by_name",
                 "evaluated_by_institution",
                 "evaluated_by_contact_email",
             ]:

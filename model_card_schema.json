@@ -2355,7 +2355,8 @@
       "type": "String, Free text format",
       "label": "Name",
       "description": "Name of the person(s) who evaluated the model or contact person on behalf of the team. If several, separate them by commas.",
-      "example": "Maria Smith"
+      "example": "Maria Smith",
+      "required": true
     },
     "evaluated_by_institution": {
       "type": "String, Free text format",
