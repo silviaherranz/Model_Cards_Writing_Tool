@@ -296,6 +296,14 @@ def page_switcher(page):
 
 
 def main():
+    hide_github_style = """
+        <style>
+            a[href*="github.com"] {
+                display: none !important;
+            }
+        </style>
+    """
+    st.markdown(hide_github_style, unsafe_allow_html=True)
 
     st.markdown("""
         <style>
