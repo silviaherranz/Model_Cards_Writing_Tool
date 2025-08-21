@@ -1,0 +1,7 @@
+[client]
+toolbarMode = "minimal"
+
+[menuItems]
+getHelp = ""
+reportBug = ""
+about = ""
