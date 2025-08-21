@@ -3,7 +3,6 @@ import streamlit as st
 import re
 from datetime import datetime, date, timedelta
 import base64
-from fpdf import FPDF
 from middleMan import parse_into_json
 from collections import OrderedDict
 
@@ -236,24 +235,6 @@ def populate_session_state_from_json(data):
 
                 if isinstance(v, list):
                     st.session_state[full_key + "_list"] = v
-
-
-def export_json_pretty_to_pdf(schema_path, filename="output.pdf"):
-    with open(schema_path, "r", encoding="utf-8") as f:
-        schema = json.load(f)
-
-    structured_data = json.loads(parse_into_json(schema))
-
-    pretty = json.dumps(structured_data, indent=2, ensure_ascii=False)
-
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Helvetica", size=10)
-
-    for line in pretty.split("\n"):
-        pdf.multi_cell(0, 5, line)
-
-    pdf.output(filename)
 
 
 def light_header(text, size="16px", bottom_margin="1em"):

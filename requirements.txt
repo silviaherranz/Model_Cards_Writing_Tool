@@ -3,7 +3,6 @@ modelcards==0.1.2
 pandas
 lxml
 altair<5
-fpdf
 Markdown==3.6
 bleach>=6.1.0         
 WeasyPrint==61.2       
