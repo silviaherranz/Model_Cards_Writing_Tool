@@ -2,7 +2,7 @@ import os
 import streamlit as st
 from tg263 import RTSTRUCT_SUBTYPES
 import html
-from uploads_manager import ensure_upload_state, field_current, field_delete, field_overwrite
+from uploads_manager import bump_uploader, ensure_upload_state, field_current, field_delete, field_overwrite, uploader_key_for
 import utils
 import re
 import numpy as np
@@ -54,14 +54,14 @@ def render_image_field(key, props, section_prefix):
     required = props.get("required", False)
 
     create_helpicon(label, description, field_type, example, required)
-
     ensure_upload_state()
 
     st.markdown(
         "<i>If too big or not readable, please indicate the figure number and attach it to the appendix",
         unsafe_allow_html=True,
     )
-    st.info("To remove a file, please use the **Delete** button below — the cross in the uploader is disabled.")
+
+    #st.info("To remove a file, please use the **Delete** button below — the cross in the uploader is disabled.")
 
     col1, col2 = st.columns([1, 2])
     with col1:
@@ -73,7 +73,6 @@ def render_image_field(key, props, section_prefix):
         )
 
     with col2:
-        # CLAVE ESTABLE (NO NONCE) -> no se oculta el uploader
         uploaded = st.file_uploader(
             label=".",
             type=[
@@ -81,26 +80,27 @@ def render_image_field(key, props, section_prefix):
                 "dcm","dicom","nii","nifti","pdf","docx","doc",
                 "pptx","ppt","txt","xlsx","xls","DICOM",
             ],
-            key=f"{full_key}__uploader",
+            key=uploader_key_for(full_key),   
             label_visibility="collapsed",
         )
 
-        # 1) Nuevo upload: sobrescribe SIN forzar rerun (UI queda igual, uploader visible)
         if uploaded is not None:
-            field_overwrite(full_key, uploaded, folder="uploads")
-            st.session_state[f"{full_key}_image"] = uploaded  # compat si lo lees en otro sitio
+            field_delete(full_key)                         
+            field_overwrite(full_key, uploaded, "uploads")
+            st.session_state[f"{full_key}_image"] = uploaded  
 
-        # 2) Mostrar fichero existente y permitir borrado explícito
+            bump_uploader(full_key)
+            st.rerun()
+
         existing = field_current(full_key)
         if existing:
             st.caption(f"Current file: **{existing['name']}**")
-            # Forzamos rerun DESPUÉS de borrar para que desaparezca de inmediato
             if st.button("Delete", key=f"{full_key}__remove_btn"):
                 field_delete(full_key)
+                bump_uploader(full_key)   
                 st.rerun()
         else:
             st.caption("No file selected yet.")
-
 
 
 def render_field(key, props, section_prefix):

@@ -1,4 +1,4 @@
-import base64  # still used by preview helper (import left for compatibility if needed)
+import base64
 from pathlib import Path
 import streamlit as st
 import utils
@@ -14,6 +14,7 @@ model_card_schema = utils.get_model_card_schema()
 
 UPLOAD_DIR = Path("uploads/appendix")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
 
 def appendix_render():
     from side_bar import sidebar_render

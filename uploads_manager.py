@@ -5,16 +5,18 @@ import os
 import uuid
 import streamlit as st
 
-# -------------------------
-# Session state management
-# -------------------------
 
-REG_APPENDIX_UPLOADS = "appendix_uploads"   # { original_name: { "custom_label": str, "path": str, "stored_name": str } }
-REG_ALL_PATHS = "all_uploaded_paths"        # set(str)
-REG_RENDER_UPLOADS = "render_uploads"       # { key: { "path": str, "name": str } }
+REG_APPENDIX_UPLOADS = "appendix_uploads"
+REG_ALL_PATHS = "all_uploaded_paths"
+REG_RENDER_UPLOADS = "render_uploads"
 REG_APPENDIX_NONCE = "appendix_uploader_nonce"
 
+
 def ensure_upload_state():
+    """
+    Ensure the upload state is initialized in the session.
+    """
+    
     if REG_APPENDIX_UPLOADS not in st.session_state:
         st.session_state[REG_APPENDIX_UPLOADS] = {}
     if REG_ALL_PATHS not in st.session_state:
@@ -24,25 +26,27 @@ def ensure_upload_state():
     if REG_APPENDIX_NONCE not in st.session_state:
         st.session_state[REG_APPENDIX_NONCE] = 0
 
-# -------------------------
-# File ops
-# -------------------------
 
 def safe_remove(path_str: str):
+    """
+    Safely remove a file or directory.
+
+    :param path_str: The path to the file or directory to remove.
+    :type path_str: str
+    """
     try:
         Path(path_str).unlink(missing_ok=True)
     except Exception:
         pass
 
+
 def register_path(path_str: str):
     st.session_state[REG_ALL_PATHS].add(path_str)
+
 
 def unregister_path(path_str: str):
     st.session_state[REG_ALL_PATHS].discard(path_str)
 
-# -------------------------
-# Appendix-specific helpers
-# -------------------------
 
 def save_appendix_files(uploaded_files, dest_dir: Path):
     """
@@ -81,6 +85,7 @@ def save_appendix_files(uploaded_files, dest_dir: Path):
 
     return saved_any
 
+
 def delete_appendix_item(original_name: str):
     entry = st.session_state[REG_APPENDIX_UPLOADS].pop(original_name, None)
     if not entry:
@@ -91,12 +96,10 @@ def delete_appendix_item(original_name: str):
     unregister_path(file_path)
     st.session_state[REG_RENDER_UPLOADS].pop(stored_name, None)
 
-# -------------------------
-# Per-field (single-file) helpers
-# -------------------------
 
 def field_current(full_key: str):
     return st.session_state[REG_RENDER_UPLOADS].get(full_key)
+
 
 def field_overwrite(full_key: str, uploaded_file, folder: str = "uploads"):
     """
@@ -107,7 +110,6 @@ def field_overwrite(full_key: str, uploaded_file, folder: str = "uploads"):
     safe_name = uploaded_file.name
     save_path = os.path.join(folder, f"{full_key}_{safe_name}")
 
-    # delete previous first
     field_delete(full_key)
 
     with open(save_path, "wb") as f:
@@ -117,6 +119,7 @@ def field_overwrite(full_key: str, uploaded_file, folder: str = "uploads"):
     meta = {"path": save_path, "name": safe_name}
     st.session_state[REG_RENDER_UPLOADS][full_key] = meta
     return meta
+
 
 def field_delete(full_key: str):
     prev = st.session_state[REG_RENDER_UPLOADS].pop(full_key, None)
@@ -131,11 +134,23 @@ def field_delete(full_key: str):
     # Backcompat with your code that stashes the raw upload
     st.session_state.pop(f"{full_key}_image", None)
 
-# -------------------------
-# Preview utilities
-# -------------------------
 
-PREVIEW_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".pdf", ".txt", ".csv", ".json", ".md", ".py", ".c", ".cpp", ".h"}
+PREVIEW_EXTS = {
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".pdf",
+    ".txt",
+    ".csv",
+    ".json",
+    ".md",
+    ".py",
+    ".c",
+    ".cpp",
+    ".h",
+}
+
 
 def preview_file(file_path: str):
     """
@@ -160,4 +175,18 @@ def preview_file(file_path: str):
                 st.code(f.read(), language="text")
         return True
     except Exception:
-        return None  # signals "could not preview"
+        return None  
+
+
+def uploader_key_for(field_key: str) -> str:
+    """Return a stable uploader key that remounts when its per-field nonce changes."""
+    nk = f"{field_key}__uploader_nonce"
+    if nk not in st.session_state:
+        st.session_state[nk] = 0
+    return f"{field_key}__uploader_{st.session_state[nk]}"
+
+
+def bump_uploader(field_key: str) -> None:
+    """Increment the per-field nonce so the uploader remounts on next rerun."""
+    nk = f"{field_key}__uploader_nonce"
+    st.session_state[nk] = st.session_state.get(nk, 0) + 1
