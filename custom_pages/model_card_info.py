@@ -1,23 +1,42 @@
+from __future__ import annotations
+
 from pathlib import Path
 import streamlit as st
 
-def model_card_info_render():
+__all__ = ["model_card_info_render"]
+
+PATH_ERROR_MSG = (
+    "File 'about.md' not found.\n\n"
+    f"Expected at: {Path.cwd() / 'about.md'}\n"
+    "Tip: run Streamlit from the project root and place `about.md` there."
+)
+
+
+@st.cache_data(show_spinner=False)
+def _read_markdown(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+def model_card_info_render() -> None:
     from side_bar import sidebar_render
+
     sidebar_render()
 
     md_file = Path("about.md")
     if not md_file.exists():
-        st.error(f"File '{md_file}' not found.")
+        st.error(PATH_ERROR_MSG)
         return
 
-    # CSS para justificar párrafos y listas
-    st.markdown("""
+    st.markdown(
+        """
         <style>
-        .block-container p, .block-container li {
-            text-align: justify;
-        }
+          .block-container p, .block-container li { text-align: justify; }
         </style>
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
-    # Renderiza el Markdown normalmente
-    st.markdown(md_file.read_text(encoding="utf-8"))
+    try:
+        st.markdown(_read_markdown(md_file))
+    except UnicodeDecodeError:
+        st.error(f"Could not decode '{md_file}' as UTF-8.")

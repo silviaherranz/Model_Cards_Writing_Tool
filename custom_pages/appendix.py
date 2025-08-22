@@ -13,6 +13,8 @@ from uploads_manager import (
     preview_file,
 )
 
+__all__ = ["appendix_render"]
+
 APPENDIX_TITLE = "Appendix"
 APPENDIX_HELP = (
     "Files uploaded in the **Appendix** as well as files added in other sections will "
