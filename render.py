@@ -2,6 +2,7 @@ import os
 import streamlit as st
 from tg263 import RTSTRUCT_SUBTYPES
 import html
+from uploads_manager import ensure_upload_state, field_current, field_delete, field_overwrite
 import utils
 import re
 import numpy as np
@@ -20,11 +21,6 @@ def selectbox_with_default(label, values, key=None, help=None):
     )
     return selected
 
-
-def render_schema_section(schema_section, section_prefix="", current_task=None):
-    for key, props in schema_section.items():
-        if should_render(props, current_task):
-            render_field(key, props, section_prefix)
 
 
 def has_renderable_fields(field_keys, schema_section, current_task):
@@ -59,17 +55,12 @@ def render_image_field(key, props, section_prefix):
 
     create_helpicon(label, description, field_type, example, required)
 
-    if "all_uploaded_paths" not in st.session_state:
-        st.session_state.all_uploaded_paths = set()
-    if "render_uploads" not in st.session_state:
-        # Map: full_key -> {"path": str, "name": str}
-        st.session_state.render_uploads = {}
+    ensure_upload_state()
 
     st.markdown(
         "<i>If too big or not readable, please indicate the figure number and attach it to the appendix",
         unsafe_allow_html=True,
     )
-
     st.info("To remove a file, please use the **Delete** button below — the cross in the uploader is disabled.")
 
     col1, col2 = st.columns([1, 2])
@@ -82,61 +73,30 @@ def render_image_field(key, props, section_prefix):
         )
 
     with col2:
-        uploaded_image = st.file_uploader(
+        # CLAVE ESTABLE (NO NONCE) -> no se oculta el uploader
+        uploaded = st.file_uploader(
             label=".",
             type=[
                 "png","jpg","jpeg","gif","bmp","tiff","webp","svg",
                 "dcm","dicom","nii","nifti","pdf","docx","doc",
                 "pptx","ppt","txt","xlsx","xls","DICOM",
             ],
-            key=f"{full_key}__uploader",  # keep a stable, unique key per field
+            key=f"{full_key}__uploader",
             label_visibility="collapsed",
         )
 
-        def _delete_previous_for_field():
-            prev = st.session_state.render_uploads.get(full_key)
-            if prev:
-                try:
-                    if os.path.exists(prev["path"]):
-                        os.remove(prev["path"])
-                except Exception:
-                    pass
-                st.session_state.all_uploaded_paths.discard(prev["path"])
-                st.session_state.render_uploads.pop(full_key, None)
-                st.session_state.pop(f"{full_key}_image", None)
+        # 1) Nuevo upload: sobrescribe SIN forzar rerun (UI queda igual, uploader visible)
+        if uploaded is not None:
+            field_overwrite(full_key, uploaded, folder="uploads")
+            st.session_state[f"{full_key}_image"] = uploaded  # compat si lo lees en otro sitio
 
-        # 1) If user uploaded a new file this run, save & overwrite previous.
-        if uploaded_image is not None:
-            os.makedirs("uploads", exist_ok=True)
-            safe_name = uploaded_image.name
-            save_path = os.path.join("uploads", f"{full_key}_{safe_name}")
-
-            # replace previous if existed
-            _delete_previous_for_field()
-
-            with open(save_path, "wb") as f:
-                f.write(uploaded_image.getbuffer())
-
-            st.session_state.all_uploaded_paths.add(save_path)
-            st.session_state.render_uploads[full_key] = {
-                "path": save_path,
-                "name": safe_name,
-            }
-            st.session_state[f"{full_key}_image"] = uploaded_image
-
-        # 2) If no new upload this run, DO NOT delete anything.
-        #    Instead, show what's persisted (if anything).
-        existing = st.session_state.render_uploads.get(full_key)
-
-        # Small UI to show current file and allow explicit removal
+        # 2) Mostrar fichero existente y permitir borrado explícito
+        existing = field_current(full_key)
         if existing:
             st.caption(f"Current file: **{existing['name']}**")
-            remove_clicked = st.button(
-                "Remove file",
-                key=f"{full_key}__remove_btn",
-            )
-            if remove_clicked:
-                _delete_previous_for_field()
+            # Forzamos rerun DESPUÉS de borrar para que desaparezca de inmediato
+            if st.button("Delete", key=f"{full_key}__remove_btn"):
+                field_delete(full_key)
                 st.rerun()
         else:
             st.caption("No file selected yet.")

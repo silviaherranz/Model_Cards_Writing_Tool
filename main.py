@@ -26,17 +26,6 @@ def get_cached_data():
 
 
 def task_selector_page():
-    st.markdown("""
-    <style>
-    /* hide Streamlit Cloud’s top-right toolbar (includes the GitHub icon) */
-    div[data-testid="stToolbar"] { visibility: hidden; height: 0; }
-
-    /* optional: also hide the 'Manage app' badge and footer */
-    a[data-testid="viewerBadge_link"] { display: none !important; }
-    div[data-testid="stStatusWidget"] { display: none !important; }
-    footer { visibility: hidden; }
-    </style>
-    """, unsafe_allow_html=True)
     if "task" not in st.session_state:
         st.markdown("""
             <style>
@@ -112,17 +101,6 @@ def task_selector_page():
 
 
 def load_model_card_page():
-    st.markdown("""
-    <style>
-    /* hide Streamlit Cloud’s top-right toolbar (includes the GitHub icon) */
-    div[data-testid="stToolbar"] { visibility: hidden; height: 0; }
-
-    /* optional: also hide the 'Manage app' badge and footer */
-    a[data-testid="viewerBadge_link"] { display: none !important; }
-    div[data-testid="stStatusWidget"] { display: none !important; }
-    footer { visibility: hidden; }
-    </style>
-    """, unsafe_allow_html=True)
     st.header("Load a Model Card")
 
     st.markdown(
@@ -318,19 +296,6 @@ def page_switcher(page):
 
 
 def main():
-    st.markdown("""
-    <style>
-    /* hide Streamlit Cloud’s top-right toolbar (includes the GitHub icon) */
-    div[data-testid="stToolbar"] { visibility: hidden; height: 0; }
-
-    /* optional: also hide the 'Manage app' badge and footer */
-    a[data-testid="viewerBadge_link"] { display: none !important; }
-    div[data-testid="stStatusWidget"] { display: none !important; }
-    footer { visibility: hidden; }
-    </style>
-    """, unsafe_allow_html=True)
-
-
     st.markdown("""
         <style>
         .block-container p, .block-container li {

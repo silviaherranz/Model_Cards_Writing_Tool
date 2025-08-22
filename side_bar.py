@@ -4,7 +4,7 @@ from pathlib import Path
 import zipfile
 import streamlit as st
 from custom_pages.model_card_info import model_card_info_render
-from io_utils import save_uploadedfile, upload_json_card, upload_readme_card
+from io_utils import save_uploadedfile, upload_json_card
 import json
 from custom_pages.other_considerations import other_considerations_render
 from md_renderer import render_full_model_card_md
@@ -74,7 +74,6 @@ def sidebar_render():
             unsafe_allow_html=True,
         )
 
-
         if st.button("About Model Cards", use_container_width=True):
             st.session_state.runpage = model_card_info_render
             st.rerun()
@@ -93,11 +92,16 @@ def sidebar_render():
             st.session_state.runpage = technical_specifications_render
             st.rerun()
 
-        if st.button("Training Data Methodology and Information", use_container_width=True):
+        if st.button(
+            "Training Data Methodology and Information", use_container_width=True
+        ):
             st.session_state.runpage = training_data_render
             st.rerun()
 
-        if st.button("Evaluation Data Methodology, Results and Commissioning", use_container_width=True):
+        if st.button(
+            "Evaluation Data Methodology, Results and Commissioning",
+            use_container_width=True,
+        ):
             st.session_state.runpage = evaluation_data_mrc_render
             st.rerun()
 
@@ -165,14 +169,9 @@ def sidebar_render():
             ["Local downloads", "README tools", "Export to Hub"]
         )
 
-        # ------------------------------
-        # TAB 1 — README tools
-        # ------------------------------
         with tab_readme:
             task = st.session_state.get("task")
-            _ = validation_utils.validate_required_fields(
-                SCHEMA, current_task=task
-            )
+            _ = validation_utils.validate_required_fields(SCHEMA, current_task=task)
 
             if "last_readme_text" not in st.session_state:
                 st.session_state.last_readme_text = None
@@ -189,7 +188,9 @@ def sidebar_render():
 
                         # Use our new renderer (auto-fills from session_state as discussed)
                         st.session_state.last_readme_text = render_hf_readme()
-                        st.success("README built successfully. Use the download button below.")
+                        st.success(
+                            "README built successfully. Use the download button below."
+                        )
                     except Exception as e:
                         st.session_state.last_readme_text = None
                         st.error(f"Could not build README: {e}")
@@ -217,9 +218,13 @@ def sidebar_render():
             st.markdown("## Export README.md to Hub")
 
             with st.form("form_upload_readme_hub"):
-                st.markdown("Use a token with write access from [here](https://hf.co/settings/tokens)")
+                st.markdown(
+                    "Use a token with write access from [here](https://hf.co/settings/tokens)"
+                )
                 token_rm = st.text_input("Token", type="password", key="token_rm_hub")
-                repo_id_rm = st.text_input("Repo ID (e.g. user/repo)", key="repo_id_rm_hub")
+                repo_id_rm = st.text_input(
+                    "Repo ID (e.g. user/repo)", key="repo_id_rm_hub"
+                )
                 push_rm = st.form_submit_button("Upload README.md to Hub")
 
             if push_rm:
@@ -296,19 +301,28 @@ def sidebar_render():
                     pdf_submit = st.form_submit_button("Download Model Card as `.pdf`")
                     if pdf_submit:
                         if st.session_state.get("format_error"):
-                            st.error("Cannot download — there are fields with invalid format.")
+                            st.error(
+                                "Cannot download — there are fields with invalid format."
+                            )
                         else:
                             try:
                                 from md_renderer import save_model_card_pdf
-                                pdf_path = save_model_card_pdf("model_card.pdf", base_url=os.getcwd())
+
+                                pdf_path = save_model_card_pdf(
+                                    "model_card.pdf", base_url=os.getcwd()
+                                )
                                 st.session_state.download_ready_pdf = True
-                                st.session_state.generated_pdf_path = pdf_path  # <- guarda la ruta
+                                st.session_state.generated_pdf_path = (
+                                    pdf_path  # <- guarda la ruta
+                                )
                             except Exception as e:
                                 st.error(f"Failed to generate PDF: {e}")
                                 st.session_state.download_ready_pdf = False
 
                 if st.session_state.get("download_ready_pdf"):
-                    pdf_path = st.session_state.get("generated_pdf_path", "model_card.pdf")
+                    pdf_path = st.session_state.get(
+                        "generated_pdf_path", "model_card.pdf"
+                    )
                     with open(pdf_path, "rb") as f:  # <- usa la misma ruta
                         st.download_button(
                             "Your download is ready — click here (PDF)",
@@ -325,13 +339,17 @@ def sidebar_render():
 
                 # --- MD download form (mirrors your JSON structure) ---
                 with st.form("form_download_md"):
-                    download_submit_md = st.form_submit_button("Download Model Card as `.md`")
+                    download_submit_md = st.form_submit_button(
+                        "Download Model Card as `.md`"
+                    )
                     if download_submit_md:
                         if st.session_state.get("format_error"):
-                            st.error("Cannot download — there are fields with invalid format.")
+                            st.error(
+                                "Cannot download — there are fields with invalid format."
+                            )
                         else:
                             missing_required = validation_utils.validate_required_fields(
-                                model_card_schema,                   # or SCHEMA if that’s your variable
+                                model_card_schema,  # or SCHEMA if that’s your variable
                                 current_task=st.session_state.get("task"),
                             )
                             st.session_state.download_ready_md = True
@@ -359,11 +377,13 @@ def sidebar_render():
                     finally:
                         st.session_state.download_ready_md = False
 
-                
-            
                 def _get_uploaded_paths():
                     paths = st.session_state.get("all_uploaded_paths", set())
-                    return [p for p in list(paths) if isinstance(p, str) and os.path.exists(p)]
+                    return [
+                        p
+                        for p in list(paths)
+                        if isinstance(p, str) and os.path.exists(p)
+                    ]
 
                 # ========== FORM: Download files (.zip only) ==========
                 with st.form("form_download_files"):
@@ -381,7 +401,9 @@ def sidebar_render():
                         st.warning("No uploaded files to download.")
                     else:
                         buffer = io.BytesIO()
-                        with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+                        with zipfile.ZipFile(
+                            buffer, "w", compression=zipfile.ZIP_DEFLATED
+                        ) as zf:
                             for fpath in files:
                                 try:
                                     arcname = Path(fpath).name
@@ -403,18 +425,24 @@ def sidebar_render():
 
                 # ========== FORM: Download .zip (json + files) ==========
                 with st.form("form_download_zip_all"):
-                    zip_submit = st.form_submit_button("Download `.zip` (Model Card `.json` + files)")
+                    zip_submit = st.form_submit_button(
+                        "Download `.zip` (Model Card `.json` + files)"
+                    )
                     if zip_submit:
                         files = _get_uploaded_paths()
                         if not files:
                             st.warning("No uploaded files to include in the ZIP.")
                         else:
                             if st.session_state.get("format_error"):
-                                st.error("Cannot download — there are fields with invalid format.")
+                                st.error(
+                                    "Cannot download — there are fields with invalid format."
+                                )
                             else:
-                                missing_required = validation_utils.validate_required_fields(
-                                    model_card_schema,
-                                    current_task=st.session_state.get("task"),
+                                missing_required = (
+                                    validation_utils.validate_required_fields(
+                                        model_card_schema,
+                                        current_task=st.session_state.get("task"),
+                                    )
                                 )
                                 st.session_state.download_zip_ready = True
                                 if missing_required:
@@ -428,12 +456,16 @@ def sidebar_render():
                         st.warning("No uploaded files to include in the ZIP.")
                     else:
                         # 1) Generar JSON como en tu flujo actual
-                        card_content = parse_into_json(SCHEMA)  # usa los imports ya presentes
+                        card_content = parse_into_json(
+                            SCHEMA
+                        )  # usa los imports ya presentes
 
                         # 2) Crear ZIP en memoria con JSON + files
                         buffer = io.BytesIO()
                         try:
-                            with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+                            with zipfile.ZipFile(
+                                buffer, "w", compression=zipfile.ZIP_DEFLATED
+                            ) as zf:
                                 # Añade el JSON
                                 zf.writestr("model_card.json", card_content)
 
@@ -459,7 +491,6 @@ def sidebar_render():
                             pass
 
                     st.session_state.download_zip_ready = False
-
 
         # ------------------------------
         # TAB 3 — Export to Hub

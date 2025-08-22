@@ -6,7 +6,6 @@ import base64
 from collections import OrderedDict
 
 def insert_after(odict, new_key, new_value, after_key):
-    # Convert to a list of key-value pairs
     if len(odict) == 0:
         return {new_key: new_value}
     items = list(odict.items())
@@ -19,7 +18,6 @@ def insert_after(odict, new_key, new_value, after_key):
 
 
 def insert_dict_after(base_dict, insert_dict, after_key):
-    """Insert all key-value pairs from insert_dict into base_dict after after_key."""
     new_items = []
     for key, value in base_dict.items():
         new_items.append((key, value))
@@ -360,30 +358,3 @@ def enlarge_tab_titles(font_px: int, underline_px: int = 4, pad_y: int = 6):
     """,
         unsafe_allow_html=True,
     )
-
-def hide_streamlit_chrome():
-    st.markdown("""
-    <style>
-    /* Top menu / toolbar */
-    #MainMenu {visibility: hidden;}
-    [data-testid="stToolbar"] {display: none !important;}
-
-    /* Header bar */
-    header {visibility: hidden;}
-    [data-testid="stHeader"] {display: none !important;}
-
-    /* Footer & “Made with Streamlit” */
-    footer {visibility: hidden;}
-    .viewerBadge_container__1QSob {display: none !important;}  /* old class */
-    [data-testid="baseLinkButton-footer"] {display: none !important;}  /* newer builds */
-
-    /* Streamlit Cloud status widget (bottom-right) */
-    [data-testid="stStatusWidget"] {display: none !important;}
-
-    /* Decorative top-right elements on Cloud */
-    [data-testid="stDecoration"] {display: none !important;}
-
-    /* Fallback: hide any badges/links mentioning Streamlit */
-    a[href*="streamlit.io"], a[href*="streamlit.app"] {display: none !important;}
-    </style>
-    """, unsafe_allow_html=True)
