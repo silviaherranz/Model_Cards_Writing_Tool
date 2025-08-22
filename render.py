@@ -1,27 +1,24 @@
-import os
+from typing import Any, Dict, Optional, Tuple
 import streamlit as st
 from tg263 import RTSTRUCT_SUBTYPES
 import html
-from uploads_manager import bump_uploader, ensure_upload_state, field_current, field_delete, field_overwrite, uploader_key_for
+from uploads_manager import (
+    ALLOWED_UPLOAD_EXTS,
+    bump_uploader,
+    ensure_upload_state,
+    field_current,
+    field_delete,
+    field_overwrite,
+    uploader_key_for
+)
 import utils
 import re
-import numpy as np
-
-DEFAULT_SELECT = "< PICK A VALUE >"
 
 
-def selectbox_with_default(label, values, key=None, help=None):
-    all_options = np.insert(np.array(values, object), 0, DEFAULT_SELECT)
-    selected = st.selectbox(
-        label,
-        options=all_options,
-        key=key,
-        help=help,
-        format_func=lambda x: "" if x == DEFAULT_SELECT else x,
-    )
-    return selected
-
-
+DELETE_HINT = (
+    "To remove the current file, use the **Delete** button below. "
+    "The 'X' in the uploader is disabled."
+)
 
 def has_renderable_fields(field_keys, schema_section, current_task):
     return any(
@@ -45,23 +42,42 @@ def should_render(props, current_task):
     return False
 
 
-def render_image_field(key, props, section_prefix):
+def _fingerprint_uploaded(uploaded: Any) -> Optional[Tuple[str, int]]:
+    """Tiny fingerprint (name, size) so each selection is processed once."""
+    if uploaded is None:
+        return None
+    try:
+        name = getattr(uploaded, "name", None)
+        buf = uploaded.getbuffer()
+        size = len(buf) if buf is not None else 0
+        return (str(name), int(size))
+    except Exception:
+        return None
+
+
+def render_image_field(key: str, props: Dict[str, Any], section_prefix: str) -> None:
+    """
+    Always-visible uploader. We keep the selection after upload (so the 'x' shows).
+    On **Delete**, we *remount* the uploader by bumping its nonce-based key. We never
+    write to `st.session_state[uploader_key]`, which avoids Streamlit policy errors.
+    """
     full_key = f"{section_prefix}_{key}"
+    token_key = f"{full_key}__uploader_token"  # last processed selection fingerprint
+
+    ensure_upload_state()
+
     label = props.get("label") or key or "Field"
     description = props.get("description", "")
     example = props.get("example", "")
     field_type = props.get("type", "")
-    required = props.get("required", False)
+    required = bool(props.get("required", False))
 
     create_helpicon(label, description, field_type, example, required)
-    ensure_upload_state()
 
     st.markdown(
-        "<i>If too big or not readable, please indicate the figure number and attach it to the appendix",
+        "<i>If too big or not readable, please indicate the figure number and attach it to the appendix</i>",
         unsafe_allow_html=True,
     )
-
-    #st.info("To remove a file, please use the **Delete** button below — the cross in the uploader is disabled.")
 
     col1, col2 = st.columns([1, 2])
     with col1:
@@ -73,35 +89,35 @@ def render_image_field(key, props, section_prefix):
         )
 
     with col2:
+        # Use the legacy helpers explicitly for remount-on-delete only
         uploaded = st.file_uploader(
             label=".",
-            type=[
-                "png","jpg","jpeg","gif","bmp","tiff","webp","svg",
-                "dcm","dicom","nii","nifti","pdf","docx","doc",
-                "pptx","ppt","txt","xlsx","xls","DICOM",
-            ],
-            key=uploader_key_for(full_key),   
+            type=ALLOWED_UPLOAD_EXTS,
+            key=uploader_key_for(full_key),   # <- key tied to a nonce
             label_visibility="collapsed",
         )
 
-        if uploaded is not None:
-            field_delete(full_key)                         
+        # Save once per selection (keep uploader selection → 'x' remains visible)
+        fp = _fingerprint_uploaded(uploaded)
+        prev_fp = st.session_state.get(token_key)
+        if uploaded is not None and fp is not None and fp != prev_fp:
+            field_delete(full_key)
             field_overwrite(full_key, uploaded, "uploads")
-            st.session_state[f"{full_key}_image"] = uploaded  
-
-            bump_uploader(full_key)
+            st.session_state[f"{full_key}_image"] = uploaded  # back-compat
+            st.session_state[token_key] = fp
             st.rerun()
 
         existing = field_current(full_key)
         if existing:
             st.caption(f"Current file: **{existing['name']}**")
+            st.info(DELETE_HINT)
             if st.button("Delete", key=f"{full_key}__remove_btn"):
                 field_delete(full_key)
-                bump_uploader(full_key)   
+                st.session_state.pop(token_key, None)  # allow uploading same file again
+                bump_uploader(full_key)                # <- remount clears the uploader safely
                 st.rerun()
         else:
             st.caption("No file selected yet.")
-
 
 def render_field(key, props, section_prefix):
     full_key = f"{section_prefix}_{key}"
