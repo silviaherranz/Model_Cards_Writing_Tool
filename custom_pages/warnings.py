@@ -13,7 +13,7 @@ SECTION_NAMES = {
     ],
     "Evaluation data, methodology, and results / commissioning": [
         "evaluation_data_methodology_results_commisioning",
-        "qualitative_evaluation",
+        "qualitative_evaluation"
     ],
 }
 

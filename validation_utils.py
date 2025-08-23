@@ -227,9 +227,11 @@ def validate_evaluation_forms(schema, current_task):
                             )
                         )
 
+        qprefix = f"{prefix}qualitative_evaluation_"
         for key, props in qual_eval_section.items():
             if props.get("required", False):
-                value = st.session_state.get(f"evaluation_{name}_qualitative_evaluation_{key}")
+                full_key = f"{qprefix}{key}"
+                value = st.session_state.get(full_key)
                 if is_empty(value):
                     label = props.get("label", key) or key.replace("_", " ").title()
                     missing.append(
@@ -238,6 +240,7 @@ def validate_evaluation_forms(schema, current_task):
                             f"{label} (Eval: {name})",
                         )
                     )
+
 
     return missing
 

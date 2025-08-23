@@ -140,7 +140,8 @@ def populate_session_state_from_json(data):
                                     st.session_state[io_full_key] = io_val
                                     st.session_state["_" + io_full_key] = io_val
 
-                    elif key == "qualitative_evaluation" and isinstance(value, dict):
+                    elif isinstance(key, str) and key.lower() == "qualitative_evaluation" and isinstance(value, dict):
+                    #elif key == "qualitative_evaluation" and isinstance(value, dict):
                         qprefix = f"evaluation_{name}_qualitative_evaluation_"
 
                         for simple_field in [
