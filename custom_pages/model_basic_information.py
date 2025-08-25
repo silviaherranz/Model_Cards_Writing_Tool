@@ -269,6 +269,7 @@ def _render_developed_by_and_sources(section: ModelBasicInformation) -> None:
 
 
 def _render_navigation() -> None:
+    """Render the navigation buttons."""
     col1, _, _, _, col5 = st.columns([1.5, 2, 4.3, 2, 1.1])
 
     with col1:

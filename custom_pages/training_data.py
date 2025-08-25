@@ -21,8 +21,8 @@ FINE_TUNED_INFO = (
     "For tuned models, the training data will contain the tuning "
     "data information. Indicate N/A if not applicable."
 )
-TITLE_TRAINING_DATA = "Training Dataset"
-TRAINING_DATA_INFO = (
+TITLE_TRAINING_DATASET = "Training Dataset"
+TRAINING_DATASET_INFO = (
     "Note that all fields refer to the raw training data used in "
     "'Model inputs' (i.e. before  pre-processing steps) and raw "
     "'Model outputs' for supervised models (i.e. after post-processing)"
@@ -127,8 +127,8 @@ def _render_fine_tuned_from(section: TrainingData) -> None:
 
 def _render_general_info(section: TrainingData) -> None:
     utils.section_divider()
-    utils.title_header(TITLE_TRAINING_DATA, size="1.2rem")
-    utils.light_header_italics(TRAINING_DATA_INFO)
+    utils.title_header(TITLE_TRAINING_DATASET, size="1.2rem")
+    utils.light_header_italics(TRAINING_DATASET_INFO)
     utils.title_header(TITLE_DATASET_GENERAL_INFO)
 
     col1, col2 = st.columns([1, 1])
@@ -444,6 +444,7 @@ def _render_reference_and_validation(section: TrainingData) -> None:
 
 
 def _render_navigation() -> None:
+    """Render the navigation buttons."""
     st.markdown("<br>", unsafe_allow_html=True)
     col1, _, _, _, col5 = st.columns([1.5, 2, 4.3, 2, 1.1])
     with col1:

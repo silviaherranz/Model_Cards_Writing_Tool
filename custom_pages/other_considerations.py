@@ -47,6 +47,7 @@ def _render_fields(section: OtherConsiderations) -> None:
 
 
 def _render_navigation() -> None:
+    """Render the navigation buttons."""
     st.markdown("<br>", unsafe_allow_html=True)
     col1, _ = st.columns([2, 12])
     with col1:

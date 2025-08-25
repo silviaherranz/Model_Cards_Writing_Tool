@@ -650,7 +650,7 @@ def _render_dose_metric_selector(full_key: str, props: FieldProps) -> None:
     utils.load_value(dm_select_key)
     utils.load_value(dm_dynamic_key, default={"prefix": "D", "value": 95})
 
-    col1, col2, col3, col4 = st.columns([2, 2, 0.5, 1])
+    col1, col2, col3, col4 = st.columns([2, 2, 0.5, 0.5])
     with col1:
         st.selectbox(
             "Select dose metric",

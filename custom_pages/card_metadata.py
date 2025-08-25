@@ -38,6 +38,8 @@ class CardMetadata(TypedDict, total=False):
 
 
 def _render_navigation() -> None:
+    """Render the navigation buttons."""
+    st.markdown("<br>", unsafe_allow_html=True)
     _, col_next = st.columns([9.4, 1])
     with col_next:
         if st.button("Next"):
@@ -91,6 +93,4 @@ def card_metadata_render() -> None:
         section["doi"],
         SECTION_PREFIX,
     )
-
-    st.markdown("<br>", unsafe_allow_html=True)
     _render_navigation()

@@ -1,3 +1,5 @@
+"""Warnings page for the Model Cards Writing Tool."""
+
 import streamlit as st
 
 import utils
@@ -8,7 +10,10 @@ model_card_schema = utils.get_model_card_schema()
 SECTION_NAMES = {
     "Card Metadata": ["card_metadata"],
     "Model Basic Information": ["model_basic_information"],
-    "Technical Specifications": ["technical_specifications", "learning_architecture"],
+    "Technical Specifications": [
+        "technical_specifications",
+        "learning_architecture",
+    ],
     "Training data, methodology, and information": [
         "training_data",
     ],
@@ -20,14 +25,16 @@ SECTION_NAMES = {
 
 
 def warnings_render():
-    from side_bar import sidebar_render
+    """Render warnings for missing required fields in the model card."""
+    from side_bar import sidebar_render  # noqa: PLC0415
 
     sidebar_render()
 
     task = st.session_state.get("task", "Image-to-Image translation")
 
     missing_required = validation_utils.validate_required_fields(
-        model_card_schema, current_task=task
+        model_card_schema,
+        current_task=task,
     )
 
     grouped_missing = {}
@@ -39,14 +46,14 @@ def warnings_render():
     if not grouped_missing:
         return
 
-    SECTION_LABEL_MAP = {}
+    section_label_map = {}
     for display_name, internal_keys in SECTION_NAMES.items():
         for key in internal_keys:
-            SECTION_LABEL_MAP[key] = display_name
+            section_label_map[key] = display_name
 
     display_grouped = {}
     for section_key, labels in grouped_missing.items():
-        section_title = SECTION_LABEL_MAP.get(section_key)
+        section_title = section_label_map.get(section_key)
         if section_title:
             display_grouped.setdefault(section_title, []).extend(labels)
 

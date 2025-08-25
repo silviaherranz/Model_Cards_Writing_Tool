@@ -1,6 +1,9 @@
+"""About Model Cards page for the Model Cards Writing Tool."""
+
 from __future__ import annotations
 
 from pathlib import Path
+
 import streamlit as st
 
 __all__ = ["model_card_info_render"]
@@ -18,6 +21,7 @@ def _read_markdown(path: Path) -> str:
 
 
 def model_card_info_render() -> None:
+    """Render the About Model Cards page."""
     from side_bar import sidebar_render  # noqa: PLC0415
 
     sidebar_render()
