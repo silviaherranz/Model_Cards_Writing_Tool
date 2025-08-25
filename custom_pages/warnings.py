@@ -1,4 +1,5 @@
 import streamlit as st
+
 import utils
 import validation_utils
 
@@ -9,11 +10,11 @@ SECTION_NAMES = {
     "Model Basic Information": ["model_basic_information"],
     "Technical Specifications": ["technical_specifications", "learning_architecture"],
     "Training data, methodology, and information": [
-        "training_data"
+        "training_data",
     ],
     "Evaluation data, methodology, and results / commissioning": [
         "evaluation_data_methodology_results_commisioning",
-        "qualitative_evaluation"
+        "qualitative_evaluation",
     ],
 }
 

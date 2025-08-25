@@ -1,3 +1,4 @@
+"""TG-263 Standard Anatomical Structure Names."""
 RTSTRUCT_SUBTYPES = [
     "A_Aorta",
     "A_Aorta_Asc",
