@@ -1,31 +1,73 @@
+"""Other Considerations page for the Model Cards Writing Tool."""
+
+from __future__ import annotations
+
+from typing import Any, TypedDict, cast
+
 import streamlit as st
+
 import utils
-from render import render_field
+from render import FieldProps, render_field
+
+TITLE = "Other considerations"
+SECTION_PREFIX = "other_considerations"
 
 
-def other_considerations_render():
-    from side_bar import sidebar_render
+class OtherConsiderations(TypedDict, total=False):
+    """
+    TypedDict for the 'Other Considerations' section.
 
-    sidebar_render()
-    model_card_schema = utils.get_model_card_schema()
-    section = model_card_schema["other_considerations"]
-    utils.title("Other considerations")
+    :param TypedDict: The base class for TypedDicts
+    :type TypedDict: type
+    :param total: If True, all fields are required, defaults to False
+    :type total: bool, optional
+    """
+
+    responsible_use_and_ethical_considerations: FieldProps
+    risk_analysis: FieldProps
+    post_market_surveillance_live_monitoring: FieldProps
+
+
+def _render_fields(section: OtherConsiderations) -> None:
     render_field(
         "responsible_use_and_ethical_considerations",
         section["responsible_use_and_ethical_considerations"],
-        "other_considerations",
+        SECTION_PREFIX,
     )
-    render_field("risk_analysis", section["risk_analysis"], "other_considerations")
+    render_field(
+        "risk_analysis",
+        section["risk_analysis"],
+        SECTION_PREFIX,
+    )
     render_field(
         "post_market_surveillance_live_monitoring",
         section["post_market_surveillance_live_monitoring"],
-        "other_considerations",
+        SECTION_PREFIX,
     )
+
+
+def _render_navigation() -> None:
     st.markdown("<br>", unsafe_allow_html=True)
-    col1, col2 = st.columns([2, 12])
+    col1, _ = st.columns([2, 12])
     with col1:
         if st.button("Previous"):
-            from custom_pages.evaluation_data_mrc import evaluation_data_mrc_render
+            from custom_pages.evaluation_data_mrc import (  # noqa: PLC0415
+                evaluation_data_mrc_render,
+            )
 
             st.session_state.runpage = evaluation_data_mrc_render
             st.rerun()
+
+
+def other_considerations_render() -> None:
+    """Render the Other Considerations page."""
+    from side_bar import sidebar_render  # noqa: PLC0415
+
+    sidebar_render()
+
+    schema_any: dict[str, Any] = utils.get_model_card_schema()
+    section = cast("OtherConsiderations", schema_any[SECTION_PREFIX])
+
+    utils.title(TITLE)
+    _render_fields(section)
+    _render_navigation()

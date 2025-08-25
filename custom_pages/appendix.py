@@ -1,24 +1,25 @@
+"""Appendix page for the Model Cards Writing Tool."""
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict
 
 import streamlit as st
-import utils
 
+import utils
 from uploads_manager import (
-    ensure_upload_state,
-    save_appendix_files,
     delete_appendix_item,
+    ensure_upload_state,
     preview_file,
+    save_appendix_files,
 )
 
 __all__ = ["appendix_render"]
 
 APPENDIX_TITLE = "Appendix"
 APPENDIX_HELP = (
-    "Files uploaded in the **Appendix** as well as files added in other sections will "
-    "**not** appear when you load an incomplete model card.\n\n"
+    "Files uploaded in the **Appendix** as well as files added in other "
+    "sections will **not** appear when you load an incomplete model card.\n\n"
     "They are included only when you download:\n"
     "- the **ZIP with files**\n"
     "- the **ZIP with Model Card (`.json`) + files**\n"
@@ -28,7 +29,8 @@ APPENDIX_SUBTITLE = (
     "Attach any additional files you want to include in your model card."
 )
 APPENDIX_HINT = (
-    "You can upload any supporting files such as PDFs, figures, CSVs, ZIPs, or notes."
+    "You can upload any supporting files such as PDFs, figures, CSVs, "
+    "ZIPs, or notes."
 )
 
 UPLOAD_DIR = Path("uploads/appendix")
@@ -45,9 +47,21 @@ def _bump_appendix_uploader() -> None:
     st.session_state.appendix_uploader_nonce += 1
 
 
-def _render_uploaded_row(original_name: str, file_data: Dict[str, str]) -> None:
-    """
-    Render a single uploaded file row with label editing, delete button, and preview.
+def _render_uploaded_row(
+    original_name: str,
+    file_data: dict[str, str],
+) -> None:
+    """Display a row in the UI for an uploaded file.
+
+    The row shows the file name and stored filename, and allows the
+    user to set a custom label, delete the file, and preview its
+    contents.
+
+    :param original_name: The original name of the uploaded file.
+    :type original_name: str
+    :param file_data: Dictionary containing metadata about the uploaded file,
+        including its path and stored name.
+    :type file_data: dict[str, str]
     """
     file_path = file_data["path"]
 
@@ -66,7 +80,9 @@ def _render_uploaded_row(original_name: str, file_data: Dict[str, str]) -> None:
             label_visibility="collapsed",
         )
         # Persist label alongside the stored entry
-        st.session_state.appendix_uploads[original_name]["custom_label"] = label_val
+        st.session_state.appendix_uploads[original_name]["custom_label"] = (
+            label_val
+        )
 
     with col3:
         if st.button("Delete", key=f"del_{file_data['stored_name']}"):
@@ -76,7 +92,9 @@ def _render_uploaded_row(original_name: str, file_data: Dict[str, str]) -> None:
     with st.expander("Preview", expanded=False):
         prev = preview_file(file_path)
         if prev is False:
-            utils.light_header_italics("Preview not supported for this file type.")
+            utils.light_header_italics(
+                "Preview not supported for this file type.",
+            )
         elif prev is None:
             utils.light_header_italics("Could not preview this file.")
 
@@ -84,13 +102,21 @@ def _render_uploaded_row(original_name: str, file_data: Dict[str, str]) -> None:
 
 
 def appendix_render() -> None:
-    """Render the Appendix page (UI only)."""
-    from side_bar import sidebar_render
+    """
+    Render the Appendix page.
+
+    Shows the appendix title, help text, subtitle and hint; ensures
+    upload-related session state, presents a file uploader (any file type,
+    multiple files), persists uploaded files, and lists existing uploads with
+    controls to set a custom label, preview, or delete each file. May mutate
+    st.session_state and call st.rerun() when uploads change.
+    """
+    from side_bar import sidebar_render  # noqa: PLC0415
 
     sidebar_render()
 
     utils.title(APPENDIX_TITLE)
-    st.info(APPENDIX_HELP, icon="ℹ")
+    st.info(APPENDIX_HELP, icon="ℹ")  # noqa: RUF001
     utils.subtitle(APPENDIX_SUBTITLE)
     st.info(APPENDIX_HINT)
 
@@ -113,5 +139,7 @@ def appendix_render() -> None:
         utils.section_divider()
 
         # Iterate over a snapshot to allow deletion during iteration
-        for original_name, file_data in list(st.session_state.appendix_uploads.items()):
+        for original_name, file_data in list(
+            st.session_state.appendix_uploads.items(),
+        ):
             _render_uploaded_row(original_name, file_data)

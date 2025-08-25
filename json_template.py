@@ -37,8 +37,8 @@ SCHEMA = {
         "model_pipeline_figure_appendix_note": {},
         "model_inputs": {},
         "model_outputs": {},
-        "pre-processing": {},
-        "post-processing": {},
+        "pre_processing": {},
+        "post_processing": {},
     },
     "hw_and_sw": {
         "libraries_and_dependencies": {},

@@ -2,7 +2,6 @@ import streamlit as st
 from datetime import datetime
 import utils
 from render import (
-    create_helpicon,
     render_field,
     render_fields,
     has_renderable_fields,
@@ -15,40 +14,11 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
     utils.require_task()
 
     if "evaluation_date" in schema_section:
-        props = schema_section["evaluation_date"]
-        label = props.get("label", "Evaluation Date")
-        description = props.get("description", "")
-        example = props.get("example", "")
-        required = props.get("required", False)
-        field_type = props.get("type", "date")
-
-        create_helpicon(label, description, field_type, example, required)
-
-        widget_key = f"{section_prefix}_evaluation_date"
-
-        if widget_key not in st.session_state:
-            st.session_state[widget_key] = None
-
-        st.date_input(
-            "Click and select a date",
-            value=st.session_state[widget_key],
-            min_value=datetime(1900, 1, 1),
-            max_value=datetime.today(),
-            key=f"_{widget_key}",
-            on_change=utils.store_value,
-            args=[widget_key],
+        render_field(
+            key="evaluation_date",
+            props=schema_section["evaluation_date"],
+            section_prefix=section_prefix,
         )
-
-        user_date = st.session_state.get(f"_{widget_key}")
-
-        if user_date:
-            formatted = user_date.strftime("%Y%m%d")
-            st.session_state[widget_key] = formatted
-        elif required and user_date is not None:
-            st.session_state[widget_key] = None
-            st.error("Date of evaluation is required. Please select a valid date.")
-        else:
-            st.session_state[widget_key] = None
 
     utils.section_divider()
 
@@ -817,10 +787,10 @@ def render_evaluation_section(schema_section, section_prefix, current_task):
         utils.title_header("Other")
         col1, col2 = st.columns([1, 1])
         with col1:
-            render_field("other_method", schema_section["other_method"], section_prefix)
+            render_field("other_method", schema_section["other_method"], section_prefix,)
         with col2:
             render_field(
-                "other_results", schema_section["other_results"], section_prefix
+                "other_results", schema_section["other_results"], section_prefix,
             )
 
     with quant_qual_tabs[1]:

@@ -1,12 +1,11 @@
 {
   "card_metadata": {
     "card_creation_date": {
-      "type": "String, Formatted text as YYYYMMDD",
+      "type": "date",
       "label": "Creation Date",
       "description": "Date of creation of the card. Ideally, this should match or closely follow the model's final release date. Creating the model card promptly after the model is finalized is good practice, as it helps ensure accurate and complete documentation. While it is possible to create model cards for already released models, this should be avoided or done carefully, as important information may be difficult to retrieve or lost over time. If different versions, this field should indicate the date of creation of the current version (see next field).",
       "required": true,
-      "example": "20241001",
-      "format": "YYYYMMDD"
+      "example": "20241001"
     },
     "version_number": {
       "type": "String, Free text format",
@@ -38,7 +37,7 @@
       "example": "DOSEPRED_VMAT_ORO_70005425Gy"
     },
     "creation_date": {
-      "type": "String, Formatted text as YYYYMMDD",
+      "type": "date",
       "label": "Creation Date",
       "description": "Date when the model was created (i.e. when the model was trained and/or selected in its current version)",
       "required": true,
@@ -295,14 +294,14 @@
       "description": "Information about the outputs of the model pipeline, after post-processing. This may include the format, content, and eventually other relevant (but short) information, like size. Further details should go in the post-processing field.",
       "required": true
     },
-    "pre-processing": {
+    "pre_processing": {
       "type": "String, Free text format",
       "label": "Pre-processing",
       "description": "Details of the pre-processing operations performed to the model inputs. Please note that this refers to inference mode and excludes all data augmentation operations likely performed during training, which can be indicated in a separate field in the section “3. Training data, methodology, and information”",
       "required": true,
       "example": "resample, patch based model, registration, cropping the body, artefact removal, table removing, contrast product removing, bias field correction, histogram clip..."
     },
-    "post-processing": {
+    "post_processing": {
       "type": "String, Free text format",
       "label": "Post-processing",
       "description": "Details of the post-processing operations to achieve the model outputs (typically performed to the learning architecture outputs)",
@@ -894,7 +893,7 @@
   },
   "evaluation_data_methodology_results_commisioning": {
     "evaluation_date": {
-      "type": "String, Formatted text as YYYYMMDD",
+      "type": "date",
       "label": "Evaluation Date",
       "description": "Date of evaluation of the model",
       "required": true,

@@ -219,15 +219,6 @@ def build_context_for_prefix(prefix: str) -> dict:
             if hw:
                 ctx["hw_and_sw"] = hw
 
-            if "technical_specifications_pre-processing" in ctx:
-                ctx["technical_specifications_pre_processing"] = ctx[
-                    "technical_specifications_pre-processing"
-                ]
-            if "technical_specifications_post-processing" in ctx:
-                ctx["technical_specifications_post_processing"] = ctx[
-                    "technical_specifications_post-processing"
-                ]
-
             for k in ["technical_specifications_model_pipeline_figure"]:
                 norm = _normalize_file_from_key(k)
                 if norm:

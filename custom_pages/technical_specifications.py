@@ -1,65 +1,159 @@
+"""Technical specifications page for the Model Cards Writing Tool."""
+
+from __future__ import annotations
+
+from typing import Any, TypedDict, cast
+
 import streamlit as st
+
 import utils
-from render import render_field, render_image_field
+from render import FieldProps, render_field, render_image_field
+
+TITLE = "Technical Specifications"
+SUBTITLE = (
+    "(i.e. model pipeline, learning architecture, software and hardware)"
+)
+TITLE_SUBSECTION_MODEL_OVERVIEW = "1. Model overview"
+TITLE_SUBSECTION_MODEL_OVERVIEW_PIPELINE = "Model pipeline"
+TITLE_SUBSECTION_LA = "2. Learning Architecture"
+TITLE_SUBSECTION_HW_SW = "3. Hardware & Software"
+LEARNING_ARCHITECTURE_INFO = (
+    "If several models are used (e.g. cascade, cycle, tree,...), "
+    "repeat this section for each of them."
+)
+LEARNING_ARCHITECTURE_WARNING = (
+    "At least one learning architecture is required."
+    " Please add one."
+)
+
+SECTION_TECH = "technical_specifications"
+SECTION_LA = "learning_architecture"
+SECTION_HW_SW = "hw_and_sw"
 
 
-def technical_specifications_render():
-    from side_bar import sidebar_render
+class ModelOverview(TypedDict, total=False):
+    """
+    TypedDict describing the fields for the 'Model Overview'.
 
-    sidebar_render()
-    model_card_schema = utils.get_model_card_schema()
-    utils.title("Technical Specifications")
-    utils.subtitle(
-        "(i.e. model pipeline, learning architecture, software and hardware)"
-    )
+    :param TypedDict: The base class for TypedDicts
+    :type TypedDict: type
+    :param total: If True, all fields are required, defaults to False
+    :type total: bool, optional
+    """
 
-    if "learning_architecture_forms" not in st.session_state:
-        st.session_state.learning_architecture_forms = {"Learning Architecture 1": {}}
+    model_pipeline_summary: FieldProps
+    model_pipeline_figure: FieldProps
+    model_inputs: FieldProps
+    model_outputs: FieldProps
+    pre_processing: FieldProps
+    post_processing: FieldProps
 
-    utils.title_header("1. Model overview", size="1.35rem")
-    utils.title_header("Model pipeline")
-    section = model_card_schema["technical_specifications"]
+
+class LearningArchitecture(TypedDict, total=False):
+    """
+    TypedDict describing the fields for each 'Learning Architecture'.
+
+    :param TypedDict: The base class for TypedDicts
+    :type TypedDict: type
+    :param total: If True, all fields are required, defaults to False
+    :type total: bool, optional
+    """
+
+    total_number_trainable_parameters: FieldProps
+    number_of_inputs: FieldProps
+    input_content: FieldProps
+    additional_information_input_content: FieldProps
+    input_format: FieldProps
+    input_size: FieldProps
+    number_of_outputs: FieldProps
+    output_content: FieldProps
+    additional_information_output_content: FieldProps
+    output_format: FieldProps
+    output_size: FieldProps
+    loss_function: FieldProps
+    batch_size: FieldProps
+    regularisation: FieldProps
+    architecture_figure: FieldProps
+    uncertainty_quantification_techniques: FieldProps
+    explainability_techniques: FieldProps
+    additional_information_ts: FieldProps
+    citation_details_ts: FieldProps
+
+
+class HardwareSoftware(TypedDict, total=False):
+    """
+    TypedDict describing the fields for the 'Hardware and Software'.
+
+    :param TypedDict: The base class for TypedDicts
+    :type TypedDict: type
+    :param total: If True, all fields are required, defaults to False
+    :type total: bool, optional
+    """
+
+    libraries_and_dependencies: FieldProps
+    hardware_recommended: FieldProps
+    inference_time_for_recommended_hw: FieldProps
+    installation_getting_started: FieldProps
+    environmental_impact: FieldProps
+
+
+def _render_model_overview(mo_section: ModelOverview) -> None:
+    utils.title_header(TITLE_SUBSECTION_MODEL_OVERVIEW, size="1.35rem")
+    utils.title_header(TITLE_SUBSECTION_MODEL_OVERVIEW_PIPELINE)
+
     render_field(
         "model_pipeline_summary",
-        section["model_pipeline_summary"],
-        "technical_specifications",
+        mo_section["model_pipeline_summary"],
+        SECTION_TECH,
     )
     render_image_field(
         "model_pipeline_figure",
-        section["model_pipeline_figure"],
-        "technical_specifications",
+        mo_section["model_pipeline_figure"],
+        SECTION_TECH,
     )
 
     utils.section_divider()
-    render_field("model_inputs", section["model_inputs"], "technical_specifications")
-    render_field("model_outputs", section["model_outputs"], "technical_specifications")
+    render_field(
+        "model_inputs",
+        mo_section["model_inputs"],
+        SECTION_TECH,
+    )
+    render_field(
+        "model_outputs",
+        mo_section["model_outputs"],
+        SECTION_TECH,
+    )
 
     col1, col2 = st.columns([1, 1])
     with col1:
         render_field(
-            "pre-processing", section["pre-processing"], "technical_specifications"
+            "pre_processing",
+            mo_section["pre_processing"],
+            SECTION_TECH,
         )
     with col2:
         render_field(
-            "post-processing",
-            section["post-processing"],
-            "technical_specifications",
+            "post_processing",
+            mo_section["post_processing"],
+            SECTION_TECH,
         )
 
-    utils.section_divider()
-    utils.title_header("2. Learning Architecture", size="1.35rem")
-    utils.light_header_italics(
-        "If several models are used (e.g. cascade, cycle, tree,...), repeat this section for each of them."
-    )
-    if "selected_learning_arch_to_delete" not in st.session_state:
-        st.session_state.selected_learning_arch_to_delete = None
+
+def _render_learning_architectures(
+    la_section: LearningArchitecture,
+) -> None:
+    utils.title_header(TITLE_SUBSECTION_LA, size="1.35rem")
+    utils.light_header_italics(LEARNING_ARCHITECTURE_INFO)
 
     with st.container():
         col1, col2, col3 = st.columns([1.8, 2, 1.2])
 
         with col1:
-            st.markdown("<div style='margin-top: 6px;'>", unsafe_allow_html=True)
-            st.button("➕ Add Learning Architecture", key="add_learning_arch")
+            st.markdown(
+                "<div style='margin-top: 6px;'>",
+                unsafe_allow_html=True,
+            )
+            st.button("Add Learning Architecture", key="add_learning_arch")
             st.markdown("</div>", unsafe_allow_html=True)
 
         with col2:
@@ -77,7 +171,10 @@ def technical_specifications_render():
             )
 
         with col3:
-            st.markdown("<div style='margin-top: 6px;'>", unsafe_allow_html=True)
+            st.markdown(
+                "<div style='margin-top: 6px;'>",
+                unsafe_allow_html=True,
+            )
             if st.button("Delete", key="delete_learning_arch_clean"):
                 if not delete_index:
                     st.warning("Please select a model to delete.")
@@ -85,23 +182,30 @@ def technical_specifications_render():
                     selected_key = delete_index
                     selected_index = int(selected_key.split()[-1])
 
-                    st.session_state.learning_architecture_forms.pop(selected_key)
+                    st.session_state.learning_architecture_forms.pop(
+                        selected_key,
+                    )
 
                     keys_to_remove = [
                         k
                         for k in list(st.session_state.keys())
-                        if k.startswith(f"learning_architecture_{selected_index}_")
+                        if k.startswith(
+                            f"learning_architecture_{selected_index}_",
+                        )
                     ]
                     for k in keys_to_remove:
                         del st.session_state[k]
 
+                    # Reindex state keys to close gaps (preserved behavior)
                     for i in range(selected_index + 1, len(forms) + 1):
                         old_prefix = f"learning_architecture_{i}_"
                         new_prefix = f"learning_architecture_{i - 1}_"
                         for k in list(st.session_state.keys()):
                             if k.startswith(old_prefix):
                                 new_key = k.replace(old_prefix, new_prefix)
-                                st.session_state[new_key] = st.session_state.pop(k)
+                                st.session_state[new_key] = (
+                                    st.session_state.pop(k)
+                                )
 
                     st.rerun()
             st.markdown("</div>", unsafe_allow_html=True)
@@ -115,116 +219,184 @@ def technical_specifications_render():
 
     tab_labels = list(st.session_state.learning_architecture_forms.keys())
     if not tab_labels:
-        st.warning("At least one learning architecture is required. Please add one.")
-    else:
-        tabs = st.tabs(tab_labels)
+        st.warning(LEARNING_ARCHITECTURE_WARNING)
+        return
 
-        for i, tab in enumerate(tabs):
-            with tab:
-                section = model_card_schema["learning_architecture"]
-                prefix = f"learning_architecture_{i}"
+    tabs = st.tabs(tab_labels)
+    for i, tab in enumerate(tabs):
+        with tab:
+            _render_learning_architecture_tab(la_section, index=i)
 
-                col1, col2 = st.columns([2, 1])
-                with col1:
-                    render_field(
-                        "total_number_trainable_parameters",
-                        section["total_number_trainable_parameters"],
-                        prefix,
-                    )
-                with col2:
-                    render_field(
-                        "number_of_inputs", section["number_of_inputs"], prefix
-                    )
 
-                render_field("input_content", section["input_content"], prefix)
+def _render_learning_architecture_tab(
+    la_section: LearningArchitecture,
+    *,
+    index: int,
+) -> None:
+    prefix = f"learning_architecture_{index}"
 
-                render_field(
-                    "additional_information_input_content",
-                    section["additional_information_input_content"],
-                    prefix,
-                )
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        render_field(
+            "total_number_trainable_parameters",
+            la_section["total_number_trainable_parameters"],
+            prefix,
+        )
+    with col2:
+        render_field(
+            "number_of_inputs",
+            la_section["number_of_inputs"],
+            prefix,
+        )
 
-                col1, col2 = st.columns([1, 1])
-                with col1:
-                    render_field("input_format", section["input_format"], prefix)
-                with col2:
-                    render_field("input_size", section["input_size"], prefix)
+    render_field(
+        "input_content",
+        la_section["input_content"],
+        prefix,
+    )
+    render_field(
+        "additional_information_input_content",
+        la_section["additional_information_input_content"],
+        prefix,
+    )
 
-                render_field("number_of_outputs", section["number_of_outputs"], prefix)
-                render_field("output_content", section["output_content"], prefix)
-                render_field(
-                    "additional_information_output_content",
-                    section["additional_information_output_content"],
-                    prefix,
-                )
-                col1, col2 = st.columns([1, 1])
-                with col1:
-                    render_field("output_format", section["output_format"], prefix)
-                with col2:
-                    render_field("output_size", section["output_size"], prefix)
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        render_field(
+            "input_format",
+            la_section["input_format"],
+            prefix,
+        )
+    with col2:
+        render_field(
+            "input_size",
+            la_section["input_size"],
+            prefix,
+        )
 
-                col1, col2, col3 = st.columns([1, 1, 1])
-                with col1:
-                    render_field("loss_function", section["loss_function"], prefix)
-                with col2:
-                    render_field("batch_size", section["batch_size"], prefix)
-                with col3:
-                    render_field("regularisation", section["regularisation"], prefix)
+    render_field(
+        "number_of_outputs",
+        la_section["number_of_outputs"],
+        prefix,
+    )
+    render_field(
+        "output_content",
+        la_section["output_content"],
+        prefix,
+    )
+    render_field(
+        "additional_information_output_content",
+        la_section["additional_information_output_content"],
+        prefix,
+    )
 
-                render_image_field(
-                    "architecture_figure",
-                    section["architecture_figure"],
-                    prefix,
-                )
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        render_field(
+            "output_format",
+            la_section["output_format"],
+            prefix,
+        )
+    with col2:
+        render_field(
+            "output_size",
+            la_section["output_size"],
+            prefix,
+        )
 
-                for field in [
-                    "uncertainty_quantification_techniques",
-                    "explainability_techniques",
-                    "additional_information_ts",
-                    "citation_details_ts",
-                ]:
-                    if field in section:
-                        render_field(field, section[field], prefix)
-    utils.section_divider()
-    utils.title_header("3. Hardware & Software", size="1.35rem")
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col1:
+        render_field(
+            "loss_function",
+            la_section["loss_function"],
+            prefix,
+        )
+    with col2:
+        render_field(
+            "batch_size",
+            la_section["batch_size"],
+            prefix,
+        )
+    with col3:
+        render_field(
+            "regularisation",
+            la_section["regularisation"],
+            prefix,
+        )
 
-    section = model_card_schema["hw_and_sw"]
+    render_image_field(
+        "architecture_figure",
+        la_section["architecture_figure"],
+        prefix,
+    )
+
+    render_field(
+        "uncertainty_quantification_techniques",
+        la_section["uncertainty_quantification_techniques"],
+        prefix,
+    )
+    render_field(
+        "explainability_techniques",
+        la_section["explainability_techniques"],
+        prefix,
+    )
+    render_field(
+        "additional_information_ts",
+        la_section["additional_information_ts"],
+        prefix,
+    )
+    render_field(
+        "citation_details_ts",
+        la_section["citation_details_ts"],
+        prefix,
+    )
+
+
+def _render_hw_sw(hw_section: HardwareSoftware) -> None:
+    utils.title_header(TITLE_SUBSECTION_HW_SW, size="1.35rem")
 
     render_field(
         "libraries_and_dependencies",
-        section["libraries_and_dependencies"],
-        "hw_and_sw",
+        hw_section["libraries_and_dependencies"],
+        SECTION_HW_SW,
     )
 
     col1, col2 = st.columns(2)
     with col1:
         render_field(
-            "hardware_recommended", section["hardware_recommended"], "hw_and_sw"
+            "hardware_recommended",
+            hw_section["hardware_recommended"],
+            SECTION_HW_SW,
         )
     with col2:
         render_field(
             "inference_time_for_recommended_hw",
-            section["inference_time_for_recommended_hw"],
-            "hw_and_sw",
+            hw_section["inference_time_for_recommended_hw"],
+            SECTION_HW_SW,
         )
+
     col1, col2 = st.columns(2)
     with col1:
         render_field(
             "installation_getting_started",
-            section["installation_getting_started"],
-            "hw_and_sw",
+            hw_section["installation_getting_started"],
+            SECTION_HW_SW,
         )
     with col2:
         render_field(
-            "environmental_impact", section["environmental_impact"], "hw_and_sw"
+            "environmental_impact",
+            hw_section["environmental_impact"],
+            SECTION_HW_SW,
         )
 
+
+def _render_navigation() -> None:
     st.markdown("<br>", unsafe_allow_html=True)
-    col1, col2, col3, col4, col5 = st.columns([1.5, 2, 4.3, 2, 1.1])
+    col1, _, _, _, col5 = st.columns([1.5, 2, 4.3, 2, 1.1])
 
     with col1:
         if st.button("Previous"):
-            from custom_pages.model_basic_information import (
+            from custom_pages.model_basic_information import (  # noqa: PLC0415
                 model_basic_information_render,
             )
 
@@ -233,7 +405,38 @@ def technical_specifications_render():
 
     with col5:
         if st.button("Next"):
-            from custom_pages.training_data import training_data_render
+            from custom_pages.training_data import (  # noqa: PLC0415
+                training_data_render,
+            )
 
             st.session_state.runpage = training_data_render
             st.rerun()
+
+
+def technical_specifications_render() -> None:
+    """Render the Technical Specifications page."""
+    from side_bar import sidebar_render  # noqa: PLC0415
+
+    sidebar_render()
+    model_card_schema: dict[str, Any] = utils.get_model_card_schema()
+
+    ts_section = cast("ModelOverview", model_card_schema[SECTION_TECH])
+    la_section = cast("LearningArchitecture", model_card_schema[SECTION_LA])
+    hw_section = cast("HardwareSoftware", model_card_schema[SECTION_HW_SW])
+
+    utils.title(TITLE)
+    utils.subtitle(SUBTITLE)
+
+    if "learning_architecture_forms" not in st.session_state:
+        st.session_state.learning_architecture_forms = {
+            "Learning Architecture 1": {},
+        }
+    if "selected_learning_arch_to_delete" not in st.session_state:
+        st.session_state.selected_learning_arch_to_delete = None
+
+    _render_model_overview(ts_section)
+    utils.section_divider()
+    _render_learning_architectures(la_section)
+    utils.section_divider()
+    _render_hw_sw(hw_section)
+    _render_navigation()

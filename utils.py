@@ -1,9 +1,13 @@
-import json
-import streamlit as st
-import re
-from datetime import datetime, date, timedelta
+from __future__ import annotations
+
 import base64
+import json
+import re
 from collections import OrderedDict
+from datetime import date, datetime, timedelta
+
+import streamlit as st
+
 
 def insert_after(odict, new_key, new_value, after_key):
     if len(odict) == 0:
@@ -24,6 +28,7 @@ def insert_dict_after(base_dict, insert_dict, after_key):
         if key == after_key:
             new_items.extend(insert_dict.items())
     return OrderedDict(new_items)
+
 
 def get_base64_image(path):
     with open(path, "rb") as f:
@@ -99,7 +104,6 @@ def populate_session_state_from_json(data):
         st.session_state["task"] = data["task"]
 
     for section, content in data.items():
-
         if section == "training_data":
             for k, v in content.items():
                 full_key = f"{section}_{k}"
@@ -130,9 +134,7 @@ def populate_session_state_from_json(data):
                 for key, value in entry.items():
                     if key == "inputs_outputs_technical_specifications":
                         for io in value:
-                            clean = (
-                                io["entry"].strip().replace(" ", "_").lower()
-                            )
+                            clean = io["entry"].strip().replace(" ", "_").lower()
                             src = io["source"]
                             for io_key, io_val in io.items():
                                 if io_key not in ["entry", "source"]:
@@ -140,8 +142,12 @@ def populate_session_state_from_json(data):
                                     st.session_state[io_full_key] = io_val
                                     st.session_state["_" + io_full_key] = io_val
 
-                    elif isinstance(key, str) and key.lower() == "qualitative_evaluation" and isinstance(value, dict):
-                    #elif key == "qualitative_evaluation" and isinstance(value, dict):
+                    elif (
+                        isinstance(key, str)
+                        and key.lower() == "qualitative_evaluation"
+                        and isinstance(value, dict)
+                    ):
+                        # elif key == "qualitative_evaluation" and isinstance(value, dict):
                         qprefix = f"evaluation_{name}_qualitative_evaluation_"
 
                         for simple_field in [
@@ -221,7 +227,6 @@ def populate_session_state_from_json(data):
 
                 if isinstance(v, list):
                     st.session_state[full_key + "_list"] = v
-           
 
         elif isinstance(content, dict):
             for k, v in content.items():

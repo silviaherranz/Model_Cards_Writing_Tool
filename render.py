@@ -1,6 +1,9 @@
 from __future__ import annotations
+from datetime import datetime
 import html
 import re
+
+import numpy as np
 import utils
 import streamlit as st
 from typing import (
@@ -116,6 +119,20 @@ def should_render(props: FieldProps, current_task: Optional[str]) -> bool:
         return current_task.strip().lower() in (m.lower() for m in model_types)
     return False
 
+def _coerce_float_np(value: Any, default: float = 0.0) -> float:
+    """Convierte value→float con NumPy, devolviendo default si no es válido."""
+    if isinstance(value, str):
+        s = value.strip()
+        if s == "":
+            return float(default)
+        value = s
+    try:
+        out = float(np.asarray(value, dtype=float))
+    except (TypeError, ValueError):
+        out = float(default)
+    if np.isnan(out) or np.isinf(out):
+        return float(default)
+    return out
 
 def _fingerprint_uploaded(uploaded: Any) -> Optional[Tuple[str, int]]:
     """
@@ -237,6 +254,14 @@ def render_field(key: str, props: FieldProps, section_prefix: str) -> None:
         _render_type_metrics_other(full_key, label)
         return
 
+    if props.get("type") == "date":
+        _render_date_input(full_key, props, key_name=key)
+        return
+    
+    if key == "version_number" and section_prefix == "card_metadata":
+        _render_version_number(full_key, props)
+        return
+
     if props.get("type") == "select":
         if key in ["input_content", "output_content", "model_inputs", "model_outputs"]:
             _render_content_list_select(full_key, props)
@@ -255,6 +280,75 @@ def render_field(key: str, props: FieldProps, section_prefix: str) -> None:
 
     # Fallback: text input
     _render_text_input(full_key, props)
+
+def _render_date_input(full_key: str, props: dict, *, key_name: str) -> None:
+    """
+    Renderiza un date input preservando claves y guardando YYYYMMDD.
+
+    - Clave de valor: full_key        (p.ej. "model_basic_information_creation_date")
+    - Clave de widget: "_" + full_key (p.ej. "_model_basic_information_creation_date")
+    """
+    # Garantiza existencia de la clave "final" (None => sin valor real)
+    if full_key not in st.session_state:
+        st.session_state[full_key] = None
+
+    # Prefill del widget: si el valor guardado es "YYYYMMDD", parsearlo a date
+    stored = st.session_state.get(full_key)
+    widget_value = None
+    if hasattr(stored, "strftime"):  # ya es date/datetime
+        widget_value = stored
+    elif isinstance(stored, str) and len(stored) == 8 and stored.isdigit():
+        try:
+            y, m, d = int(stored[0:4]), int(stored[4:6]), int(stored[6:8])
+            widget_value = datetime(y, m, d)
+        except Exception:
+            widget_value = None
+
+    # Mismo label y límites que antes
+    st.date_input(
+        "Click and select a date",
+        value=widget_value,
+        min_value=datetime(1900, 1, 1),
+        max_value=datetime.today(),
+        key="_" + full_key,
+    )
+
+    # Post-procesado: copiar a la clave final como YYYYMMDD
+    required = bool(props.get("required", False))
+    user_date = st.session_state.get("_" + full_key)
+
+    if user_date:
+        st.session_state[full_key] = user_date.strftime("%Y%m%d")
+    elif required and user_date is not None:
+        st.session_state[full_key] = None
+        if key_name == "evaluation_date":
+            st.error("Date of evaluation is required. Please select a valid date.")
+        else:
+            st.error("Creation date is required. Please select a valid date.")
+    else:
+        st.session_state[full_key] = None
+
+def _render_version_number(full_key: str, props: FieldProps) -> None:
+    """Renderiza un number input especializado para card_metadata.version_number."""
+
+    # asegurar valor persistido
+    utils.load_value(full_key, default=0.0)
+
+    widget_key = "_" + full_key
+    current = st.session_state.get(widget_key, st.session_state.get(full_key, 0.0))
+    st.session_state[widget_key] = _coerce_float_np(current, 0.0)
+
+    st.number_input(
+        label=".",
+        min_value=0.0,
+        max_value=10_000_000_000.0,
+        step=0.1,
+        format="%.1f",   # formato más claro para step=0.1
+        key=widget_key,
+        on_change=utils.store_value,
+        args=[full_key],
+        label_visibility="hidden",
+    )
 
 
 def _validate_format(full_key: str, props: FieldProps) -> None:

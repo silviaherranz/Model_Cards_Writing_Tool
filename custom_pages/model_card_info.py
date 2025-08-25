@@ -18,7 +18,7 @@ def _read_markdown(path: Path) -> str:
 
 
 def model_card_info_render() -> None:
-    from side_bar import sidebar_render
+    from side_bar import sidebar_render  # noqa: PLC0415
 
     sidebar_render()
 
