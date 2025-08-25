@@ -142,41 +142,6 @@ def populate_session_state_from_json(data):
                                     st.session_state[io_full_key] = io_val
                                     st.session_state["_" + io_full_key] = io_val
 
-                    elif (
-                        isinstance(key, str)
-                        and key.lower() == "qualitative_evaluation"
-                        and isinstance(value, dict)
-                    ):
-                        # elif key == "qualitative_evaluation" and isinstance(value, dict):
-                        qprefix = f"evaluation_{name}_qualitative_evaluation_"
-
-                        for simple_field in [
-                            "evaluators_information",
-                            "explainability",
-                            "citation_details",
-                        ]:
-                            qkey = f"{qprefix}{simple_field}"
-                            qval = value.get(simple_field, "")
-                            st.session_state[qkey] = qval
-                            st.session_state["_" + qkey] = qval
-
-                        for block in [
-                            "likert_scoring",
-                            "turing_test",
-                            "time_saving",
-                            "other",
-                        ]:
-                            b = value.get(block, {})
-                            if isinstance(b, dict):
-                                mkey = f"{qprefix}{block}_method"
-                                rkey = f"{qprefix}{block}_results"
-                                mval = b.get("method", "")
-                                rval = b.get("results", "")
-                                st.session_state[mkey] = mval
-                                st.session_state[rkey] = rval
-                                st.session_state["_" + mkey] = mval
-                                st.session_state["_" + rkey] = rval
-
                     elif isinstance(value, list) and key.startswith("type_"):
                         metric_names = [m["name"] for m in value]
                         st.session_state[f"{prefix}{key}_list"] = metric_names

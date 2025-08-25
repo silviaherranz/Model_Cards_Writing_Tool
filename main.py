@@ -16,9 +16,9 @@ def get_state(key, default=None):
 
 @st.cache_data(ttl=3600)
 def get_cached_data():
-    license_df = pd.read_html("https://huggingface.co/docs/hub/repositories-licenses")[
-        0
-    ]
+    license_df = pd.read_html(
+        "https://huggingface.co/docs/hub/repositories-licenses"
+    )[0]
     return pd.Series(
         license_df["License identifier (to use in repo card)"].values,
         index=license_df.Fullname,
@@ -27,7 +27,8 @@ def get_cached_data():
 
 def task_selector_page():
     if "task" not in st.session_state:
-        st.markdown("""
+        st.markdown(
+            """
             <style>
             /* Contenedor central de todo el bloque */
             .radio-center {
@@ -61,31 +62,33 @@ def task_selector_page():
                 margin-bottom: 6px;
             }
             </style>
-        """, unsafe_allow_html=True)
-
-        # Contenedor central
-        st.markdown("<div class='radio-center'>", unsafe_allow_html=True)
-
-        # Título centrado
-        st.markdown(
-            "<h2 style='text-align: center;'>Select the task for your Model Card</h2>",
-            unsafe_allow_html=True
+        """,
+            unsafe_allow_html=True,
         )
 
+        st.markdown("<div class='radio-center'>", unsafe_allow_html=True)
+
+        st.markdown(
+            "<h2 style='text-align: center;'>Select the task for your Model Card</h2>",
+            unsafe_allow_html=True,
+        )
 
         left, center, right = st.columns([1, 2, 1])
 
         with center:
-        # Radio centrado
             selected_task = st.radio(
                 ".",
-                ["Image-to-Image translation", "Segmentation", "Dose prediction", "Other"],
+                [
+                    "Image-to-Image translation",
+                    "Segmentation",
+                    "Dose prediction",
+                    "Other",
+                ],
                 key="task_temp",
-                label_visibility="hidden"
+                label_visibility="hidden",
             )
 
         st.markdown("</div>", unsafe_allow_html=True)
-
 
         if st.button("Continue", use_container_width=True):
             st.session_state["task"] = selected_task
@@ -109,7 +112,9 @@ def load_model_card_page():
     )
 
     uploaded_file = st.file_uploader(
-        "Upload your model card (.json)", type=["json"], label_visibility="collapsed"
+        "Upload your model card (.json)",
+        type=["json"],
+        label_visibility="collapsed",
     )
 
     st.info(
@@ -124,7 +129,9 @@ def load_model_card_page():
                 content = uploaded_file.read().decode("utf-8")
                 json_data = json.loads(content)
                 utils.populate_session_state_from_json(json_data)
-                from custom_pages.card_metadata import card_metadata_render
+                from custom_pages.card_metadata import (  # noqa: PLC0415
+                    card_metadata_render,
+                )
 
                 st.session_state.runpage = card_metadata_render
                 st.success("Model card loaded successfully!")
@@ -133,23 +140,6 @@ def load_model_card_page():
     if st.button("Return to Main Page", use_container_width=True):
         st.session_state.runpage = main
         st.rerun()
-
-
-def extract_learning_architectures_from_state(max_archs=100):
-    learning_architectures = []
-
-    for i in range(max_archs):
-        prefix = f"learning_architecture_{i}_"
-        entry = {}
-        for key, value in st.session_state.items():
-            if key.startswith(prefix):
-                field = key[len(prefix) :]
-                entry[field] = value
-        if entry:
-            entry["id"] = i
-            learning_architectures.append(entry)
-
-    return learning_architectures
 
 
 def extract_evaluations_from_state():
@@ -185,44 +175,15 @@ def extract_evaluations_from_state():
                     "model_basic_information_clearance_approved_by_name", ""
                 )
                 evaluation["evaluated_by_institution"] = st.session_state.get(
-                    "model_basic_information_clearance_approved_by_institution", ""
+                    "model_basic_information_clearance_approved_by_institution",
+                    "",
                 )
-                evaluation["evaluated_by_contact_email"] = st.session_state.get(
-                    "model_basic_information_clearance_approved_by_contact_email", ""
+                evaluation["evaluated_by_contact_email"] = (
+                    st.session_state.get(
+                        "model_basic_information_clearance_approved_by_contact_email",
+                        "",
+                    )
                 )
-        q_prefix = f"{prefix}qualitative_evaluation_"
-
-        def qget(suffix, default=""):
-            return (
-                st.session_state.get(q_prefix + suffix, None)
-                or st.session_state.get("_" + q_prefix + suffix, None)
-                or st.session_state.get("__" + q_prefix + suffix, None)
-                or default
-            )
-
-        qualitative = {
-            "evaluators_information": qget("evaluators_information", ""),
-            "likert_scoring": {
-                "method": qget("likert_scoring_method", ""),
-                "results": qget("likert_scoring_results", ""),
-            },
-            "turing_test": {
-                "method": qget("turing_test_method", ""),
-                "results": qget("turing_test_results", ""),
-            },
-            "time_saving": {
-                "method": qget("time_saving_method", ""),
-                "results": qget("time_saving_results", ""),
-            },
-            "other": {
-                "method": qget("other_method", ""),
-                "results": qget("other_results", ""),
-            },
-            "explainability": qget("explainability", ""),
-            "citation_details": qget("citation_details", ""),
-        }
-
-        evaluation["qualitative_evaluation"] = qualitative
         modality_entries = []
         for key, value in st.session_state.items():
             if key.endswith("model_inputs") and isinstance(value, list):
@@ -271,7 +232,7 @@ def extract_evaluations_from_state():
                     full_key = f"{nested_prefix}{metric_name}_{field}"
                     entry[field] = st.session_state.get(full_key, "")
                 metric_dic[metric_key].append(entry)
-        
+
         evaluation = utils.insert_dict_after(
             evaluation,
             metric_dic,
@@ -296,13 +257,16 @@ def page_switcher(page):
 
 
 def main():
-    st.markdown("""
+    st.markdown(
+        """
         <style>
         .block-container p, .block-container li {
             text-align: justify;
         }
         </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     st.markdown("## About Model Cards")
 

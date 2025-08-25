@@ -165,7 +165,6 @@ def validate_evaluation_forms(schema, current_task):
 
     eval_forms = st.session_state.get("evaluation_forms", [])
     eval_section = schema.get("evaluation_data_methodology_results_commisioning", {})
-    qual_eval_section = schema.get("qualitative_evaluation", {})
     metric_fields = TASK_METRIC_MAP.get(current_task, [])
 
     metric_field_keys = set()
@@ -226,22 +225,6 @@ def validate_evaluation_forms(schema, current_task):
                                 f"{label} (Metric: {metric_short}, Eval: {name})",
                             )
                         )
-
-        qprefix = f"{prefix}qualitative_evaluation_"
-        for key, props in qual_eval_section.items():
-            if props.get("required", False):
-                full_key = f"{qprefix}{key}"
-                value = st.session_state.get(full_key)
-                if is_empty(value):
-                    label = props.get("label", key) or key.replace("_", " ").title()
-                    missing.append(
-                        (
-                            "evaluation_data_methodology_results_commisioning",
-                            f"{label} (Eval: {name})",
-                        )
-                    )
-
-
     return missing
 
 

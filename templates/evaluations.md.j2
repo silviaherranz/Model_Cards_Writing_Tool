@@ -231,32 +231,31 @@ _No input/output technical specifications provided._
 {% endfor %}
 
 #### Qualitative evaluation
-{% set q = ev.qualitative_evaluation | default({}, true) %}
-**Evaluators information:** {{ q.evaluators_information | default("—", true) }}
+**Evaluators information:** {{ ev.evaluators_information | default("—", true) }}
 
 **Likert scoring**
 
-- Method: {{ q.likert_scoring.method | default("—", true) }}
-- Results: {{ q.likert_scoring.results | default("—", true) }}
+- Method: {{ ev.likert_scoring_method | default("—", true) }}
+- Results: {{ ev.likert_scoring_results | default("—", true) }}
 
 **Turing test**
 
-- Method: {{ q.turing_test.method | default("—", true) }}
-- Results: {{ q.turing_test.results | default("—", true) }}
+- Method: {{ ev.turing_test_method | default("—", true) }}
+- Results: {{ ev.turing_test_results | default("—", true) }}
 
 **Time saving**
 
-- Method: {{ q.time_saving.method | default("—", true) }}
-- Results: {{ q.time_saving.results | default("—", true) }}
+- Method: {{ ev.time_saving_method | default("—", true) }}
+- Results: {{ ev.time_saving_results | default("—", true) }}
 
 **Other**
 
-- Method: {{ q.other.method | default("—", true) }}
-- Results: {{ q.other.results | default("—", true) }}
+- Method: {{ ev.other_method | default("—", true) }}
+- Results: {{ ev.other_results | default("—", true) }}
 
-**Explainability:** {{ q.explainability | default("—", true) }}
+**Explainability:** {{ ev.explainability | default("—", true) }}
 
-**Citation details:** {{ q.citation_details | default("—", true) }}
+**Citation details:** {{ ev.citation_details | default("—", true) }}
 
 {% if not loop.last %}
 ---

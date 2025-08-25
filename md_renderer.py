@@ -334,20 +334,6 @@ def render_section_md(section_id: str) -> str:
         raise FileNotFoundError(f"Template not found: {cfg['template']}")
 
 
-""" def render_full_model_card_md(master_template: str = "model_card_master.md.j2") -> str:
-    sections_md = {sid: render_section_md(sid) for sid in SECTION_REGISTRY}
-    
-    appendix_files = build_appendix_files_context()
-
-    return (
-        _env()
-        .get_template(master_template)
-        .render(
-            sections=sections_md,
-            appendix_files=appendix_files,
-        )
-    ) """
-
 def render_full_model_card_md(master_template: str = "model_card_master.md.j2") -> str:
     sections_md = {sid: render_section_md(sid) for sid in SECTION_REGISTRY}
     appendix_files = build_appendix_files_context()

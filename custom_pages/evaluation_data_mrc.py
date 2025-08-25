@@ -141,8 +141,7 @@ class EvaluationSection(TypedDict, total=False):
     other_method: dict[str, Any]
     other_results: dict[str, Any]
 
-
-class QualitativeEvaluationSection(TypedDict, total=False):
+    # qualitative evaluation
     evaluators_information: dict[str, Any]
     likert_scoring_method: dict[str, Any]
     likert_scoring_results: dict[str, Any]
@@ -566,50 +565,50 @@ def _render_quantitative_tabs(section: EvaluationSection, section_prefix: str, c
 
     # ----------------------- Qualitative Evaluation --------------------------
     with quant_qual_tabs[1]:
-        model_card_schema = utils.get_model_card_schema()
-        if "qualitative_evaluation" in model_card_schema:
-            qeval = cast(QualitativeEvaluationSection, model_card_schema["qualitative_evaluation"])
-            q_prefix = f"{section_prefix}_qualitative_evaluation"
+        # model_card_schema = utils.get_model_card_schema()
+        # if "qualitative_evaluation" in model_card_schema:
+        #     qeval = cast(QualitativeEvaluationSection, model_card_schema["qualitative_evaluation"])
+        #     q_prefix = f"{section_prefix}_qualitative_evaluation"
 
             utils.title_header_grey("Qualitative Evaluation")
-            render_field("evaluators_information", qeval["evaluators_information"], q_prefix)
+            render_field("evaluators_information", section["evaluators_information"], section_prefix)
 
             tabs = st.tabs(["Likert Scoring", "Turing Test", "Time Saving", "Other"])
             with tabs[0]:
                 utils.title_header("Likert Scoring")
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    render_field("likert_scoring_method", qeval["likert_scoring_method"], q_prefix)
+                    render_field("likert_scoring_method", section["likert_scoring_method"], section_prefix)
                 with col2:
-                    render_field("likert_scoring_results", qeval["likert_scoring_results"], q_prefix)
+                    render_field("likert_scoring_results", section["likert_scoring_results"], section_prefix)
 
             with tabs[1]:
                 utils.title_header("Turing Test")
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    render_field("turing_test_method", qeval["turing_test_method"], q_prefix)
+                    render_field("turing_test_method", section["turing_test_method"], section_prefix)
                 with col2:
-                    render_field("turing_test_results", qeval["turing_test_results"], q_prefix)
+                    render_field("turing_test_results", section["turing_test_results"], section_prefix)
 
             with tabs[2]:
                 utils.title_header("Time Saving")
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    render_field("time_saving_method", qeval["time_saving_method"], q_prefix)
+                    render_field("time_saving_method", section["time_saving_method"], section_prefix)
                 with col2:
-                    render_field("time_saving_results", qeval["time_saving_results"], q_prefix)
+                    render_field("time_saving_results", section["time_saving_results"], section_prefix)
 
             with tabs[3]:
                 utils.title_header("Other Evaluation")
                 col1, col2 = st.columns([1, 1])
                 with col1:
-                    render_field("other_method", qeval["other_method"], q_prefix)
+                    render_field("qualitative_other_method", section["qualitative_other_method"], section_prefix)
                 with col2:
-                    render_field("other_results", qeval["other_results"], q_prefix)
+                    render_field("qualitative_other_results", section["qualitative_other_results"], section_prefix)
 
             utils.section_divider()
-            render_field("explainability", qeval["explainability"], q_prefix)
-            render_field("citation_details", qeval["citation_details"], q_prefix)
+            render_field("explainability", section["explainability"], section_prefix)
+            render_field("citation_details", section["citation_details"], section_prefix)
 
 
 def _render_one_evaluation_form(form_name: str, eval_schema: EvaluationSection, task: str) -> None:

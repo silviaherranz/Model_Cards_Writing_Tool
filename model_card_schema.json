@@ -5369,9 +5369,7 @@
       "type": "String, Free text format",
       "label": "Results",
       "required": false
-    }
-  },
-  "qualitative_evaluation":{
+    },
     "evaluators_information":{
       "type": "String, Free text format",
       "label": "Evaluators information",
@@ -5415,13 +5413,13 @@
       "description": "Corresponding results for described method.",
       "required": true
     },
-    "other_method":{
+    "qualitative_other_method":{
       "type": "String, Free text format",
       "label": "Method",
       "description": "Metric and method used to evaluate Other end-point",
       "required": false
     },
-    "other_results":{
+    "qualitative_other_results":{
       "type": "String, Free text format",
       "label": "Results",
       "description": "Corresponding results for described method.",
